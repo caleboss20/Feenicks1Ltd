@@ -27,7 +27,7 @@ export const siteConfig = {
     "Feenicks1",
   ],
   /** Browser UI / PWA colour. Keep in sync with `--color-brand-600` in globals.css. */
-  themeColor: "#16a35a",
+  themeColor: "#13934f",
   /** Splash background colour used by the installed PWA. */
-  backgroundColor: "#16a35a",
+  backgroundColor: "#13934f",
 } as const;
