@@ -22,7 +22,7 @@ export const siteConfig = {
     "investing app",
     "portfolio",
     "wealth management",
-    "savings",
+    "stocks",
     "fintech",
     "Feenicks1",
   ],

@@ -9,18 +9,28 @@
 @import "tailwindcss";
 
 /* --------------------------------------------------------------------------
-   Base colour tokens (light mode defaults, overridden for dark mode below)
+   Theme (brand decision): pure white by default on every device, even when
+   the device itself is in dark mode. Dark mode applies ONLY when the user
+   turns it on in Settings, which puts a `.dark` class on <html>
+   (see src/stores/useThemeStore.ts).
+
+   - `dark:` utilities follow that class, NOT the OS setting.
+   - `color-scheme` keeps browser-drawn UI (form controls, scrollbars,
+     autofill) matching the active theme.
    -------------------------------------------------------------------------- */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #0f172a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b1020;
-    --foreground: #e2e8f0;
-  }
+/* Dark theme: a neutral near-black (no blue tint) for a clean, trustworthy feel. */
+.dark {
+  color-scheme: dark;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 /* --------------------------------------------------------------------------
@@ -29,7 +39,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-brand-sans);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -60,6 +70,9 @@
   --animate-logo-sheen: logo-sheen 1.4s ease-in-out both;
   --animate-soft-rise: soft-rise 0.9s var(--ease-out-expo) both;
   --animate-loader-slide: loader-slide 1.4s ease-in-out infinite;
+  --animate-ken-burns: ken-burns 7s ease-out both;
+  /* Duration comes from `--slide-duration`, set inline by the component. */
+  --animate-progress: progress var(--slide-duration, 5s) linear both;
 
   /* Generic entrance: fade in while moving up slightly. */
   @keyframes fade-up {
@@ -113,6 +126,26 @@
       opacity: 1;
       filter: blur(0);
       transform: translateY(0);
+    }
+  }
+
+  /* Slow cinematic zoom-out on onboarding photos ("Ken Burns" effect). */
+  @keyframes ken-burns {
+    from {
+      transform: scale(1.12);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  /* Story progress pill: fills left→right over one slide's duration. */
+  @keyframes progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
     }
   }
 

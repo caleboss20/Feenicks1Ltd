@@ -8,6 +8,8 @@ export const ROUTES = {
   splash: "/",
   onboarding: "/onboarding",
   login: "/login",
+  register: "/register",
+  forgotPassword: "/forgot-password",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
