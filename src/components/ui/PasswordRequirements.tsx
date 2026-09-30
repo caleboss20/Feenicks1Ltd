@@ -32,7 +32,7 @@ export function PasswordRequirements({
         <li
           key={item.label}
           className={cn(
-            "flex items-center gap-3 text-base transition-colors lg:text-sm",
+            "flex items-center gap-3 text-[0.9375rem] transition-colors lg:text-sm",
             item.isMet ? "text-foreground" : "text-neutral-500",
           )}
         >

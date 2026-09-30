@@ -1,3 +1,4 @@
+import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import type { ResetMethod } from "./passwordResetValidation";
 
 /**
@@ -5,14 +6,8 @@ import type { ResetMethod } from "./passwordResetValidation";
  * talk to the server. Screens never `fetch` directly, so connecting the
  * real backend only means changing this file.
  *
- * ─── DEMO MODE (development only) ─────────────────────────────────────────
- * The backend doesn't exist yet. So the flow can be clicked through and
- * reviewed, every function below pretends to succeed while running
- * `npm run dev` (any 4-digit code is accepted). In a production build
- * (`npm run build`) demo mode is OFF and each step shows a clear
- * "not connected" message instead. Nothing is ever faked in production.
- * Delete demo mode once the real API calls are in place.
- * ──────────────────────────────────────────────────────────────────────────
+ * The backend doesn't exist yet, so in DEMO MODE (see config/demoMode.ts)
+ * every step succeeds and any 4-digit code is accepted.
  *
  * Security notes for the real implementation:
  *   - requestResetCode must respond the same way whether or not an account
@@ -22,17 +17,11 @@ import type { ResetMethod } from "./passwordResetValidation";
  *     new password is only accepted together with that token.
  */
 
-const IS_DEMO_MODE = process.env.NODE_ENV === "development";
-const DEMO_DELAY_MS = 700;
-const NOT_CONNECTED_MESSAGE =
-  "Password reset isn't connected to a server yet. Please try again later.";
+const NOT_CONNECTED_MESSAGE = "Something went wrong. Please try again in a moment.";
 
 export type ServiceResult<Data = undefined> =
   | { ok: true; data: Data }
   | { ok: false; message: string };
-
-/** Simulates network time in demo mode, so loading states are visible. */
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** Step 1 (and "Resend code"): send a reset code by SMS or email. */
 export async function requestResetCode(

@@ -8,7 +8,7 @@ import { siteConfig } from "@/config/site";
  */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/api/"] },
+    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/kyc/"] },
     sitemap: `${siteConfig.url}/sitemap.xml`,
   };
 }

@@ -17,7 +17,7 @@ export function maskEmail(email: string): string {
   return `${start}***${end}@${domain}`;
 }
 
-/** "+234 801 234 5678" → "+234 *******78" (country code and last 2 digits stay visible) */
+/** "+233 24 123 4567" → "+233 *******67" (country code and last 2 digits stay visible) */
 export function maskPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
   if (digits.length < 6) return phone;

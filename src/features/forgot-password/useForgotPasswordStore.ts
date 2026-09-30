@@ -4,7 +4,7 @@ import type { ResetMethod } from "./passwordResetValidation";
 /**
  * Forgot-password progress (Zustand), shared by the three steps:
  *
- *   step 1 saves  → method + contact   (e.g. "sms", "+234 801 234 5678")
+ *   step 1 saves  → method + contact   (e.g. "sms", "+233 24 123 4567")
  *   step 2 saves  → resetToken         (after the code is verified)
  *   step 3 uses   → resetToken to save the new password, then clears everything
  *

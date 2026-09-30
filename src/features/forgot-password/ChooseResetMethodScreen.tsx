@@ -31,10 +31,10 @@ import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/config/routes";
 import { cn } from "@/lib/utils";
 import {
-  ForgotPasswordScreenLayout,
+  StepScreenLayout,
   stepActionsClass,
   stepFormClass,
-} from "./ForgotPasswordScreenLayout";
+} from "@/components/layout/StepScreenLayout";
 import { requestResetCode } from "./passwordResetService";
 import {
   chooseResetMethodSchema,
@@ -90,13 +90,13 @@ export function ChooseResetMethodScreen() {
   };
 
   return (
-    <ForgotPasswordScreenLayout title="Forgot Password" backHref={ROUTES.login}>
+    <StepScreenLayout title="Forgot Password" backHref={ROUTES.login}>
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
         className={cn(stepFormClass, "gap-7 lg:gap-6")}
       >
-        <p className="text-lg leading-relaxed text-neutral-600 lg:text-base dark:text-neutral-400">
+        <p className="text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
           Select which contact details we should use to reset your password
         </p>
 
@@ -125,8 +125,8 @@ export function ChooseResetMethodScreen() {
                 {option.icon}
               </span>
               <span className="flex flex-col gap-1">
-                <span className="text-base text-neutral-500 lg:text-sm">{option.title}</span>
-                <span className="text-lg font-bold lg:text-base">{option.description}</span>
+                <span className="text-sm text-neutral-500">{option.title}</span>
+                <span className="text-base font-bold">{option.description}</span>
               </span>
             </label>
           ))}
@@ -136,7 +136,7 @@ export function ChooseResetMethodScreen() {
         <TextField
           key={method}
           label={isSms ? "Phone number" : "Email"}
-          placeholder={isSms ? "Phone number, e.g. +234 801 234 5678" : "Email"}
+          placeholder={isSms ? "Phone number, e.g. +233 24 123 4567" : "Email"}
           type={isSms ? "tel" : "email"}
           inputMode={isSms ? "tel" : "email"}
           autoComplete={isSms ? "tel" : "email"}
@@ -148,11 +148,18 @@ export function ChooseResetMethodScreen() {
         <FormErrorMessage message={formError} />
 
         <div className={stepActionsClass}>
-          <Button type="submit" size="lg" fullWidth disabled={!contact || isSubmitting}>
-            {isSubmitting ? "Sending code…" : "Continue"}
+          <Button
+            type="submit"
+            size="lg"
+            fullWidth
+            disabled={!contact}
+            isLoading={isSubmitting}
+            loadingLabel="Sending code"
+          >
+            Continue
           </Button>
         </div>
       </form>
-    </ForgotPasswordScreenLayout>
+    </StepScreenLayout>
   );
 }

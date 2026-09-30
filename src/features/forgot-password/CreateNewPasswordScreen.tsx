@@ -33,11 +33,11 @@ import { PasswordField } from "@/components/ui/TextField";
 import { ROUTES } from "@/config/routes";
 import { PASSWORD_RULES } from "@/features/auth/authValidation";
 import {
-  ForgotPasswordScreenLayout,
+  StepScreenLayout,
   stepActionsClass,
   stepFormClass,
-} from "./ForgotPasswordScreenLayout";
-import { PasswordResetSuccessDialog } from "./PasswordResetSuccessDialog";
+} from "@/components/layout/StepScreenLayout";
+import { SuccessDialog } from "@/components/ui/SuccessDialog";
 import { saveNewPassword } from "./passwordResetService";
 import { newPasswordSchema, type NewPasswordValues } from "./passwordResetValidation";
 import { useForgotPasswordStore } from "./useForgotPasswordStore";
@@ -92,13 +92,13 @@ export function CreateNewPasswordScreen() {
   };
 
   return (
-    <ForgotPasswordScreenLayout title="Create New Password" backHref={ROUTES.forgotPassword}>
+    <StepScreenLayout title="Create New Password" backHref={ROUTES.forgotPassword}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate className={stepFormClass}>
         {/* Centred vertically in the free space on phones, so the screen
             feels calm and balanced rather than crammed at the top. */}
         <div className="my-auto flex flex-col gap-8 py-8 sm:my-0 sm:py-0 lg:gap-5">
           {/* The header already says "Create New Password", so no second title here. */}
-          <p className="text-lg leading-relaxed text-neutral-600 lg:text-base dark:text-neutral-400">
+          <p className="text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
             Choose a strong password you haven&apos;t used before. You&apos;ll use it to log in to
             your Feenicks1 account.
           </p>
@@ -144,14 +144,22 @@ export function CreateNewPasswordScreen() {
             type="submit"
             size="lg"
             fullWidth
-            disabled={!password || !confirmPassword || isSubmitting || isComplete}
+            disabled={!password || !confirmPassword}
+            isLoading={isSubmitting || isComplete}
+            loadingLabel="Saving your new password"
           >
-            {isSubmitting ? "Saving…" : "Continue"}
+            Continue
           </Button>
         </div>
       </form>
 
-      <PasswordResetSuccessDialog open={isComplete} onFinished={goToLogin} />
-    </ForgotPasswordScreenLayout>
+      <SuccessDialog
+        open={isComplete}
+        title="Congratulations!"
+        message="Your password has been reset. You'll be taken to the log in page in a few seconds."
+        spinnerLabel="Redirecting to log in"
+        onFinished={goToLogin}
+      />
+    </StepScreenLayout>
   );
 }

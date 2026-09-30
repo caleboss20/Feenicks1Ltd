@@ -24,6 +24,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LockIcon, MailIcon } from "@/components/icons";
@@ -32,12 +33,14 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { PasswordField, TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/config/routes";
+import { getRouteAfterLogin } from "@/features/kyc/kycStatus";
 import { logIn } from "./authService";
 import { AuthFooterLink, AuthScreenLayout, authFormSpacing, authSectionSpacing } from "./AuthScreenLayout";
 import { loginSchema, type LoginInput, type LoginValues } from "./authValidation";
 import { SocialLoginButtons } from "./SocialLoginButtons";
 
 export function LoginForm() {
+  const router = useRouter();
   /** Form-level error (e.g. wrong credentials, network failure). */
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -54,7 +57,10 @@ export function LoginForm() {
 
   // Only enable "Log in" once both fields have something in them (as in the design).
   const [email, password] = useWatch({ control, name: ["email", "password"] });
-  const canSubmit = Boolean(email && password) && !isSubmitting;
+  const canSubmit = Boolean(email && password);
+
+  // Keeps the spinner going after success until the next screen has loaded.
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const onSubmit = async (values: LoginValues) => {
     setFormError(null);
@@ -63,7 +69,10 @@ export function LoginForm() {
       setFormError(result.message);
       return;
     }
-    // TODO(auth): go to the dashboard once it exists.
+    // Where to go depends on how far the user is in identity verification:
+    // not verified yet → continue KYC; verified → the app.
+    setIsRedirecting(true);
+    router.push(getRouteAfterLogin(result.kycStatus));
   };
 
   return (
@@ -106,13 +115,21 @@ export function LoginForm() {
 
         <FormErrorMessage message={formError} />
 
-        <Button type="submit" size="lg" fullWidth disabled={!canSubmit} className="mt-1">
-          {isSubmitting ? "Logging in…" : "Log in"}
+        <Button
+          type="submit"
+          size="lg"
+          fullWidth
+          disabled={!canSubmit}
+          isLoading={isSubmitting || isRedirecting}
+          loadingLabel="Logging in"
+          className="mt-1"
+        >
+          Log in
         </Button>
 
         <Link
           href={ROUTES.forgotPassword}
-          className="mx-auto text-base font-semibold text-brand-600 hover:underline lg:text-sm"
+          className="mx-auto text-[0.9375rem] font-semibold text-brand-600 hover:underline lg:text-sm"
         >
           Forgot the password?
         </Link>

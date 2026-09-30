@@ -9,6 +9,12 @@ export const ROUTES = {
   onboarding: "/onboarding",
   login: "/login",
   signUp: "/sign-up",
+  /** Enter the code emailed after sign-up. */
+  verifyEmail: "/verify-email",
+  // Identity verification (KYC), required before the dashboard (steps in order)
+  kycInvestmentGoals: "/kyc/investment-goals",
+  kycVerifyIdentity: "/kyc/verify-identity",
+
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",
   forgotPasswordVerifyCode: "/forgot-password/verify-code",

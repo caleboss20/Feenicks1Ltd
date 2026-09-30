@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
  * @example <Button variant="secondary" type="submit">Save</Button>
  */
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "secondary" | "soft" | "ghost";
 type Size = "md" | "lg";
 
 const base =
@@ -31,7 +31,9 @@ const variants: Record<Variant, string> = {
   /** White with green text: the alternative action. Works on photos and on white. */
   secondary:
     "bg-white text-brand-700 ring-1 ring-black/5 ring-inset hover:bg-brand-50",
-  /** Text-only: low-emphasis actions (e.g. "Skip"). */
+  /** Pale green with green text: a secondary action next to a primary one (e.g. "Skip"). */
+  soft: "bg-brand-50 text-brand-700 hover:bg-brand-100 dark:bg-brand-500/10 dark:text-brand-400",
+  /** Text-only: low-emphasis actions. */
   ghost: "text-current hover:bg-black/5",
 };
 
@@ -58,13 +60,52 @@ export function Button({
   fullWidth,
   className,
   type = "button",
+  isLoading = false,
+  loadingLabel = "Loading",
+  disabled,
+  children,
   ...props
-}: React.ComponentProps<"button"> & StyleProps) {
+}: React.ComponentProps<"button"> &
+  StyleProps & {
+    /**
+     * Shows a small spinner instead of the text and blocks further clicks
+     * (no double submits). The button keeps its full colour while loading.
+     */
+    isLoading?: boolean;
+    /** Read out by screen readers while loading, e.g. "Creating your account". */
+    loadingLabel?: string;
+  }) {
   return (
     <button
       type={type}
-      className={cn(buttonClasses({ variant, size, fullWidth }), className)}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading || undefined}
+      className={cn(
+        buttonClasses({ variant, size, fullWidth }),
+        // A loading button is disabled but shouldn't look faded like an unavailable one.
+        isLoading && "disabled:opacity-100",
+        className,
+      )}
       {...props}
+    >
+      {isLoading ? (
+        <>
+          <ButtonSpinner />
+          <span className="sr-only">{loadingLabel}</span>
+        </>
+      ) : (
+        children
+      )}
+    </button>
+  );
+}
+
+/** Small spinning ring in the button's text colour (white on the green button). */
+function ButtonSpinner() {
+  return (
+    <span
+      aria-hidden
+      className="size-5 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none"
     />
   );
 }

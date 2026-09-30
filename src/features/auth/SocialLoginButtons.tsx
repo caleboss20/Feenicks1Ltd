@@ -23,13 +23,13 @@ export function SocialLoginButtons({ onError }: { onError: (message: string) => 
   return (
     <div>
       {/* Divider: line — text — line */}
-      <div className="flex items-center gap-4 text-base font-semibold text-neutral-500 lg:text-sm">
+      <div className="flex items-center gap-4 text-[0.9375rem] font-semibold text-neutral-500 lg:text-sm">
         <span className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
         or continue with
         <span className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
       </div>
 
-      <div className="mt-6 flex justify-center gap-5 lg:mt-5 lg:gap-4">
+      <div className="mt-5 flex justify-center gap-4">
         {PROVIDERS.map(({ id, label, Icon }) => (
           <button
             key={id}
@@ -37,10 +37,10 @@ export function SocialLoginButtons({ onError }: { onError: (message: string) => 
             onClick={() => handleClick(id)}
             aria-label={label}
             title={label}
-            // Big thumb-friendly targets on phones; more compact on larger screens.
-            className="grid h-15 w-22 cursor-pointer place-items-center rounded-2xl border border-neutral-200 transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400 lg:h-11 lg:w-16 lg:rounded-xl dark:border-white/10 dark:hover:bg-white/5"
+            // 72×48 on phones (above the 44px minimum tap size), compact 64×44 on desktop.
+            className="grid h-12 w-18 cursor-pointer place-items-center rounded-xl border border-neutral-200 transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400 lg:h-11 lg:w-16 dark:border-white/10 dark:hover:bg-white/5"
           >
-            <Icon className="lg:size-5" />
+            <Icon />
           </button>
         ))}
       </div>

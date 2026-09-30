@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
  *
  * All icons:
  *   - draw in `currentColor`, so they take the surrounding text colour
- *   - default to 20px (`size-5`); override with `className="size-6"` etc.
+ *   - are 20px by default; pass a size class to change it, e.g. className="size-6"
  *   - are hidden from screen readers (decorative). The button or field
  *     they sit in must carry the accessible label.
  *
@@ -13,6 +13,16 @@ import { cn } from "@/lib/utils";
  */
 
 type IconProps = { className?: string };
+
+/**
+ * Adds the default size (20px) ONLY when the caller didn't pass a size.
+ * Otherwise both size classes would end up on the icon and CSS order,
+ * not the caller, would decide which one wins.
+ */
+function iconClasses(className?: string) {
+  const hasCustomSize = /(^|\s|:)size-/.test(className ?? "");
+  return cn("shrink-0", !hasCustomSize && "size-5", className);
+}
 
 /** Shared wrapper for the outline (stroke) icons. */
 function StrokeIcon({ className, children }: IconProps & { children: React.ReactNode }) {
@@ -25,7 +35,7 @@ function StrokeIcon({ className, children }: IconProps & { children: React.React
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
-      className={cn("size-5 shrink-0", className)}
+      className={iconClasses(className)}
     >
       {children}
     </svg>
@@ -140,7 +150,7 @@ export function CheckIcon({ className }: IconProps) {
 
 export function GoogleIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className={cn("size-6 shrink-0", className)}>
+    <svg viewBox="0 0 24 24" aria-hidden className={iconClasses(className)}>
       <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8Z" />
       <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3c-1.1.7-2.5 1.2-4.1 1.2-3.1 0-5.8-2.1-6.7-5H1.3v3.1A12 12 0 0 0 12 24Z" />
       <path fill="#FBBC05" d="M5.3 14.3a7.2 7.2 0 0 1 0-4.6V6.6h-4a12 12 0 0 0 0 10.8l4-3.1Z" />
@@ -151,7 +161,7 @@ export function GoogleIcon({ className }: IconProps) {
 
 export function FacebookIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className={cn("size-6 shrink-0", className)}>
+    <svg viewBox="0 0 24 24" aria-hidden className={iconClasses(className)}>
       <path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12Z" />
     </svg>
   );
@@ -159,7 +169,7 @@ export function FacebookIcon({ className }: IconProps) {
 
 export function AppleIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={cn("size-6 shrink-0", className)}>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={iconClasses(className)}>
       <path d="M16.4 12.7c0-2.6 2.1-3.8 2.2-3.9a4.8 4.8 0 0 0-3.8-2c-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9a5 5 0 0 0-4.2 2.6c-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.6 1.3-.1 1.7-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.3 3.1-2.5a11 11 0 0 0 1.4-2.9 4.5 4.5 0 0 1-2.4-4.1ZM13.9 5.1a4.4 4.4 0 0 0 1-3.2 4.6 4.6 0 0 0-3 1.5 4.3 4.3 0 0 0-1.1 3.1 3.8 3.8 0 0 0 3.1-1.4Z" />
     </svg>
   );

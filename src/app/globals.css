@@ -71,6 +71,7 @@
   --animate-soft-rise: soft-rise 0.9s var(--ease-out-expo) both;
   --animate-loader-slide: loader-slide 1.4s ease-in-out infinite;
   --animate-ken-burns: ken-burns 7s ease-out both;
+  --animate-float: float 4s ease-in-out infinite;
   /* Duration comes from `--slide-duration`, set inline by the component. */
   --animate-progress: progress var(--slide-duration, 5s) linear both;
 
@@ -136,6 +137,17 @@
     }
     to {
       transform: scale(1);
+    }
+  }
+
+  /* Gentle up-and-down drift for illustrations, so they feel alive (Lottie-like). */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
     }
   }
 

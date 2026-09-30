@@ -1,0 +1,31 @@
+import { create } from "zustand";
+import type { InvestmentGoalId } from "./investmentGoals";
+
+/**
+ * Identity-verification (KYC) progress (Zustand), shared by the KYC steps.
+ * Each step saves its answers here as the user moves through the flow.
+ *
+ * Kept in memory only: KYC data is personal and sensitive, so it's never
+ * written to browser storage. It's sent to the server by `kycService`.
+ */
+
+type KycState = {
+  /** Answers to "Why are you investing?" (empty if skipped). */
+  investmentGoals: InvestmentGoalId[];
+};
+
+type KycActions = {
+  saveInvestmentGoals: (goals: InvestmentGoalId[]) => void;
+  /** Forget everything, e.g. once verification is submitted. */
+  clear: () => void;
+};
+
+const initialState: KycState = {
+  investmentGoals: [],
+};
+
+export const useKycStore = create<KycState & KycActions>()((set) => ({
+  ...initialState,
+  saveInvestmentGoals: (investmentGoals) => set({ investmentGoals }),
+  clear: () => set(initialState),
+}));

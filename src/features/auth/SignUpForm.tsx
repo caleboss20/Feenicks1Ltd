@@ -24,6 +24,7 @@
  */
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LockIcon, MailIcon } from "@/components/icons";
@@ -36,8 +37,11 @@ import { signUp } from "./authService";
 import { AuthFooterLink, AuthScreenLayout, authFormSpacing, authSectionSpacing } from "./AuthScreenLayout";
 import { signUpSchema, type SignUpInput, type SignUpValues } from "./authValidation";
 import { SocialLoginButtons } from "./SocialLoginButtons";
+import { useSignUpStore } from "./useSignUpStore";
 
 export function SignUpForm() {
+  const router = useRouter();
+  const saveEmail = useSignUpStore((s) => s.saveEmail);
   /** Form-level error (e.g. server/network failure), shown above the button. */
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -54,7 +58,11 @@ export function SignUpForm() {
 
   // Only enable "Sign up" once both fields have something in them (as in the design).
   const [email, password] = useWatch({ control, name: ["email", "password"] });
-  const canSubmit = Boolean(email && password) && !isSubmitting;
+  const canSubmit = Boolean(email && password);
+
+  // Keeps the spinner going after success until the next screen has loaded
+  // (react-hook-form's `isSubmitting` turns off as soon as onSubmit returns).
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const onSubmit = async (values: SignUpValues) => {
     setFormError(null);
@@ -63,7 +71,10 @@ export function SignUpForm() {
       setFormError(result.message);
       return;
     }
-    // TODO(auth): go to the next step of sign-up (e.g. verify email / fill profile).
+    // Next: enter the code emailed to the new account.
+    setIsRedirecting(true);
+    saveEmail(values.email);
+    router.push(ROUTES.verifyEmail);
   };
 
   return (
@@ -108,8 +119,16 @@ export function SignUpForm() {
 
         <FormErrorMessage message={formError} />
 
-        <Button type="submit" size="lg" fullWidth disabled={!canSubmit} className="mt-1">
-          {isSubmitting ? "Signing up…" : "Sign up"}
+        <Button
+          type="submit"
+          size="lg"
+          fullWidth
+          disabled={!canSubmit}
+          isLoading={isSubmitting || isRedirecting}
+          loadingLabel="Creating your account"
+          className="mt-1"
+        >
+          Sign up
         </Button>
       </form>
 

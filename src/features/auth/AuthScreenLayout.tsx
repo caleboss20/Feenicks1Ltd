@@ -42,7 +42,7 @@ export function AuthScreenLayout({ title, backHref, footer, children }: AuthScre
 
       {/* Capped at 40px on large screens so longer titles ("Log in to your")
           don't dominate the narrow form column. */}
-      <h1 className="mt-8 text-[2rem] leading-[1.15] font-bold sm:mt-0 sm:text-[clamp(2rem,5vh,2.5rem)]">
+      <h1 className="mt-8 text-[1.75rem] leading-[1.15] font-bold sm:mt-0 sm:text-[clamp(2rem,5vh,2.5rem)]">
         {title}
       </h1>
 
@@ -50,7 +50,7 @@ export function AuthScreenLayout({ title, backHref, footer, children }: AuthScre
 
       {/* mt-auto pins this to the bottom on phones; on larger screens it
           simply follows the content. */}
-      <p className="mt-auto pt-10 text-center text-base text-neutral-500 sm:mt-[clamp(1.5rem,4.5vh,2.5rem)] sm:pt-0 lg:text-sm">
+      <p className="mt-auto pt-10 text-center text-[0.9375rem] text-neutral-500 sm:mt-[clamp(1.5rem,4.5vh,2.5rem)] sm:pt-0 lg:text-sm">
         {footer}
       </p>
     </div>

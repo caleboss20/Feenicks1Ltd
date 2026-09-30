@@ -176,10 +176,10 @@ export function OnboardingScreen() {
         <div className="w-full max-w-xl lg:my-auto">
           {/* Re-keyed per slide so the text animates in each time. */}
           <div key={slide.id} className="animate-soft-rise motion-reduce:animate-none">
-            <p className="text-base font-semibold tracking-wide uppercase lg:text-brand-600">
+            <p className="text-sm font-semibold tracking-wide uppercase sm:text-base lg:text-brand-600">
               {slide.eyebrow}
             </p>
-            <h2 className="mt-3 text-[2.25rem] leading-[1.2] font-bold text-balance sm:text-5xl lg:mt-4 lg:text-[clamp(2.25rem,6.5vh,3.5rem)] lg:leading-[1.1]">
+            <h2 className="mt-3 text-[2rem] leading-[1.2] font-bold text-balance sm:text-5xl lg:mt-4 lg:text-[clamp(2.25rem,6.5vh,3.5rem)] lg:leading-[1.1]">
               {slide.title}
             </h2>
           </div>
@@ -191,7 +191,7 @@ export function OnboardingScreen() {
               <ArrowRight />
             </ButtonLink>
 
-            <p className="text-center text-[1.0625rem] text-white/90 lg:text-left lg:text-foreground/70">
+            <p className="text-center text-[0.9375rem] text-white/90 sm:text-base lg:text-left lg:text-foreground/70">
               Already have an account?{" "}
               <Link
                 href={ROUTES.login}

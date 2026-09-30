@@ -7,12 +7,6 @@ import { passwordSchema } from "@/features/auth/authValidation";
  * password policy is identical everywhere.
  */
 
-/** How many digits the reset code has (matches the design: 4 boxes). */
-export const RESET_CODE_LENGTH = 4;
-
-/** Seconds the user must wait before asking for a new code. */
-export const RESEND_CODE_AFTER_SECONDS = 60;
-
 export const resetMethodSchema = z.enum(["sms", "email"]);
 /** How the reset code is delivered: by text message or by email. */
 export type ResetMethod = z.infer<typeof resetMethodSchema>;

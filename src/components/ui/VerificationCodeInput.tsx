@@ -133,7 +133,7 @@ export function VerificationCodeInput({
           aria-label={`Digit ${index + 1} of ${length}`}
           aria-invalid={hasError || undefined}
           className={cn(
-            "h-15 w-full rounded-2xl border bg-neutral-100 text-center text-2xl font-bold caret-brand-600 outline-none transition-colors lg:h-13 lg:rounded-xl lg:text-xl dark:bg-white/5",
+            "h-15 w-full rounded-2xl border bg-neutral-100 text-center text-[1.375rem] font-bold caret-brand-600 outline-none transition-colors lg:h-13 lg:rounded-xl lg:text-xl dark:bg-white/5",
             hasError
               ? "border-red-500 bg-red-50 dark:bg-red-500/10"
               : "border-transparent focus:border-brand-600 focus:bg-brand-50 dark:focus:bg-brand-500/10",
