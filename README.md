@@ -4,7 +4,7 @@
 
 **Smart investing, simplified.**
 
-The web app for the Feenicks1 investment platform: a mobile-first experience that feels like a native app, running in any browser.
+Full-stack investment platform for **Feenicks1 Solutions Ltd**: a mobile-first web app that feels like a native app, running in any browser.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=000)
@@ -37,9 +37,18 @@ The web app for the Feenicks1 investment platform: a mobile-first experience tha
 
 ## About
 
-Feenicks1 helps people grow their money through simple, secure investing. This repository contains the **frontend web app**. It is built mobile-first so it looks and behaves like a native app on phones, and adapts to tablets and desktops.
+Feenicks1 is a full-stack investment platform for **Feenicks1 Solutions Ltd**. It helps people grow their money through simple, secure investing. The platform covers:
 
-> **Status:** in active development. The backend is not connected yet (see [Demo mode](#demo-mode)).
+- **User registration and authentication**
+- **Investment plan selection**
+- **Deposits and withdrawals**
+- **Portfolio dashboard**
+- **Transaction history**
+- **Admin panel** for managing users and investments
+
+The app is built mobile-first, so it looks and behaves like a native app on phones and adapts to tablets and desktops.
+
+> **Status:** in active development. The frontend onboarding and authentication screens are built; the backend is not connected yet (see [Demo mode](#demo-mode) and the [Roadmap](#roadmap)).
 
 ## Screens built so far
 
@@ -232,16 +241,20 @@ A production build (`npm run build`) turns demo mode **off**, and screens show a
 - [x] Onboarding
 - [x] Sign up and log in
 - [x] Forgot password flow
-- [ ] Connect the backend and authentication
+- [ ] Backend and authentication (API, secure sessions)
 - [ ] Identity verification (KYC): ID card, selfie, proof of address
 - [ ] Profile setup and security PIN
-- [ ] Dashboard and portfolio
+- [ ] Investment plan selection
+- [ ] Deposits and withdrawals
+- [ ] Portfolio dashboard
+- [ ] Transaction history
 - [ ] Settings, including the dark mode toggle
+- [ ] Admin panel for managing users and investments
 
 ---
 
 <div align="center">
 
-© Feenicks1 Ltd. All rights reserved. This is proprietary software; do not copy or distribute without permission.
+© Feenicks1 Solutions Ltd. All rights reserved. This is proprietary software; do not copy or distribute without permission.
 
 </div>
