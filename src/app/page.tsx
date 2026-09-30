@@ -1,10 +1,12 @@
-// Temporary placeholder so "/" loads and we can confirm the setup works.
-// This will be replaced by the splash screen once the spec is ready.
+import { SplashScreen } from "@/features/splash/SplashScreen";
 
-export default function Home() {
-  return (
-    <main className="flex flex-1 items-center justify-center">
-      <h1 className="text-2xl font-semibold">Feenicks1 setup is ready</h1>
-    </main>
-  );
+/**
+ * Route: `/`
+ *
+ * Route files stay thin: they only compose feature components. The actual
+ * UI lives in `src/features/splash`. Title/description come from the
+ * root layout's default metadata.
+ */
+export default function HomePage() {
+  return <SplashScreen />;
 }

@@ -1,10 +1,31 @@
+/* ==========================================================================
+   Global styles
+   --------------------------------------------------------------------------
+   Tailwind v4 is configured here in CSS (there is no tailwind.config.js).
+   Anything declared inside `@theme` becomes a Tailwind utility, e.g.
+   `--color-brand-600` → `bg-brand-600`, `text-brand-600`, `border-brand-600`.
+   ========================================================================== */
+
 @import "tailwindcss";
 
+/* --------------------------------------------------------------------------
+   Base colour tokens (light mode defaults, overridden for dark mode below)
+   -------------------------------------------------------------------------- */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b1020;
+    --foreground: #e2e8f0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Design tokens → Tailwind utilities
+   -------------------------------------------------------------------------- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,15 +33,54 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  /* Feenicks1 brand green. 600 is the primary brand colour (buttons, links,
+     splash); keep it in sync with `siteConfig.themeColor` (browser UI / PWA). */
+  --color-brand-50: #effcf5;
+  --color-brand-100: #dcf9e8;
+  --color-brand-200: #bbf2d1;
+  --color-brand-300: #86e6ae;
+  --color-brand-400: #4ad487;
+  --color-brand-500: #22bd6a;
+  --color-brand-600: #16a35a;
+  --color-brand-700: #0f8249;
+  --color-brand-800: #11663c;
+  --color-brand-900: #105433;
+  --color-brand-950: #04301b;
+
+  /* Animations → `animate-logo-pop`, `animate-fade-up`, `animate-spin-slow` */
+  --animate-logo-pop: logo-pop 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-up: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-spin-slow: spin 1.2s linear infinite;
+
+  @keyframes logo-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
+/* --------------------------------------------------------------------------
+   Base element styles
+   -------------------------------------------------------------------------- */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
