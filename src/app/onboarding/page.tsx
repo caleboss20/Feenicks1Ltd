@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Onboarding } from "@/features/onboarding/Onboarding";
+import { OnboardingScreen } from "@/features/onboarding/OnboardingScreen";
 
 /**
  * Route: `/onboarding`
@@ -15,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function OnboardingPage() {
-  return <Onboarding />;
+  return <OnboardingScreen />;
 }

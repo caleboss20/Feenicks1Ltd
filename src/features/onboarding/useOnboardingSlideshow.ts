@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * useStoryCarousel: "Instagram Stories"-style carousel behaviour.
+ * useOnboardingSlideshow: "Instagram Stories"-style carousel behaviour.
  *
  * Owns *which* slide is active and *whether* the timer is paused. The timer
  * itself is a CSS animation on the active progress pill: when it finishes,
@@ -26,7 +26,7 @@ const TAP_MAX_MS = 250;
 
 type GestureStart = { x: number; time: number };
 
-export function useStoryCarousel(count: number) {
+export function useOnboardingSlideshow(count: number) {
   const [index, setIndex] = useState(0);
   const [isHeld, setIsHeld] = useState(false);
   const [isTabHidden, setIsTabHidden] = useState(false);

@@ -18,7 +18,7 @@ import { ROUTES } from "@/config/routes";
 import { useAppStore } from "@/stores/useAppStore";
 
 /** How long the splash screen stays visible, in milliseconds. */
-export const SPLASH_DURATION_MS = 87500;
+export const SPLASH_DURATION_MS = 6500;
 
 export function SplashRedirect() {
   const router = useRouter();

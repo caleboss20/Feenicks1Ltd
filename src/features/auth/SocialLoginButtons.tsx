@@ -6,7 +6,7 @@
  */
 
 import { AppleIcon, FacebookIcon, GoogleIcon } from "@/components/icons";
-import { signInWithProvider, type SocialProvider } from "./api";
+import { logInWithProvider, type SocialProvider } from "./authService";
 
 const PROVIDERS: { id: SocialProvider; label: string; Icon: typeof GoogleIcon }[] = [
   { id: "facebook", label: "Continue with Facebook", Icon: FacebookIcon },
@@ -14,9 +14,9 @@ const PROVIDERS: { id: SocialProvider; label: string; Icon: typeof GoogleIcon }[
   { id: "apple", label: "Continue with Apple", Icon: AppleIcon },
 ];
 
-export function SocialSignIn({ onError }: { onError: (message: string) => void }) {
+export function SocialLoginButtons({ onError }: { onError: (message: string) => void }) {
   const handleClick = async (provider: SocialProvider) => {
-    const result = await signInWithProvider(provider);
+    const result = await logInWithProvider(provider);
     if (!result.ok) onError(result.message);
   };
 

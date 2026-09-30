@@ -7,7 +7,7 @@
  *   ┌──────────────────────┐
  *   │ ▬▬▬ ▬▬▬ ▬▬▬          │  ← story progress bars (active one fills in green)
  *   │ F1                   │  ← logo
- *   │    full-bleed photo  │  ← tap / swipe / hold (see useStoryCarousel)
+ *   │    full-bleed photo  │  ← tap / swipe / hold (see useOnboardingSlideshow)
  *   │ EYEBROW              │
  *   │ Big bold headline    │  ← on a dark fade for legibility
  *   │ ( Create account → ) │
@@ -29,7 +29,7 @@
  * One component and one set of elements for both layouts: responsive
  * classes (`lg:*`) move the pieces around, so there's no duplicated markup.
  *
- * Behaviour is in `useStoryCarousel`; content is in `slides.ts`.
+ * Behaviour is in `useOnboardingSlideshow`; content is in `slides.ts`.
  * Both actions mark onboarding as complete (persisted in the Zustand store),
  * so returning users skip straight from the splash to login.
  */
@@ -43,12 +43,12 @@ import { ROUTES } from "@/config/routes";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/stores/useAppStore";
-import { ONBOARDING_SLIDES, SLIDE_DURATION_MS } from "./slides";
-import { useStoryCarousel } from "./useStoryCarousel";
+import { ONBOARDING_SLIDES, SLIDE_DURATION_MS } from "./onboardingSlides";
+import { useOnboardingSlideshow } from "./useOnboardingSlideshow";
 
-export function Onboarding() {
+export function OnboardingScreen() {
   const slides = ONBOARDING_SLIDES;
-  const { index, isPaused, next, goTo, gestureHandlers } = useStoryCarousel(slides.length);
+  const { index, isPaused, next, goTo, gestureHandlers } = useOnboardingSlideshow(slides.length);
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const slide = slides[index];
 
@@ -186,7 +186,7 @@ export function Onboarding() {
 
           {/* Actions stay the same on every slide. */}
           <div className="pointer-events-auto mt-12 flex flex-col gap-5 sm:max-w-md lg:mt-[clamp(1.5rem,5vh,3rem)]">
-            <ButtonLink href={ROUTES.register} onClick={completeOnboarding} size="lg" fullWidth>
+            <ButtonLink href={ROUTES.signUp} onClick={completeOnboarding} size="lg" fullWidth>
               Create a new account
               <ArrowRight />
             </ButtonLink>

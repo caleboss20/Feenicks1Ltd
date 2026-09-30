@@ -91,6 +91,43 @@ export function EyeOffIcon({ className }: IconProps) {
   );
 }
 
+export function PhoneIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <rect x="6" y="2.5" width="12" height="19" rx="3" />
+      <path d="M11 18h2" />
+    </StrokeIcon>
+  );
+}
+
+/** Speech bubble with dots: "text message / SMS". */
+export function MessageIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5Z" />
+      <path d="M8.5 9.5h.01M12 9.5h.01M15.5 9.5h.01" strokeWidth={2.75} />
+    </StrokeIcon>
+  );
+}
+
+export function KeyIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <circle cx="8" cy="15" r="4.5" />
+      <path d="m11.2 11.8 8.3-8.3M16.5 6.5l2.5 2.5M14 9l2 2" />
+    </StrokeIcon>
+  );
+}
+
+export function ShieldCheckIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M12 2.8 4.5 5.6v5.6c0 4.7 3.2 8.6 7.5 10 4.3-1.4 7.5-5.3 7.5-10V5.6Z" />
+      <path d="m8.8 12 2.2 2.2 4.3-4.4" />
+    </StrokeIcon>
+  );
+}
+
 export function CheckIcon({ className }: IconProps) {
   return (
     <StrokeIcon className={className}>

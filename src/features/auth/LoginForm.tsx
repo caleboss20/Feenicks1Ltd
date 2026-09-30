@@ -1,16 +1,16 @@
 "use client";
 
 /**
- * "Login to your Account" screen.
+ * "Log in to your Account" screen.
  *
  *   ←
- *   Login to your
+ *   Log in to your
  *   Account              ← large bold title
  *
  *   [✉ Email          ]  ← grey fields, green when focused
  *   [🔒 Password    👁 ]
  *        ☑ Remember me
- *   (      Sign in      ) ← faded until both fields have a value
+ *   (      Log in       ) ← faded until both fields have a value
  *    Forgot the password?  ← green link
  *
  *   ── or continue with ──
@@ -18,7 +18,7 @@
  *
  *   Don't have an account? Sign up
  *
- * Same frame and components as the sign-up screen (<AuthShell>), so the
+ * Same frame and components as the sign-up screen (<AuthScreenLayout>), so the
  * two always stay visually identical.
  */
 
@@ -29,12 +29,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LockIcon, MailIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { PasswordField, TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/config/routes";
-import { signIn } from "./api";
-import { AuthFooterLink, AuthShell, FormAlert, authFormClass, authSectionClass } from "./AuthShell";
-import { loginSchema, type LoginInput, type LoginValues } from "./schemas";
-import { SocialSignIn } from "./SocialSignIn";
+import { logIn } from "./authService";
+import { AuthFooterLink, AuthScreenLayout, authFormSpacing, authSectionSpacing } from "./AuthScreenLayout";
+import { loginSchema, type LoginInput, type LoginValues } from "./authValidation";
+import { SocialLoginButtons } from "./SocialLoginButtons";
 
 export function LoginForm() {
   /** Form-level error (e.g. wrong credentials, network failure). */
@@ -51,13 +52,13 @@ export function LoginForm() {
     defaultValues: { email: "", password: "", remember: false },
   });
 
-  // Only enable "Sign in" once both fields have something in them (as in the design).
+  // Only enable "Log in" once both fields have something in them (as in the design).
   const [email, password] = useWatch({ control, name: ["email", "password"] });
   const canSubmit = Boolean(email && password) && !isSubmitting;
 
   const onSubmit = async (values: LoginValues) => {
     setFormError(null);
-    const result = await signIn(values);
+    const result = await logIn(values);
     if (!result.ok) {
       setFormError(result.message);
       return;
@@ -66,22 +67,22 @@ export function LoginForm() {
   };
 
   return (
-    <AuthShell
+    <AuthScreenLayout
       backHref={ROUTES.onboarding}
       title={
         <>
-          Login to your
+          Log in to your
           <br />
           Account
         </>
       }
       footer={
         <>
-          Don&apos;t have an account? <AuthFooterLink href={ROUTES.register}>Sign up</AuthFooterLink>
+          Don&apos;t have an account? <AuthFooterLink href={ROUTES.signUp}>Sign up</AuthFooterLink>
         </>
       }
     >
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className={authFormClass}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className={authFormSpacing}>
         <TextField
           label="Email"
           type="email"
@@ -103,10 +104,10 @@ export function LoginForm() {
 
         <Checkbox label="Remember me" className="mx-auto mt-1" {...register("remember")} />
 
-        <FormAlert message={formError} />
+        <FormErrorMessage message={formError} />
 
         <Button type="submit" size="lg" fullWidth disabled={!canSubmit} className="mt-1">
-          {isSubmitting ? "Signing in…" : "Sign in"}
+          {isSubmitting ? "Logging in…" : "Log in"}
         </Button>
 
         <Link
@@ -117,9 +118,9 @@ export function LoginForm() {
         </Link>
       </form>
 
-      <div className={authSectionClass}>
-        <SocialSignIn onError={setFormError} />
+      <div className={authSectionSpacing}>
+        <SocialLoginButtons onError={setFormError} />
       </div>
-    </AuthShell>
+    </AuthScreenLayout>
   );
 }

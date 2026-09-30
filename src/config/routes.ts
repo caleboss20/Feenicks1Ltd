@@ -8,8 +8,11 @@ export const ROUTES = {
   splash: "/",
   onboarding: "/onboarding",
   login: "/login",
-  register: "/register",
+  signUp: "/sign-up",
+  // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",
+  forgotPasswordVerifyCode: "/forgot-password/verify-code",
+  forgotPasswordNewPassword: "/forgot-password/new-password",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];

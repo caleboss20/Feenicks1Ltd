@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
  * Real links are crawlable, can be opened in a new tab, and prefetch the
  * next page automatically.
  *
- * @example <ButtonLink href={ROUTES.register}>Get started</ButtonLink>
+ * @example <ButtonLink href={ROUTES.signUp}>Get started</ButtonLink>
  * @example <Button variant="secondary" type="submit">Save</Button>
  */
 
