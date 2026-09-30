@@ -1,2 +1,1 @@
-# Feenicks1Ltd
-website for Feenicks1 Solutions Ltd, an investment firm. Built to present our services, portfolio options and contact details.
+Full-stack investment platform for Feenicks1 Solutions Ltd. Includes user registration and authentication, investment plan selection, deposits and withdrawals, a portfolio dashboard, transaction history and an admin panel for managing users and investments.
