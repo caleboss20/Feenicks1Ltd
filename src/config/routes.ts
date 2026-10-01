@@ -20,6 +20,9 @@ export const ROUTES = {
   kycProfile: "/kyc/profile",
   kycAllSet: "/kyc/all-set",
 
+  // Account security
+  createPin: "/security/create-pin",
+
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",
   forgotPasswordVerifyCode: "/forgot-password/verify-code",

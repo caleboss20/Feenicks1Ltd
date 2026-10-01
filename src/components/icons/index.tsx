@@ -202,6 +202,16 @@ export function PencilIcon({ className }: IconProps) {
   );
 }
 
+/** Keypad delete key. */
+export function BackspaceIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M8.5 5H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8.5L3 12Z" />
+      <path d="m11 9.5 5 5M16 9.5l-5 5" />
+    </StrokeIcon>
+  );
+}
+
 export function ClockIcon({ className }: IconProps) {
   return (
     <StrokeIcon className={className}>

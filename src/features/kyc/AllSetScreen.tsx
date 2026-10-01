@@ -33,11 +33,8 @@ import { ROUTES } from "@/config/routes";
 import { IDENTITY_DOCUMENTS } from "./identityDocuments";
 import { useKycStore } from "./useKycStore";
 
-/**
- * Where "Secure my account" leads.
- * TODO(kyc): change to "Create New PIN" once it's built.
- */
-const NEXT_SCREEN = ROUTES.login;
+/** Where "Secure my account" leads: creating the security PIN. */
+const NEXT_SCREEN = ROUTES.createPin;
 
 /**
  * Photo shown at the top, matched to the gender given on "Fill Your Profile".
