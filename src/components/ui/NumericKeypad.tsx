@@ -6,7 +6,7 @@
  *     1   2   3
  *     4   5   6
  *     7   8   9
- *         0   ⌫
+ *    (👆)  0   ⌫      ← bottom-left: optional extra key (e.g. fingerprint / Face ID)
  *
  * Used for PINs instead of a text field, so the browser can't save,
  * autofill or suggest the PIN. Large tap targets for thumbs.
@@ -22,10 +22,12 @@ type NumericKeypadProps = {
   onDigit: (digit: string) => void;
   onBackspace: () => void;
   disabled?: boolean;
+  /** Optional key in the empty bottom-left slot, e.g. "Use fingerprint". */
+  extraKey?: { label: string; icon: React.ReactNode; onPress: () => void };
   className?: string;
 };
 
-export function NumericKeypad({ onDigit, onBackspace, disabled, className }: NumericKeypadProps) {
+export function NumericKeypad({ onDigit, onBackspace, disabled, extraKey, className }: NumericKeypadProps) {
   return (
     <div
       role="group"
@@ -33,9 +35,23 @@ export function NumericKeypad({ onDigit, onBackspace, disabled, className }: Num
       className={cn("mx-auto grid w-full max-w-xs grid-cols-3 gap-x-4 gap-y-2", className)}
     >
       {KEYS.map((key) => {
-        // Empty bottom-left slot. Its own key name: using its position (9)
-        // would clash with the "9" button's key.
-        if (key === "") return <span key="empty" aria-hidden />;
+        // Bottom-left slot: empty, or the optional extra key. Its own key
+        // name: using its position (9) would clash with the "9" button's key.
+        if (key === "") {
+          if (!extraKey) return <span key="empty" aria-hidden />;
+          return (
+            <button
+              key="extra"
+              type="button"
+              disabled={disabled}
+              onClick={extraKey.onPress}
+              aria-label={extraKey.label}
+              className="grid h-14 cursor-pointer place-items-center rounded-2xl text-brand-600 transition-[background-color,transform] select-none hover:bg-brand-50 active:scale-95 active:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-40 lg:h-12 dark:hover:bg-brand-500/10 [&_svg]:size-7 touch-manipulation"
+            >
+              {extraKey.icon}
+            </button>
+          );
+        }
 
         const isBackspace = key === "backspace";
         return (

@@ -24,6 +24,8 @@ export const ROUTES = {
   createPin: "/security/create-pin",
   /** Choose a two-factor method (fingerprint, SMS, authenticator app), or skip. */
   twoFactor: "/security/two-factor",
+  /** SMS 2FA setup: enter the code texted to the profile phone number. */
+  twoFactorSms: "/security/two-factor/sms",
   /** Returning users: unlock the app with their PIN after logging in. */
   enterPin: "/security/enter-pin",
 

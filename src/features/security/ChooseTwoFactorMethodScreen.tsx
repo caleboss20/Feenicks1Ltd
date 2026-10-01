@@ -27,38 +27,34 @@
  *   authenticator-app  6-digit code from an app, set up by scanning a QR code.
  */
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthenticatorAppIcon, FingerprintIcon, MessageIcon } from "@/components/icons";
+import { AuthenticatorAppIcon, FaceIdIcon, FingerprintIcon, MessageIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { ROUTES } from "@/config/routes";
-import { useKycStore } from "@/features/kyc/useKycStore";
+import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { maskPhone } from "@/lib/maskContactDetails";
 import { cn } from "@/lib/utils";
+import { guessBiometricKind } from "@/lib/webAuthn";
 import {
   completeAccountSetup,
   registerBiometric,
   sendTwoFactorSetupCode,
   type SecurityResult,
+  type TwoFactorMethod,
 } from "./securityService";
+import { TwoFactorEnabledScreen } from "./TwoFactorEnabledScreen";
 import { useBiometricSupport } from "./useBiometricSupport";
 
-type TwoFactorMethod = "biometric" | "sms" | "authenticator-app";
-
 /**
- * Where each choice leads. This is the last registration step, so all
- * roads lead to the dashboard.
- * TODO(security): point each method at its own setup screen once built
- *   (biometric → success, sms → "Verify your phone", app → QR code); that
- *   screen then calls completeAccountSetup() and goes on to the dashboard.
+ * What "Continue" does for each method:
+ *   biometric          phone's own fingerprint / face prompt here → "Biometrics enabled" → dashboard
+ *   sms                code is texted → Confirmation code screen → "2FA Enabled" → dashboard
+ *   authenticator-app  TODO(security): QR code screen once built; for now finishes and goes on
  */
-const NEXT_SCREEN: Record<TwoFactorMethod, string> = {
-  biometric: ROUTES.dashboard,
-  sms: ROUTES.dashboard,
-  "authenticator-app": ROUTES.dashboard,
-};
-const NEXT_SCREEN_SKIP = ROUTES.dashboard;
+const SMS_SETUP_SCREEN = ROUTES.twoFactorSms;
+const NEXT_SCREEN = ROUTES.dashboard;
 
 /** Ghana's country calling code; profile numbers are stored without it. */
 const GHANA_CALLING_CODE = "+233";
@@ -66,11 +62,14 @@ const GHANA_CALLING_CODE = "+233";
 export function ChooseTwoFactorMethodScreen() {
   const router = useRouter();
   // The phone number from "Fill Your Profile" (9 digits, no leading 0).
-  const phone = useKycStore((s) => s.profile?.phone);
+  const current = useCurrentAccount();
+  const phone = current.status === "signed-in" ? current.account.phone : null;
   const hasBiometrics = useBiometricSupport();
   const [chosen, setChosen] = useState<TwoFactorMethod | null>(null);
   const [action, setAction] = useState<"continue" | "skip" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isBiometricEnabled, setIsBiometricEnabled] = useState(false);
+  const goToNextScreen = useCallback(() => router.replace(NEXT_SCREEN), [router]);
 
   // Until the user picks, preselect the most convenient method the device has.
   const selected: TwoFactorMethod = chosen ?? (hasBiometrics ? "biometric" : "sms");
@@ -90,7 +89,8 @@ export function ChooseTwoFactorMethodScreen() {
       title: "Fingerprint / Face ID",
       description:
         hasBiometrics === false ? "Not on this device" : "Use your phone's own unlock",
-      icon: <FingerprintIcon />,
+      // Face ID icon on iPhones, fingerprint elsewhere (see guessBiometricKind).
+      icon: guessBiometricKind() === "face" ? <FaceIdIcon /> : <FingerprintIcon />,
       unavailable: hasBiometrics === false,
     },
     { id: "sms", title: "SMS code", description: `Codes sent to ${maskedPhone}`, icon: <MessageIcon /> },
@@ -106,20 +106,20 @@ export function ChooseTwoFactorMethodScreen() {
     setError(null);
     setAction("continue");
 
-    // The app method is set up on its own screen (QR code), so no call is needed here.
-    let result: SecurityResult = { ok: true };
+    let result: SecurityResult;
     if (selected === "biometric") result = await registerBiometric();
-    if (selected === "sms") result = await sendTwoFactorSetupCode();
-
-    // TODO(security): move to the method's setup screen once it exists.
-    if (result.ok) result = await completeAccountSetup();
+    else if (selected === "sms") result = await sendTwoFactorSetupCode();
+    else result = await completeAccountSetup(); // TODO(security): authenticator app setup
 
     if (!result.ok) {
       setAction(null);
       setError(result.message);
       return;
     }
-    router.replace(NEXT_SCREEN[selected]);
+    if (selected === "biometric") setIsBiometricEnabled(true);
+    // push for SMS, so Back returns here to pick another method.
+    else if (selected === "sms") router.push(SMS_SETUP_SCREEN);
+    else router.replace(NEXT_SCREEN);
   };
 
   const handleSkip = async () => {
@@ -132,7 +132,7 @@ export function ChooseTwoFactorMethodScreen() {
       return;
     }
     // replace: Back shouldn't return here once they've decided.
-    router.replace(NEXT_SCREEN_SKIP);
+    router.replace(NEXT_SCREEN);
   };
 
   return (
@@ -221,6 +221,14 @@ export function ChooseTwoFactorMethodScreen() {
           </Button>
         </div>
       </div>
+
+      {isBiometricEnabled && (
+        <TwoFactorEnabledScreen
+          title="Biometrics enabled"
+          message="Next time, just use your fingerprint or face to log in and approve withdrawals. Your PIN still works as a backup."
+          onContinue={goToNextScreen}
+        />
+      )}
     </main>
   );
 }

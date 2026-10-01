@@ -24,6 +24,10 @@ import type { AccountStep } from "./accountProgress";
 export type CurrentAccount = {
   email: string;
   firstName: string | null;
+  /** Profile phone: 9 digits, without +233 or the leading 0. */
+  phone: string | null;
+  /** Fingerprint / Face ID is set up and can unlock the app. */
+  hasBiometrics: boolean;
   step: AccountStep;
   /** True once the PIN has been entered (or created) in this session. */
   isUnlocked: boolean;
@@ -58,6 +62,8 @@ export function useCurrentAccount(): CurrentAccountState {
       account: {
         email: account.email,
         firstName: account.fullName?.split(/\s+/)[0] ?? null,
+        phone: account.phone ?? null,
+        hasBiometrics: Boolean(account.biometricCredentialId),
         step: account.step,
         isUnlocked: unlocked === "1",
       },

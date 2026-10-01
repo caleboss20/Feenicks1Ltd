@@ -8,7 +8,13 @@
  *   Welcome back, Kwame! Enter your PIN to continue.
  *        [●][●][ ][ ]
  *        keypad              ← checks automatically after the 4th digit
+ *    (👆)  0   ⌫             ← fingerprint / Face ID key, if set up
  *     Not you? Log out
+ *
+ * Fingerprint / Face ID (if turned on during 2FA setup): the phone's own
+ * prompt opens once automatically, and the bottom-left key opens it again.
+ * The PIN always works as the fallback. The icon/wording is Face ID on
+ * iPhones and fingerprint elsewhere (the website can't see which sensor).
  *
  * After the 4th digit: the screen blurs slightly and a small green spinner
  * with "Authenticating…" shows at the bottom. A correct PIN keeps that up
@@ -25,9 +31,10 @@
  * Log in or to the registration step they reached.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
+import { FaceIdIcon, FingerprintIcon } from "@/components/icons";
 import { NumericKeypad } from "@/components/ui/NumericKeypad";
 import { PinDots } from "@/components/ui/PinDots";
 import { ROUTES } from "@/config/routes";
@@ -36,8 +43,9 @@ import { getRouteForStep } from "@/features/auth/accountProgress";
 import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { cn } from "@/lib/utils";
+import { guessBiometricKind } from "@/lib/webAuthn";
 import { PIN_LENGTH } from "./pinValidation";
-import { verifyPin } from "./securityService";
+import { verifyBiometric, verifyPin } from "./securityService";
 
 /** Where a correct PIN leads. */
 const NEXT_SCREEN = ROUTES.dashboard;
@@ -61,6 +69,8 @@ export function EnterPinScreen() {
   const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isLockedOut, setIsLockedOut] = useState(false);
+  /** The phone's fingerprint / face prompt is open. */
+  const [isAwaitingDevice, setIsAwaitingDevice] = useState(false);
 
   // Send away anyone who shouldn't be here (see the header comment).
   // While authenticating, this screen does its own redirect after the delay.
@@ -72,6 +82,7 @@ export function EnterPinScreen() {
         : current.status === "signed-in" &&
             current.account.isUnlocked &&
             !isAuthenticating &&
+            !isAwaitingDevice &&
             !isLockedOut
           ? NEXT_SCREEN
           : null;
@@ -80,19 +91,51 @@ export function EnterPinScreen() {
     if (redirect) router.replace(redirect);
   }, [redirect, router]);
 
-  const isBusy = isAuthenticating || isLockedOut;
+  const isBusy = isAuthenticating || isAwaitingDevice || isLockedOut;
+  const hasBiometrics = current.status === "signed-in" && current.account.hasBiometrics;
+
+  /** Success (PIN or biometrics): hold "Authenticating…" for a moment, then continue. */
+  const finishUnlock = async (startedAt: number) => {
+    setIsAuthenticating(true);
+    await wait(Math.max(0, AUTHENTICATING_MIN_MS - (Date.now() - startedAt)));
+    router.replace(NEXT_SCREEN); // stay blurred until the dashboard has loaded
+  };
+
+  /**
+   * Fingerprint / Face ID. `automatic`: the first prompt opened on arrival;
+   * if the user closes it, say nothing and let them type the PIN.
+   */
+  const unlockWithBiometrics = async (automatic = false) => {
+    if (isBusy) return;
+    setError(null);
+    // Holds the redirect while the prompt is open: a success marks the session
+    // unlocked, and we still want the "Authenticating…" moment first.
+    setIsAwaitingDevice(true);
+    const startedAt = Date.now();
+    const result = await verifyBiometric();
+    if (result.ok) {
+      await finishUnlock(startedAt);
+      return;
+    }
+    setIsAwaitingDevice(false);
+    if (!automatic) setError(result.message);
+  };
+
+  // Open the fingerprint / face prompt once when the screen appears.
+  const hasPromptedRef = useRef(false);
+  useEffect(() => {
+    // Not while being redirected away. Some browsers (Safari) only allow the
+    // prompt after a tap: then this quietly fails and the key is used instead.
+    if (!hasBiometrics || redirect || hasPromptedRef.current) return;
+    hasPromptedRef.current = true;
+    void unlockWithBiometrics(true);
+  });
 
   const checkPin = async (pin: string) => {
     setIsAuthenticating(true);
     const startedAt = Date.now();
     const result = await verifyPin(pin);
-
-    if (result.ok) {
-      // Hold the "Authenticating…" state for a moment, then continue.
-      await wait(Math.max(0, AUTHENTICATING_MIN_MS - (Date.now() - startedAt)));
-      router.replace(NEXT_SCREEN);
-      return; // stay blurred until the dashboard has loaded
-    }
+    if (result.ok) return finishUnlock(startedAt);
 
     setIsAuthenticating(false);
     setEntry("");
@@ -145,6 +188,8 @@ export function EnterPinScreen() {
   if (current.status !== "signed-in" || redirect) return null;
 
   const firstName = current.account.firstName;
+  const biometricKind = guessBiometricKind();
+  const biometricName = biometricKind === "face" ? "Face ID" : "your fingerprint";
 
   return (
     <>
@@ -177,11 +222,27 @@ export function EnterPinScreen() {
                     : "text-center text-[0.8125rem] text-neutral-500"
                 }
               >
-                {error ?? "Your PIN keeps your account safe."}
+                {error ??
+                  (hasBiometrics
+                    ? `Enter your PIN or use ${biometricName}.`
+                    : "Your PIN keeps your account safe.")}
               </p>
             </div>
 
-            <NumericKeypad onDigit={addDigit} onBackspace={removeDigit} disabled={isBusy} />
+            <NumericKeypad
+              onDigit={addDigit}
+              onBackspace={removeDigit}
+              disabled={isBusy}
+              extraKey={
+                hasBiometrics
+                  ? {
+                      label: biometricKind === "face" ? "Use Face ID" : "Use fingerprint",
+                      icon: biometricKind === "face" ? <FaceIdIcon /> : <FingerprintIcon />,
+                      onPress: () => void unlockWithBiometrics(),
+                    }
+                  : undefined
+              }
+            />
 
             {/* Hidden (space kept) while authenticating: the spinner takes its place. */}
             <p

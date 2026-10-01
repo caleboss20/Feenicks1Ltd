@@ -34,6 +34,10 @@ export type DemoAccount = {
   /** 9 digits, without +233 or the leading 0. */
   phone?: string;
   pin?: SecretHash;
+  /** The two-factor method turned on, if any. */
+  twoFactorMethod?: "sms" | "biometric" | "authenticator-app";
+  /** Fingerprint / Face ID key on this device (WebAuthn credential ID). */
+  biometricCredentialId?: string;
   createdAt: string;
 };
 
@@ -137,7 +141,10 @@ export async function changePassword(email: string, newPassword: string) {
 }
 
 /** Saves details (name, phone…) on an account. */
-export function updateAccount(email: string, details: Partial<Pick<DemoAccount, "fullName" | "gender" | "phone">>) {
+export function updateAccount(
+  email: string,
+  details: Partial<Pick<DemoAccount, "fullName" | "gender" | "phone" | "twoFactorMethod" | "biometricCredentialId">>,
+) {
   const account = findAccount(email);
   if (account) saveAccount({ ...account, ...details });
 }

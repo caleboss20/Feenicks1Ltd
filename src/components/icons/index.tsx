@@ -143,6 +143,17 @@ export function FingerprintIcon({ className }: IconProps) {
   );
 }
 
+/** Face ID: a face inside scanning corners (iPhone face unlock). */
+export function FaceIdIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M3 8V6a3 3 0 0 1 3-3h2M16 3h2a3 3 0 0 1 3 3v2M21 16v2a3 3 0 0 1-3 3h-2M8 21H6a3 3 0 0 1-3-3v-2" />
+      <path d="M9 9v1.5M15 9v1.5M12 9v4h-1" />
+      <path d="M9 16a4.5 4.5 0 0 0 6 0" />
+    </StrokeIcon>
+  );
+}
+
 /** Phone with a lock code on screen: authenticator app (Google Authenticator etc.). */
 export function AuthenticatorAppIcon({ className }: IconProps) {
   return (

@@ -1,5 +1,6 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { confirmWithDevice, createDeviceCredential, randomChallenge } from "@/lib/webAuthn";
 
 /**
  * Account-security service (PIN, later biometrics and 2-step verification):
@@ -55,24 +56,62 @@ export async function sendTwoFactorSetupCode(): Promise<SecurityResult> {
 }
 
 /**
- * Turns on biometric verification (fingerprint / Face ID) for this device.
+ * Turns on fingerprint / Face ID for this device and finishes registration.
+ * Shows the device's own prompt (see lib/webAuthn.ts).
  *
- * Real implementation (WebAuthn passkey):
- *   1. GET a one-time challenge from the server
- *   2. navigator.credentials.create({ publicKey: { challenge, authenticatorSelection:
- *      { authenticatorAttachment: "platform", userVerification: "required" } } })
- *      → the phone shows its own fingerprint / face prompt
- *   3. POST the new public key to the server
- * The fingerprint itself never leaves the phone; the server only stores a public key.
+ * Production flow:
+ *   1. GET a one-time challenge (+ user handle) from the server
+ *   2. createDeviceCredential → the phone prompts, creates a key pair
+ *   3. POST the public key + credential ID to the server
+ * The fingerprint / face never leaves the phone; the server only stores a public key.
  */
 export async function registerBiometric(): Promise<SecurityResult> {
-  // TODO(api): GET /api/security/biometric/challenge → WebAuthn create → POST /api/security/biometric
+  // TODO(api): GET /api/security/biometric/challenge → create → POST /api/security/biometric
+  const email = demo.getSessionEmail();
+  const result = await createDeviceCredential({
+    challenge: randomChallenge(), // TODO(api): from the server
+    userId: crypto.getRandomValues(new Uint8Array(16)), // TODO(api): the server's user handle
+    userName: email ?? "Feenicks1 user",
+    displayName: email ?? "Feenicks1 user",
+  });
+  if (!result.ok) return { ok: false, message: BIOMETRIC_ERRORS[result.reason] };
+
   if (IS_DEMO_MODE) {
-    await wait(DEMO_DELAY_MS);
+    demo.updateSessionAccount({ biometricCredentialId: result.credentialId, twoFactorMethod: "biometric" });
+    demo.advanceSessionStep("complete");
+    // They just confirmed with fingerprint / face: don't ask again right away.
+    demo.markUnlocked();
     return { ok: true };
   }
-  return { ok: false, message: "We couldn't set up biometrics. Please try again in a moment." };
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
 }
+
+/**
+ * Unlocks the app with fingerprint / Face ID instead of the PIN (returning users).
+ * The server must verify the signed challenge before trusting it.
+ */
+export async function verifyBiometric(): Promise<SecurityResult> {
+  // TODO(api): GET /api/security/biometric/challenge → confirm → POST /api/security/biometric/verify
+  const email = demo.getSessionEmail();
+  const credentialId = email ? demo.findAccount(email)?.biometricCredentialId : undefined;
+  if (!credentialId) return { ok: false, message: BIOMETRIC_ERRORS.unsupported };
+
+  const result = await confirmWithDevice({ challenge: randomChallenge(), credentialId });
+  if (!result.ok) return { ok: false, message: BIOMETRIC_ERRORS[result.reason] };
+
+  if (IS_DEMO_MODE) {
+    demo.markUnlocked();
+    return { ok: true };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}
+
+/** What to tell the user when the fingerprint / face prompt doesn't succeed. */
+const BIOMETRIC_ERRORS = {
+  cancelled: "Cancelled. Try again, or choose another option.",
+  unsupported: "Fingerprint / Face ID isn't available on this device.",
+  failed: "That didn't work. Please try again.",
+} as const;
 
 /**
  * Checks the PIN of a returning user (after log-in, before the dashboard).
@@ -103,6 +142,30 @@ export async function verifyPin(pin: string): Promise<SecurityResult> {
 export async function completeAccountSetup(): Promise<SecurityResult> {
   // TODO(api): POST /api/account/setup-complete
   if (IS_DEMO_MODE) {
+    demo.advanceSessionStep("complete");
+    return { ok: true };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}
+
+/** The ways a user can prove it's them (see ChooseTwoFactorMethodScreen). */
+export type TwoFactorMethod = "biometric" | "sms" | "authenticator-app";
+
+/**
+ * SMS 2FA setup, step 2: checks the code texted by sendTwoFactorSetupCode.
+ * A correct code turns on SMS 2FA and finishes registration.
+ *
+ * Server requirements (for the backend):
+ *   - single-use code, expires (~10 min), max ~5 wrong tries then a new code
+ *   - only then mark the phone as verified and SMS 2FA as on
+ */
+export async function confirmTwoFactorSmsCode(code: string): Promise<SecurityResult> {
+  // TODO(api): POST /api/security/two-factor/sms/confirm  { code }
+  // Wrong code → { ok: false, message: "That code isn't right. Check your messages and try again." }
+  void code;
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    demo.updateSessionAccount({ twoFactorMethod: "sms" });
     demo.advanceSessionStep("complete");
     return { ok: true };
   }
