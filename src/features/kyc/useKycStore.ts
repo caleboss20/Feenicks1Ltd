@@ -1,4 +1,9 @@
 import { create } from "zustand";
+import {
+  DEFAULT_NATIONALITY,
+  type CountryCode,
+  type IdentityDocumentId,
+} from "./identityDocuments";
 import type { InvestmentGoalId } from "./investmentGoals";
 
 /**
@@ -12,20 +17,28 @@ import type { InvestmentGoalId } from "./investmentGoals";
 type KycState = {
   /** Answers to "Why are you investing?" (empty if skipped). */
   investmentGoals: InvestmentGoalId[];
+  /** Chosen on "Proof of Residency". */
+  nationality: CountryCode;
+  /** Which ID document the user will photograph next. */
+  identityDocument: IdentityDocumentId | null;
 };
 
 type KycActions = {
   saveInvestmentGoals: (goals: InvestmentGoalId[]) => void;
+  saveResidency: (nationality: CountryCode, identityDocument: IdentityDocumentId) => void;
   /** Forget everything, e.g. once verification is submitted. */
   clear: () => void;
 };
 
 const initialState: KycState = {
   investmentGoals: [],
+  nationality: DEFAULT_NATIONALITY,
+  identityDocument: null,
 };
 
 export const useKycStore = create<KycState & KycActions>()((set) => ({
   ...initialState,
   saveInvestmentGoals: (investmentGoals) => set({ investmentGoals }),
+  saveResidency: (nationality, identityDocument) => set({ nationality, identityDocument }),
   clear: () => set(initialState),
 }));

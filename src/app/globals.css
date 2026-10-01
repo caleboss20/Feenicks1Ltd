@@ -72,6 +72,10 @@
   --animate-loader-slide: loader-slide 1.4s ease-in-out infinite;
   --animate-ken-burns: ken-burns 7s ease-out both;
   --animate-float: float 4s ease-in-out infinite;
+  --animate-scan-beam: scan-beam 2s ease-in-out infinite;
+  --animate-card-flip-out: card-flip-out 0.55s ease-in both;
+  --animate-card-flip-in: card-flip-in 0.55s ease-out both;
+  --animate-pop-in: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   /* Duration comes from `--slide-duration`, set inline by the component. */
   --animate-progress: progress var(--slide-duration, 5s) linear both;
 
@@ -148,6 +152,53 @@
     }
     50% {
       transform: translateY(-8px);
+    }
+  }
+
+  /* ID scan: the green light beam sweeps down the card and back up. */
+  @keyframes scan-beam {
+    0%,
+    100% {
+      top: 0%;
+    }
+    50% {
+      top: 100%;
+    }
+  }
+
+  /* ID card turns on its vertical axis and disappears (after a side is verified)… */
+  @keyframes card-flip-out {
+    from {
+      opacity: 1;
+      transform: perspective(900px) rotateY(0deg);
+    }
+    to {
+      opacity: 0;
+      transform: perspective(900px) rotateY(90deg);
+    }
+  }
+
+  /* …and the next side's empty frame turns in from the other edge. */
+  @keyframes card-flip-in {
+    from {
+      opacity: 0;
+      transform: perspective(900px) rotateY(-90deg);
+    }
+    to {
+      opacity: 1;
+      transform: perspective(900px) rotateY(0deg);
+    }
+  }
+
+  /* Success tick: grows in with a slight bounce. */
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
     }
   }
 

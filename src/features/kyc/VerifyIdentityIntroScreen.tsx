@@ -25,11 +25,8 @@ import { StepScreenLayout, stepActionsClass } from "@/components/layout/StepScre
 import { Button } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
 
-/**
- * Where "Verify Identity" leads.
- * TODO(kyc): change to the Ghana Card step once it's built.
- */
-const NEXT_SCREEN = ROUTES.login;
+/** Where "Verify Identity" leads: choosing nationality and ID document. */
+const NEXT_SCREEN = ROUTES.kycProofOfResidency;
 
 export function VerifyIdentityIntroScreen() {
   const router = useRouter();

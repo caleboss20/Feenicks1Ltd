@@ -14,6 +14,8 @@ export const ROUTES = {
   // Identity verification (KYC), required before the dashboard (steps in order)
   kycInvestmentGoals: "/kyc/investment-goals",
   kycVerifyIdentity: "/kyc/verify-identity",
+  kycProofOfResidency: "/kyc/proof-of-residency",
+  kycUploadId: "/kyc/upload-id",
 
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",
