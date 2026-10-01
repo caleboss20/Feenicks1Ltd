@@ -66,6 +66,12 @@ export function ConfirmAuthenticatorCodeScreen() {
         }}
       />
 
+      {/* Retries leave several "Feenicks1" entries in the app; only the newest matches. */}
+      <p className="mt-6 text-[0.8125rem] leading-relaxed text-neutral-500">
+        Set it up before? Use the <span className="font-semibold">newest</span> Feenicks1
+        entry in your app, and delete any older ones.
+      </p>
+
       {isEnabled && (
         <TwoFactorEnabledScreen
           message="We'll ask for a code from your authenticator app anytime you log in on a new device or withdraw funds."
