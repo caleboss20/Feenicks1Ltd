@@ -32,11 +32,8 @@ import { cn } from "@/lib/utils";
 import { PIN_LENGTH, getPinWeakness } from "./pinValidation";
 import { createPin } from "./securityService";
 
-/**
- * Where the user goes once the PIN is created.
- * TODO(security): change to "Set Your Fingerprint" (or the dashboard) once built.
- */
-const NEXT_SCREEN = ROUTES.login;
+/** Where the user goes once the PIN is created: the offer to turn on 2FA. */
+const NEXT_SCREEN = ROUTES.twoFactor;
 
 type Step = "create" | "confirm";
 

@@ -22,6 +22,8 @@ export const ROUTES = {
 
   // Account security
   createPin: "/security/create-pin",
+  /** Choose a two-factor method (fingerprint, SMS, authenticator app), or skip. */
+  twoFactor: "/security/two-factor",
 
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",

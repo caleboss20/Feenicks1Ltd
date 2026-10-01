@@ -27,3 +27,41 @@ export async function createPin(pin: string): Promise<SecurityResult> {
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
 }
+
+/**
+ * Starts two-factor authentication (2FA) setup: texts a 6-digit code to
+ * the user's phone. Entering it proves they own the number and turns 2FA on.
+ *
+ * Server requirements (for the backend):
+ *   - send to the phone number ON THE ACCOUNT, never one sent by the browser
+ *   - codes: random, single use, expire after ~10 minutes
+ *   - rate-limit sends (e.g. 1 per 60 s, 5 per hour) to stop SMS abuse
+ */
+export async function sendTwoFactorSetupCode(): Promise<SecurityResult> {
+  // TODO(api): POST /api/security/two-factor/sms/start
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    return { ok: true };
+  }
+  return { ok: false, message: "We couldn't send the code. Please try again in a moment." };
+}
+
+/**
+ * Turns on biometric verification (fingerprint / Face ID) for this device.
+ *
+ * Real implementation (WebAuthn passkey):
+ *   1. GET a one-time challenge from the server
+ *   2. navigator.credentials.create({ publicKey: { challenge, authenticatorSelection:
+ *      { authenticatorAttachment: "platform", userVerification: "required" } } })
+ *      → the phone shows its own fingerprint / face prompt
+ *   3. POST the new public key to the server
+ * The fingerprint itself never leaves the phone; the server only stores a public key.
+ */
+export async function registerBiometric(): Promise<SecurityResult> {
+  // TODO(api): GET /api/security/biometric/challenge → WebAuthn create → POST /api/security/biometric
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    return { ok: true };
+  }
+  return { ok: false, message: "We couldn't set up biometrics. Please try again in a moment." };
+}

@@ -129,6 +129,31 @@ export function KeyIcon({ className }: IconProps) {
   );
 }
 
+/** Fingerprint: biometric sign-in (fingerprint / Face ID). */
+export function FingerprintIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M6.2 5.2A8.5 8.5 0 0 1 20.5 11v1.5" />
+      <path d="M3.5 15.5V11c0-1.3.3-2.5.8-3.6" />
+      <path d="M7 19.5c.6-1.6 1-3.3 1-5.5v-3a4 4 0 0 1 8 0v1.5" />
+      <path d="M12 11v3c0 2.8-.7 5.2-2 7.2" />
+      <path d="M16 15.5c0 1.9-.3 3.6-.9 5.2" />
+      <path d="M19.8 16.5a17 17 0 0 1-.6 2.5" />
+    </StrokeIcon>
+  );
+}
+
+/** Phone with a lock code on screen: authenticator app (Google Authenticator etc.). */
+export function AuthenticatorAppIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <rect x="6" y="2.5" width="12" height="19" rx="3" />
+      <path d="M9.5 10.5h.01M12 10.5h.01M14.5 10.5h.01" strokeWidth={2.75} />
+      <path d="M9.5 14.5h5" />
+    </StrokeIcon>
+  );
+}
+
 /* ── Identity documents ───────────────────────────────────────────────── */
 
 /** ID card with a photo and text lines (national ID, Ghana Card). */
