@@ -29,6 +29,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogoMark, LogoWordmark } from "@/components/brand/Logo";
 import { ArrowRight } from "@/components/icons";
+import { stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { Button } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -64,7 +65,7 @@ export function StartInvestingIntroScreen() {
       </header>
 
       <div className="flex flex-1 flex-col sm:flex-none">
-        <h1 className="mt-14 text-[1.625rem] leading-tight font-bold tracking-tight lg:mt-10 lg:text-2xl [@media(max-height:700px)]:mt-8 [@media(max-height:700px)]:text-[1.375rem]">
+        <h1 className="mt-[clamp(1.25rem,6dvh,3.5rem)] text-[1.625rem] leading-tight font-bold tracking-tight lg:mt-10 lg:text-2xl [@media(max-height:700px)]:text-[1.375rem]">
           <span className="block">{firstName ? `${firstName}, let's build` : "Let's build"}</span>
           <span className="block text-brand-700 dark:text-brand-400">your investment plan</span>
         </h1>
@@ -72,12 +73,15 @@ export function StartInvestingIntroScreen() {
           A few quick questions to match you with the right packages.
         </p>
 
-        {/* The picture fills the free space on phones, centred. */}
-        <div className="my-auto flex justify-center py-8 sm:my-0 lg:py-8 [@media(max-height:700px)]:py-4">
-          <GrowingWalletIllustration className="w-72 lg:w-64 [@media(max-height:700px)]:w-56" />
+        {/* The picture fills the free space on phones, centred. Its size
+            follows the VISIBLE screen height (dvh), so title, picture and
+            button all fit even with the browser's address bar showing. */}
+        <div className="my-auto flex justify-center py-[clamp(0.75rem,3dvh,2rem)] sm:my-0 lg:py-8">
+          <GrowingWalletIllustration className="h-[min(15rem,30dvh)] w-auto max-w-full" />
         </div>
 
-        <div className="mt-auto pt-6 sm:mt-6 sm:pt-0">
+        {/* Pinned to the bottom: the button is always fully visible on arrival. */}
+        <div className={stickyActionsClass}>
           <Button
             size="lg"
             fullWidth

@@ -45,6 +45,12 @@ type StepScreenLayoutProps = {
   centeredTitle?: boolean;
   /** Small element on the right of a centred header, e.g. a countdown ring. */
   headerAction?: React.ReactNode;
+  /**
+   * Keep the header (back arrow + title) pinned to the top while the content
+   * scrolls. For longer screens, e.g. questionnaires. Pair with
+   * `stickyActionsClass` so the buttons stay pinned to the bottom too.
+   */
+  stickyHeader?: boolean;
   children: React.ReactNode;
 };
 
@@ -57,6 +63,7 @@ export function StepScreenLayout({
   wide,
   centeredTitle,
   headerAction,
+  stickyHeader,
   children,
 }: StepScreenLayoutProps) {
   const backClassName = cn(
@@ -82,7 +89,12 @@ export function StepScreenLayout({
         wide ? "lg:max-w-2xl" : "lg:max-w-sm",
       )}
     >
-      <header>
+      <header
+        className={cn(
+          stickyHeader &&
+            "sticky top-0 z-20 -mx-6 bg-background px-6 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 sm:static sm:mx-0 sm:px-0 sm:pt-0 sm:pb-0",
+        )}
+      >
         {centeredTitle ? (
           // Equal side columns keep the title exactly centred on the screen.
           <div className="grid min-h-11 grid-cols-[2.75rem_1fr_2.75rem] items-center">
@@ -116,3 +128,12 @@ export const stepFormClass = "flex flex-1 flex-col gap-5 sm:flex-none";
 
 /** Wrapper for a step's main button: pinned to the bottom on phones, spaced normally on desktop. */
 export const stepActionsClass = "mt-auto pt-6 sm:mt-8 sm:pt-0 lg:mt-6";
+
+/**
+ * Like `stepActionsClass`, but the buttons STAY on screen while the content
+ * scrolls (a solid bar stuck to the bottom of the phone screen), so they're
+ * never hidden below the fold, e.g. when the browser's address bar makes
+ * the visible area shorter. Normal spacing on tablets and desktop.
+ */
+export const stickyActionsClass =
+  "sticky bottom-0 z-20 -mx-6 mt-auto bg-background px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:mt-8 sm:px-0 sm:pt-0 sm:pb-0 lg:mt-6";

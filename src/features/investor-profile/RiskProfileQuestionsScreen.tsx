@@ -24,7 +24,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { StepScreenLayout, stepActionsClass } from "@/components/layout/StepScreenLayout";
+import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { Button } from "@/components/ui/Button";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { StepProgress } from "@/components/ui/StepProgress";
@@ -70,6 +70,7 @@ export function RiskProfileQuestionsScreen() {
     <StepScreenLayout
       title="Investor profile"
       centeredTitle
+      stickyHeader
       backHref={ROUTES.startInvesting}
       onBack={stepIndex > 0 ? () => goToStep(stepIndex - 1) : undefined}
     >
@@ -103,17 +104,32 @@ export function RiskProfileQuestionsScreen() {
           </div>
         )}
 
-        <div className={stepActionsClass}>
-          <Button
-            size="lg"
-            fullWidth
-            disabled={!isStepComplete}
-            isLoading={isSaving}
-            loadingLabel="Working out your profile"
-            onClick={handleContinue}
-          >
-            {isLastStep ? "See my profile" : "Continue"}
-          </Button>
+        {/* Pinned to the bottom of the phone screen: always visible, even
+            when the questions don't fit. Back appears from step 2. */}
+        <div className={stickyActionsClass}>
+          <div className={stepIndex > 0 ? "grid grid-cols-[auto_1fr] gap-3" : undefined}>
+            {stepIndex > 0 && (
+              <Button
+                variant="soft"
+                size="lg"
+                onClick={() => goToStep(stepIndex - 1)}
+                disabled={isSaving}
+                className="px-6"
+              >
+                Back
+              </Button>
+            )}
+            <Button
+              size="lg"
+              fullWidth
+              disabled={!isStepComplete}
+              isLoading={isSaving}
+              loadingLabel="Working out your profile"
+              onClick={handleContinue}
+            >
+              {isLastStep ? "See my profile" : "Continue"}
+            </Button>
+          </div>
         </div>
       </div>
     </StepScreenLayout>

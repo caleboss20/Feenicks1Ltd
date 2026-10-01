@@ -25,7 +25,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { StepScreenLayout, stepActionsClass } from "@/components/layout/StepScreenLayout";
+import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -50,7 +50,13 @@ export function RiskProfileResultScreen() {
   const profile = RISK_LEVELS[level];
 
   return (
-    <StepScreenLayout title="Investor profile" centeredTitle>
+    <StepScreenLayout
+      title="Investor profile"
+      centeredTitle
+      stickyHeader
+      // Back to the questions (e.g. to change an answer).
+      backHref={ROUTES.riskProfileQuestions}
+    >
       <div className="flex flex-1 animate-fade-up flex-col [animation-duration:0.5s] motion-reduce:animate-none sm:flex-none">
         <p className="mt-2 text-xs font-semibold tracking-wider text-neutral-500 uppercase">
           Your investor profile
@@ -79,7 +85,7 @@ export function RiskProfileResultScreen() {
           on your answers, not financial advice, and you can retake it anytime.
         </p>
 
-        <div className={stepActionsClass}>
+        <div className={stickyActionsClass}>
           <Button size="lg" fullWidth onClick={() => router.replace(NEXT_SCREEN)}>
             Continue
           </Button>
