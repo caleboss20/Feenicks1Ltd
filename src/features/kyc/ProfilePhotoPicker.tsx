@@ -25,7 +25,7 @@ type ProfilePhotoPickerProps = {
 
 export function ProfilePhotoPicker({ photoUrl, onPhotoSelected, onError }: ProfilePhotoPickerProps) {
   return (
-    <label className="relative mx-auto block size-24 cursor-pointer rounded-full focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-brand-400 lg:size-20">
+    <label className="relative mx-auto block size-20 cursor-pointer rounded-full focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-brand-400 lg:size-20">
       <span className="sr-only">{photoUrl ? "Change profile photo" : "Add a profile photo (optional)"}</span>
       <input
         type="file"
@@ -48,7 +48,7 @@ export function ProfilePhotoPicker({ photoUrl, onPhotoSelected, onError }: Profi
           <img src={photoUrl} alt="Your profile photo" className="size-full object-cover" />
         ) : (
           <span className="grid size-full place-items-center text-neutral-300 dark:text-neutral-500">
-            <UserIcon className="size-12 lg:size-10" />
+            <UserIcon className="size-10" />
           </span>
         )}
       </span>

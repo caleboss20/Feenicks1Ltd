@@ -21,7 +21,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LockIcon } from "@/components/icons";
 import { StepScreenLayout, stepActionsClass } from "@/components/layout/StepScreenLayout";
 import { Button } from "@/components/ui/Button";
 import { NumericKeypad } from "@/components/ui/NumericKeypad";
@@ -153,8 +152,7 @@ export function CreatePinScreen() {
               {error}
             </p>
           ) : (
-            <p className="flex items-center justify-center gap-2 text-center text-[0.8125rem] text-neutral-500">
-              <LockIcon className="size-4 text-brand-600" />
+            <p className="mx-auto max-w-xs text-center text-[0.8125rem] leading-relaxed text-neutral-500">
               You&apos;ll use this PIN to approve investments and withdrawals.
             </p>
           )}

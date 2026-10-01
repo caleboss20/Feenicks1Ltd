@@ -102,9 +102,11 @@ export function FillProfileScreen() {
           onError={setFormError}
         />
 
-        {/* One column on phones; two columns on desktop. */}
-        <div className="grid gap-5 lg:grid-cols-2 lg:gap-x-5 lg:gap-y-5">
+        {/* One column on phones; two columns on desktop. grid-cols-1 (not the
+            default auto column) stops wide fields from stretching the page. */}
+        <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2 lg:gap-x-5 lg:gap-y-4">
           <TextField
+            fieldSize="sm"
             label="Full name"
             placeholder="Full name (as on your ID)"
             autoComplete="name"
@@ -115,6 +117,7 @@ export function FillProfileScreen() {
           />
 
           <TextField
+            fieldSize="sm"
             label="Date of birth"
             type="date"
             max={latestBirthDate()}
@@ -126,13 +129,14 @@ export function FillProfileScreen() {
           />
 
           {/* Gender: two tap options side by side, styled like the inputs. */}
-          <fieldset>
+          {/* min-w-0: fieldsets have a built-in minimum width that can overflow small screens. */}
+          <fieldset className="min-w-0">
             <legend className="sr-only">Gender</legend>
             <div className="grid grid-cols-2 gap-3">
               {GENDERS.map((gender) => (
                 <label
                   key={gender.id}
-                  className="flex h-15 cursor-pointer items-center justify-center rounded-2xl border border-transparent bg-neutral-100 text-[0.9375rem] font-semibold text-neutral-500 transition-colors has-checked:border-brand-600 has-checked:bg-brand-50 has-checked:text-brand-700 has-focus-visible:border-brand-400 lg:h-13 lg:rounded-xl lg:text-sm dark:bg-white/5 dark:has-checked:bg-brand-500/10 dark:has-checked:text-brand-300"
+                  className="flex h-13 cursor-pointer items-center justify-center rounded-xl border border-transparent bg-neutral-100 text-[0.9375rem] font-semibold text-neutral-500 transition-colors has-checked:border-brand-600 has-checked:bg-brand-50 has-checked:text-brand-700 has-focus-visible:border-brand-400 lg:text-sm dark:bg-white/5 dark:has-checked:bg-brand-500/10 dark:has-checked:text-brand-300"
                 >
                   <input type="radio" value={gender.id} className="sr-only" {...register("gender")} />
                   {gender.label}
@@ -147,6 +151,7 @@ export function FillProfileScreen() {
           </fieldset>
 
           <TextField
+            fieldSize="sm"
             label="Email"
             type="email"
             inputMode="email"
@@ -157,6 +162,7 @@ export function FillProfileScreen() {
           />
 
           <TextField
+            fieldSize="sm"
             label="Phone number"
             placeholder="24 123 4567"
             type="tel"
@@ -164,8 +170,8 @@ export function FillProfileScreen() {
             autoComplete="tel-national"
             // Ghana flag and dialling code in front: everyone is in Ghana.
             icon={
-              <span className="flex items-center gap-2 border-r border-neutral-300 pr-3 text-[0.9375rem] font-semibold text-foreground lg:text-sm dark:border-white/15">
-                <CountryFlag code="GH" className="size-5" />
+              <span className="flex items-center gap-1.5 border-r border-neutral-300 pr-2.5 text-sm font-semibold text-foreground dark:border-white/15">
+                <CountryFlag code="GH" className="size-4.5" />
                 +233
               </span>
             }
@@ -175,8 +181,9 @@ export function FillProfileScreen() {
 
           <div>
             <TextField
+              fieldSize="sm"
               label="GhanaPost GPS address"
-              placeholder="GhanaPost GPS address, e.g. GA-123-4567"
+              placeholder="GPS address, e.g. GA-123-4567"
               autoCapitalize="characters"
               autoComplete="off"
               spellCheck={false}
@@ -186,7 +193,7 @@ export function FillProfileScreen() {
             />
             {!errors.digitalAddress && (
               <p className="mt-1.5 px-1 text-[0.8125rem] text-neutral-500">
-                Find your digital address in the GhanaPost GPS app.
+                Find it in the GhanaPost GPS app.
               </p>
             )}
           </div>

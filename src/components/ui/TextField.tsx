@@ -30,6 +30,16 @@ type TextFieldProps = Omit<React.ComponentProps<"input">, "size"> & {
   trailing?: React.ReactNode;
   /** Validation message. When set, the field shows its error state. */
   error?: string;
+  /**
+   * "md" (default): 60px tall on touch screens, 52px on desktop.
+   * "sm": compact 52px everywhere, for long forms on small phones.
+   */
+  fieldSize?: "md" | "sm";
+};
+
+const FIELD_SIZES = {
+  md: "h-15 gap-3 rounded-2xl px-5 lg:h-13 lg:rounded-xl lg:px-4",
+  sm: "h-13 gap-2.5 rounded-xl px-4",
 };
 
 export function TextField({
@@ -37,6 +47,7 @@ export function TextField({
   icon,
   trailing,
   error,
+  fieldSize = "md",
   id,
   className,
   placeholder,
@@ -47,15 +58,17 @@ export function TextField({
   const errorId = `${inputId}-error`;
 
   return (
-    <div className={className}>
+    // min-w-0: never wider than its container (e.g. Android date inputs have
+    // a large built-in minimum width that could push the page sideways).
+    <div className={cn("min-w-0", className)}>
       <label htmlFor={inputId} className="sr-only">
         {label}
       </label>
 
       <div
         className={cn(
-          // 60px tall on touch screens, a compact 52px on desktop.
-          "group flex h-15 items-center gap-3 rounded-2xl border px-5 transition-colors lg:h-13 lg:rounded-xl lg:px-4",
+          "group flex items-center border transition-colors",
+          FIELD_SIZES[fieldSize],
           error
             ? "border-red-500 bg-red-50 dark:bg-red-500/10"
             : "border-transparent bg-neutral-100 focus-within:border-brand-600 focus-within:bg-brand-50 dark:bg-white/5 dark:focus-within:bg-brand-500/10",
@@ -80,7 +93,10 @@ export function TextField({
           placeholder={placeholder ?? label}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
-          className="h-full min-w-0 flex-1 bg-transparent text-base font-medium outline-none placeholder:font-normal placeholder:text-neutral-400"
+          // w-0 + flex-1: the input only takes the space left over, so its
+          // own minimum width can never stretch the field past the screen.
+          // text-base (16px) on purpose: smaller makes iPhones zoom in on tap.
+          className="h-full w-0 min-w-0 flex-1 bg-transparent text-base font-medium outline-none placeholder:font-normal placeholder:text-neutral-400"
           {...inputProps}
         />
 
