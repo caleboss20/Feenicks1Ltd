@@ -34,11 +34,8 @@ import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { GrowingWalletIllustration } from "./GrowingWalletIllustration";
 
-/**
- * Where each button leads.
- * TODO(investor-profile): GET_STARTED → the risk profile questions once built.
- */
-const NEXT_SCREEN_GET_STARTED = ROUTES.dashboard;
+/** Where each button leads. */
+const NEXT_SCREEN_GET_STARTED = ROUTES.riskProfileQuestions;
 const NEXT_SCREEN_SKIP = ROUTES.dashboard;
 
 export function StartInvestingIntroScreen() {

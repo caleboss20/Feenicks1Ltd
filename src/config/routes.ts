@@ -42,6 +42,9 @@ export const ROUTES = {
   dashboard: "/dashboard",
   /** Once, right after registration: intro to the risk profile and packages. */
   startInvesting: "/start-investing",
+  /** Investor risk profile: 3 short steps of questions, then the result. */
+  riskProfileQuestions: "/investor-profile",
+  riskProfileResult: "/investor-profile/result",
 
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",

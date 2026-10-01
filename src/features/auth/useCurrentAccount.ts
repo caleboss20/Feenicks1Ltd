@@ -28,6 +28,8 @@ export type CurrentAccount = {
   phone: string | null;
   /** Fingerprint / Face ID is set up and can unlock the app. */
   hasBiometrics: boolean;
+  /** Investor risk profile, once the questions are answered. */
+  riskLevel: "conservative" | "moderate" | "growth" | null;
   step: AccountStep;
   /** True once the PIN has been entered (or created) in this session. */
   isUnlocked: boolean;
@@ -41,14 +43,20 @@ export type CurrentAccountState =
   | { status: "signed-in"; account: CurrentAccount };
 
 /**
- * Everything the screens react to, as one string ("email|unlockedAt|step|biometrics"),
+ * Everything the screens react to, as one string ("email|unlockedAt|step|biometrics|risk"),
  * so React can tell cheaply whether anything changed.
  */
 function readSnapshot() {
   const email = getSessionEmail();
   if (!email) return "";
   const account = findAccount(email);
-  return [email, getUnlockedAt() ?? 0, account?.step ?? "", account?.biometricCredentialId ? 1 : 0].join("|");
+  return [
+    email,
+    getUnlockedAt() ?? 0,
+    account?.step ?? "",
+    account?.biometricCredentialId ? 1 : 0,
+    account?.riskProfile?.level ?? "",
+  ].join("|");
 }
 
 export function useCurrentAccount(): CurrentAccountState {
@@ -71,6 +79,7 @@ export function useCurrentAccount(): CurrentAccountState {
         firstName: account.fullName?.split(/\s+/)[0] ?? null,
         phone: account.phone ?? null,
         hasBiometrics: Boolean(account.biometricCredentialId),
+        riskLevel: account.riskProfile?.level ?? null,
         step: account.step,
         isUnlocked: unlockedAt !== null,
         unlockedAt,

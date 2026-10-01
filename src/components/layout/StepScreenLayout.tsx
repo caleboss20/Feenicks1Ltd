@@ -30,6 +30,11 @@ type StepScreenLayoutProps = {
    * the user shouldn't go back from (e.g. right after sign-up is complete).
    */
   backHref?: string;
+  /**
+   * Back arrow as a button instead of a link, e.g. "previous question" on a
+   * multi-step screen. Takes priority over `backHref`.
+   */
+  onBack?: () => void;
   /** Show the back arrow on desktop only (hidden on phones and tablets). */
   backOnDesktopOnly?: boolean;
   /** Optional line under the title, e.g. an explanation of the step. */
@@ -46,6 +51,7 @@ type StepScreenLayoutProps = {
 export function StepScreenLayout({
   title,
   backHref,
+  onBack,
   backOnDesktopOnly,
   subtitle,
   wide,
@@ -53,17 +59,20 @@ export function StepScreenLayout({
   headerAction,
   children,
 }: StepScreenLayoutProps) {
-  const backLink = backHref && (
-    <Link
-      href={backHref}
-      aria-label="Back"
-      className={cn(
-        "-ml-2 size-11 shrink-0 place-items-center rounded-full transition-colors hover:bg-foreground/5",
-        backOnDesktopOnly ? "hidden lg:grid" : "grid",
-      )}
-    >
+  const backClassName = cn(
+    "-ml-2 size-11 shrink-0 cursor-pointer place-items-center rounded-full transition-colors hover:bg-foreground/5",
+    backOnDesktopOnly ? "hidden lg:grid" : "grid",
+  );
+  const backLink = onBack ? (
+    <button type="button" onClick={onBack} aria-label="Back" className={backClassName}>
       <ArrowLeft className="size-6" />
-    </Link>
+    </button>
+  ) : (
+    backHref && (
+      <Link href={backHref} aria-label="Back" className={backClassName}>
+        <ArrowLeft className="size-6" />
+      </Link>
+    )
   );
 
   return (

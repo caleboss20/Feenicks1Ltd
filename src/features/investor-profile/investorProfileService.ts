@@ -1,0 +1,44 @@
+import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import * as demo from "@/demo/demoAccounts";
+import {
+  RISK_QUESTIONS,
+  riskLevelForScore,
+  scoreAnswers,
+  type RiskAnswers,
+  type RiskLevel,
+} from "./riskProfileQuestions";
+
+/**
+ * Investor profile service: the single place these screens talk to the server.
+ * In DEMO MODE the result is saved on the demo account (src/demo).
+ */
+
+export type SaveRiskProfileResult =
+  | { ok: true; level: RiskLevel; score: number }
+  | { ok: false; message: string };
+
+/**
+ * Saves the questionnaire and returns the resulting profile.
+ *
+ * Server requirements (for the backend):
+ *   - store every answer with a timestamp (an audit trail for suitability checks)
+ *   - recalculate the score ON THE SERVER; never trust the browser's result
+ *   - ask the user to review their profile periodically (e.g. yearly)
+ */
+export async function saveRiskProfile(answers: RiskAnswers): Promise<SaveRiskProfileResult> {
+  // TODO(api): POST /api/investor-profile  { answers } → { level, score }
+  const isComplete = RISK_QUESTIONS.every((question) => answers[question.id] !== undefined);
+  if (!isComplete) return { ok: false, message: "Please answer every question." };
+
+  const score = scoreAnswers(answers);
+  const level = riskLevelForScore(score);
+
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    demo.updateSessionAccount({
+      riskProfile: { level, score, answeredAt: new Date().toISOString() },
+    });
+    return { ok: true, level, score };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}

@@ -40,6 +40,8 @@ export type DemoAccount = {
   biometricCredentialId?: string;
   /** Authenticator-app secret (Base32). In production: server-side, encrypted. */
   totpSecret?: string;
+  /** Investor risk profile result (see investor-profile/riskProfileQuestions.ts). */
+  riskProfile?: { level: "conservative" | "moderate" | "growth"; score: number; answeredAt: string };
   createdAt: string;
 };
 
@@ -145,7 +147,18 @@ export async function changePassword(email: string, newPassword: string) {
 /** Saves details (name, phone…) on an account. */
 export function updateAccount(
   email: string,
-  details: Partial<Pick<DemoAccount, "fullName" | "gender" | "phone" | "twoFactorMethod" | "biometricCredentialId" | "totpSecret">>,
+  details: Partial<
+    Pick<
+      DemoAccount,
+      | "fullName"
+      | "gender"
+      | "phone"
+      | "twoFactorMethod"
+      | "biometricCredentialId"
+      | "totpSecret"
+      | "riskProfile"
+    >
+  >,
 ) {
   const account = findAccount(email);
   if (account) saveAccount({ ...account, ...details });
