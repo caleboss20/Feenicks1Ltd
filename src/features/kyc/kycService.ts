@@ -66,3 +66,42 @@ export async function verifyIdDocumentSide(
   }
   return SOMETHING_WENT_WRONG;
 }
+
+/** How long the (pretend) face match takes in demo mode. */
+const DEMO_FACE_MATCH_MS = 6000;
+
+/**
+ * How the selfie was taken:
+ *   "camera" = live in the app (preferred)
+ *   "upload" = chosen from the device, offered ONLY when the camera doesn't work
+ *
+ * Product decision: uploads are allowed as a fallback because the backend
+ * verifies the face against the ID document. The server should treat
+ * uploads with extra care (stricter match threshold, liveness on the
+ * image, or manual review), which is why the source is sent along.
+ */
+export type SelfieSource = "camera" | "upload";
+
+/**
+ * Compares the selfie with the photo on the ID document (face match +
+ * liveness check, i.e. a real person, not a photo of a photo).
+ */
+export async function verifySelfieMatch(
+  selfie: Blob,
+  idPhoto: Blob,
+  source: SelfieSource,
+): Promise<KycResult> {
+  // TODO(api): POST /api/kyc/selfie (multipart: selfie, source). The server
+  //   compares it with the stored ID photo through the KYC provider. For Ghana,
+  //   providers such as Smile ID can also check the face against the NIA
+  //   Ghana Card record. Apply the stricter checks above when source = "upload".
+  //   Failure example: { ok: false, message: "We couldn't match your face to your ID. Retake in good light." }
+  void selfie;
+  void idPhoto;
+  void source;
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_FACE_MATCH_MS);
+    return { ok: true };
+  }
+  return SOMETHING_WENT_WRONG;
+}

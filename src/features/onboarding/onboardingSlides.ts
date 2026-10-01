@@ -54,9 +54,9 @@ export const ONBOARDING_SLIDES: OnboardingSlide[] = [
   },
   {
     id: "portfolio",
-    image: "/onboarding/portfolio.jpg",
-    imageAlt: "Woman on a green sofa with a coffee, checking her investment portfolio on her phone",
-    focus: "55% 30%",
+    image: "/onboarding/track-portfolio.jpg",
+    imageAlt: "Young woman smiling at her phone as she checks her investment portfolio",
+    focus: "52% 25%",
     eyebrow: "Track your portfolio",
     title: "Watch every cedi grow, in real time.",
   },

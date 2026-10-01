@@ -16,11 +16,12 @@
  *   ⑤ …and an empty frame turns in: "Upload back of your card" → ②–③ again
  *   ⑥ all sides done → "Continue" is enabled
  *
- * Cards (Ghana Card, Non-Citizen Ghana Card) have a front and back;
+ * Cards (Ghana Card, Driver's Licence, Non-Citizen Ghana Card) have a front and back;
  * a passport only needs its photo page.
  *
  * Privacy: until the backend exists, photos never leave the device. They're
- * only previewed in memory (object URLs) and released when no longer shown.
+ * kept in memory only: rejected photos are freed straight away, verified
+ * ones are handed to the KYC store (which frees them when KYC is reset).
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -44,11 +45,8 @@ const SHOW_SUCCESS_MS = 1400;
 /** Must match the card-flip animations in globals.css (0.55s). */
 const FLIP_MS = 550;
 
-/**
- * Where "Continue" leads.
- * TODO(kyc): change to the selfie step once it's built.
- */
-const NEXT_SCREEN = ROUTES.login;
+/** Where "Continue" leads: the selfie, matched against this ID. */
+const NEXT_SCREEN = ROUTES.kycSelfie;
 
 /**
  * Where we are in the sequence for the current side:
@@ -60,6 +58,7 @@ type Phase = "empty" | "scanning" | "verified" | "flipping-out" | "flipping-in" 
 export function UploadIdScreen() {
   const router = useRouter();
   const document = useKycStore((s) => s.identityDocument);
+  const saveIdPhoto = useKycStore((s) => s.saveIdPhoto);
 
   const [sideIndex, setSideIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>("empty");
@@ -80,13 +79,6 @@ export function UploadIdScreen() {
   useEffect(() => {
     if (!document) router.replace(ROUTES.kycProofOfResidency);
   }, [document, router]);
-
-  // Free each preview image from memory once it's replaced or the screen closes.
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   if (!document) return null;
 
@@ -110,19 +102,26 @@ export function UploadIdScreen() {
     }
 
     // ② Scanning
-    setPreviewUrl(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
     setPhase("scanning");
     const result = await verifyIdDocumentSide(document, side.id, file);
-    if (!isMounted.current) return;
+    if (!isMounted.current) {
+      URL.revokeObjectURL(url); // left mid-scan: free the photo
+      return;
+    }
 
     if (!result.ok) {
+      URL.revokeObjectURL(url); // rejected photo: free it
       setError(result.message);
       setPreviewUrl(null);
       setPhase("empty");
       return;
     }
 
-    // ③ Verified: let the tick sink in
+    // ③ Verified: hand the photo to the KYC store (it now owns and frees it;
+    // the selfie step shows it next to the user's face), then let the tick sink in.
+    saveIdPhoto(side.id, { file, url });
     setPhase("verified");
     await wait(SHOW_SUCCESS_MS);
     if (!isMounted.current) return;

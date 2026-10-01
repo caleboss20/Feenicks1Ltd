@@ -164,6 +164,26 @@ export function CarIcon({ className }: IconProps) {
   );
 }
 
+/* ── Camera ──────────────────────────────────────────────────────────── */
+
+export function CameraIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.8l1.5-2h4.4l1.5 2h1.8A2.5 2.5 0 0 1 20 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5Z" />
+      <circle cx="12" cy="12.5" r="3.5" />
+    </StrokeIcon>
+  );
+}
+
+/** Circular arrow: retake / try again. */
+export function RetakeIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.7M20 4v4.7h-4.7M20 12a8 8 0 0 1-13.7 5.6L4 15.3M4 20v-4.7h4.7" />
+    </StrokeIcon>
+  );
+}
+
 /** Globe: "other country" / international. */
 export function GlobeIcon({ className }: IconProps) {
   return (

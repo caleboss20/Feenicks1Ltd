@@ -70,7 +70,13 @@
   --animate-logo-sheen: logo-sheen 1.4s ease-in-out both;
   --animate-soft-rise: soft-rise 0.9s var(--ease-out-expo) both;
   --animate-loader-slide: loader-slide 1.4s ease-in-out infinite;
-  --animate-ken-burns: ken-burns 7s ease-out both;
+  /* Onboarding slide transition (a blended, directional cross-fade):
+     the new photo glides in from the side WHILE fading in on top, and the
+     old one stays put underneath, softly dimming. The two images blend into
+     each other: smooth, with no dark gaps or hard edges. */
+  --animate-slide-in-from-right: slide-in-from-right 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-slide-in-from-left: slide-in-from-left 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-slide-out: slide-out 0.9s ease-out both;
   --animate-float: float 4s ease-in-out infinite;
   --animate-scan-beam: scan-beam 2s ease-in-out infinite;
   --animate-card-flip-out: card-flip-out 0.55s ease-in both;
@@ -134,13 +140,37 @@
     }
   }
 
-  /* Slow cinematic zoom-out on onboarding photos ("Ken Burns" effect). */
-  @keyframes ken-burns {
+  /* Onboarding slides: the entering photo glides a short way in from the
+     side while fading in, on top of the old one… */
+  @keyframes slide-in-from-right {
     from {
-      transform: scale(1.12);
+      opacity: 0;
+      transform: translateX(12%);
     }
     to {
-      transform: scale(1);
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes slide-in-from-left {
+    from {
+      opacity: 0;
+      transform: translateX(-12%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* …while the leaving photo stays in place underneath and softly dims.
+     It never moves, so the screen is always fully covered: no dark gaps. */
+  @keyframes slide-out {
+    from {
+      filter: brightness(1);
+    }
+    to {
+      filter: brightness(0.75);
     }
   }
 

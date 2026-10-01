@@ -15,10 +15,12 @@
  *   [ (flag)  Ghana                Change ⌄ ]   ← every country; opens the phone's picker
  *
  *   Choose Verification Method                  ← options depend on nationality:
- *   ┌────────────────────────────────────┐        Ghanaian → Ghana Card only
- *   │ (🪪)  Ghana Card                 ◉ │        Others   → Non-Citizen Ghana Card / Passport
- *   │       Required for Ghanaian…       │
+ *   ┌────────────────────────────────────┐        Ghanaian → Ghana Card / Driver's Licence / Passport
+ *   │ (🪪)  Ghana Card                 ◉ │        Others   → Passport / Ghana Card (Non-Citizen)
+ *   │       National ID (recommended)    │
  *   └────────────────────────────────────┘
+ *   │ (🚗)  Driver's Licence           ◯ │
+ *   │ (📘)  Passport                   ◯ │
  *   (              Continue              )
  *
  * The business rules (who can join, which ID is accepted) live in
@@ -27,7 +29,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDownIcon, IdCardIcon, LockIcon, PassportIcon } from "@/components/icons";
+import { CarIcon, ChevronDownIcon, IdCardIcon, LockIcon, PassportIcon } from "@/components/icons";
 import { StepScreenLayout, stepActionsClass, stepFormClass } from "@/components/layout/StepScreenLayout";
 import { Button } from "@/components/ui/Button";
 import { CountryFlag } from "@/components/ui/CountryFlag";
@@ -48,6 +50,7 @@ import { useKycStore } from "./useKycStore";
 /** Icon shown in each document card. */
 const DOCUMENT_ICONS: Record<IdentityDocumentId, React.ReactNode> = {
   "ghana-card": <IdCardIcon />,
+  "drivers-licence": <CarIcon />,
   "non-citizen-ghana-card": <IdCardIcon />,
   passport: <PassportIcon />,
 };
@@ -106,7 +109,7 @@ export function ProofOfResidencyScreen() {
       backHref={ROUTES.kycVerifyIdentity}
     >
       <form onSubmit={handleContinue} noValidate className={stepFormClass}>
-        <div className="flex flex-col gap-6 lg:gap-5">
+        <div className="flex flex-col gap-5">
           {/* ── Country of residence (fixed) ────────────────────────────── */}
           <div>
             <p className={sectionLabelClass}>Country of residence</p>
@@ -172,7 +175,7 @@ export function ProofOfResidencyScreen() {
                   <label
                     key={id}
                     // Flat card: hairline border, green when selected. No shadows.
-                    className="flex cursor-pointer items-center gap-4 rounded-2xl border border-neutral-200 p-4 transition-colors hover:border-neutral-300 has-checked:border-brand-600 has-focus-visible:border-brand-400 dark:border-white/10"
+                    className="flex cursor-pointer items-center gap-4 rounded-2xl border border-neutral-200 px-4 py-3.5 transition-colors hover:border-neutral-300 has-checked:border-brand-600 has-focus-visible:border-brand-400 dark:border-white/10"
                   >
                     <input
                       type="radio"
@@ -182,7 +185,7 @@ export function ProofOfResidencyScreen() {
                       onChange={() => setDocument(id)}
                       className="sr-only"
                     />
-                    <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600 lg:size-11 dark:bg-brand-500/10 [&_svg]:size-6">
+                    <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-500/10 [&_svg]:size-6">
                       {DOCUMENT_ICONS[id]}
                     </span>
                     <span className="flex flex-1 flex-col gap-0.5">

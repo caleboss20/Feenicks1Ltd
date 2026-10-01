@@ -26,15 +26,45 @@ const TAP_MAX_MS = 250;
 
 type GestureStart = { x: number; time: number };
 
+/** 1 = moving forward (new slide enters from the right), -1 = moving back. */
+export type SlideDirection = 1 | -1;
+
+type SlideState = {
+  /** The slide on screen now. */
+  index: number;
+  /** The slide that was on screen before (it animates out); null at start. */
+  previousIndex: number | null;
+  direction: SlideDirection;
+};
+
 export function useOnboardingSlideshow(count: number) {
-  const [index, setIndex] = useState(0);
+  const [slide, setSlide] = useState<SlideState>({
+    index: 0,
+    previousIndex: null,
+    direction: 1,
+  });
   const [isHeld, setIsHeld] = useState(false);
   const [isTabHidden, setIsTabHidden] = useState(false);
   const gesture = useRef<GestureStart | null>(null);
 
-  const next = useCallback(() => setIndex((i) => (i + 1) % count), [count]);
-  const prev = useCallback(() => setIndex((i) => (i - 1 + count) % count), [count]);
-  const goTo = useCallback((i: number) => setIndex(i), []);
+  /** Moves to `target`, remembering where we came from and which way we went. */
+  const moveTo = useCallback((getTarget: (current: number) => number, direction?: SlideDirection) => {
+    setSlide((current) => {
+      const target = getTarget(current.index);
+      if (target === current.index) return current;
+      return {
+        index: target,
+        previousIndex: current.index,
+        direction: direction ?? (target > current.index ? 1 : -1),
+      };
+    });
+  }, []);
+
+  // Next/previous always slide in their own direction, even when wrapping
+  // around (last → first still feels like "next").
+  const next = useCallback(() => moveTo((i) => (i + 1) % count, 1), [count, moveTo]);
+  const prev = useCallback(() => moveTo((i) => (i - 1 + count) % count, -1), [count, moveTo]);
+  const goTo = useCallback((target: number) => moveTo(() => target), [moveTo]);
 
   /* ── Keyboard navigation ─────────────────────────────────────────────── */
   useEffect(() => {
@@ -89,7 +119,9 @@ export function useOnboardingSlideshow(count: number) {
   };
 
   return {
-    index,
+    index: slide.index,
+    previousIndex: slide.previousIndex,
+    direction: slide.direction,
     isPaused: isHeld || isTabHidden,
     next,
     prev,

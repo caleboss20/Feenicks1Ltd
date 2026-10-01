@@ -6,7 +6,7 @@
  * Phones and tablets (< lg): full-screen, story style
  *   ┌──────────────────────┐
  *   │ ▬▬▬ ▬▬▬ ▬▬▬          │  ← story progress bars (active one fills in green)
- *   │ F1                   │  ← logo
+ *   │                      │
  *   │    full-bleed photo  │  ← tap / swipe / hold (see useOnboardingSlideshow)
  *   │ EYEBROW              │
  *   │ Big bold headline    │  ← on a dark fade for legibility
@@ -16,7 +16,7 @@
  *
  * Desktop (≥ lg): two columns, locked to one screen height
  *   ┌─────────────────────┬──────────────────────┐
- *   │ ┌─────────────────┐ │ F1 Feenicks1         │
+ *   │ ┌─────────────────┐ │                      │
  *   │ │                 │ │                      │
  *   │ │ photo carousel  │ │ EYEBROW              │
  *   │ │ (rounded card)  │ │ Big bold headline    │
@@ -29,14 +29,17 @@
  * One component and one set of elements for both layouts: responsive
  * classes (`lg:*`) move the pieces around, so there's no duplicated markup.
  *
- * Behaviour is in `useOnboardingSlideshow`; content is in `slides.ts`.
+ * Changing slides: the next photo glides in from the side while fading in
+ * over the current one (a blended cross-fade, see globals.css).
+ * No logo on this screen, by design: the photos and headlines lead.
+ *
+ * Behaviour is in `useOnboardingSlideshow`; content is in `onboardingSlides.ts`.
  * Both actions mark onboarding as complete (persisted in the Zustand store),
  * so returning users skip straight from the splash to login.
  */
 
 import Image from "next/image";
 import Link from "next/link";
-import { LogoMark, LogoWordmark } from "@/components/brand/Logo";
 import { ArrowRight } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
@@ -48,7 +51,8 @@ import { useOnboardingSlideshow } from "./useOnboardingSlideshow";
 
 export function OnboardingScreen() {
   const slides = ONBOARDING_SLIDES;
-  const { index, isPaused, next, goTo, gestureHandlers } = useOnboardingSlideshow(slides.length);
+  const { index, previousIndex, direction, isPaused, next, goTo, gestureHandlers } =
+    useOnboardingSlideshow(slides.length);
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const slide = slides[index];
 
@@ -72,38 +76,54 @@ export function OnboardingScreen() {
       <div className="absolute inset-0 -z-10 lg:relative lg:inset-auto lg:z-0 lg:m-5 lg:overflow-hidden lg:rounded-[2rem]">
         {/* Tap / swipe / hold surface. touch-pan-y keeps vertical scrolling
             native while we handle horizontal swipes ourselves. */}
-        <div className="absolute inset-0 touch-pan-y select-none" {...gestureHandlers}>
-          {slides.map((s, i) => {
-            const isActive = i === index;
-            return (
-              // All photos stay mounted and cross-fade via opacity, so
-              // switching slides never flashes or waits on a download.
-              <div
-                key={s.id}
-                aria-hidden={!isActive}
-                className={cn(
-                  "absolute inset-0 transition-opacity duration-700 ease-out",
-                  isActive ? "opacity-100" : "opacity-0",
-                )}
-              >
-                <Image
-                  src={s.image}
-                  alt={s.imageAlt}
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  // First photo is the page's largest paint → load it immediately.
-                  // The rest load eagerly too, so they're ready before their turn.
-                  {...(i === 0 ? { preload: true } : { loading: "eager" as const })}
-                  draggable={false}
+        <div className="absolute inset-0 touch-pan-y overflow-hidden select-none" {...gestureHandlers}>
+          {/* The photos get their OWN layer (`isolate`): their z-20 / z-10
+              stacking only applies among themselves, so they can never cover
+              the dark fades, progress bars or logo painted after them. */}
+          <div className="absolute inset-0 isolate">
+            {slides.map((s, i) => {
+              const isActive = i === index;
+              const isLeaving = i === previousIndex;
+              const isForward = direction === 1;
+              return (
+                // All photos stay mounted (so switching never waits on a
+                // download). Only two are visible at once during a change:
+                //   the new one glides in from the side while fading in, ON TOP;
+                //   the old one stays put UNDERNEATH and softly dims,
+                // so the two images blend smoothly into each other.
+                // Direction follows the user: forward = glides in from the right.
+                <div
+                  key={s.id}
+                  aria-hidden={!isActive}
                   className={cn(
-                    "object-cover",
-                    isActive && "animate-ken-burns motion-reduce:animate-none",
+                    "absolute inset-0 bg-black motion-reduce:animate-none",
+                    isActive && "z-20",
+                    isLeaving && "z-10",
+                    !isActive && !isLeaving && "invisible",
+                    // No animation on first load (previousIndex is null).
+                    isActive && previousIndex !== null &&
+                      (isForward ? "animate-slide-in-from-right" : "animate-slide-in-from-left"),
+                    isLeaving && "animate-slide-out",
+                    // Reduced motion: the old slide simply disappears.
+                    isLeaving && "motion-reduce:invisible",
                   )}
-                  style={{ objectPosition: s.focus }}
-                />
-              </div>
-            );
-          })}
+                >
+                  <Image
+                    src={s.image}
+                    alt={s.imageAlt}
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    // First photo is the page's largest paint → load it immediately.
+                    // The rest load eagerly too, so they're ready before their turn.
+                    {...(i === 0 ? { preload: true } : { loading: "eager" as const })}
+                    draggable={false}
+                    className="object-cover"
+                    style={{ objectPosition: s.focus }}
+                  />
+                </div>
+              );
+            })}
+          </div>
 
           {/* Neutral dark fades (no colour tint) so the bars and white text
               stay readable on any photo. On desktop the text sits on the
@@ -154,10 +174,6 @@ export function OnboardingScreen() {
               </button>
             ))}
           </div>
-
-          {/* White mark on the photo; hidden on desktop, where the green
-              logo sits on the white panel instead. */}
-          <LogoMark className="pointer-events-none mt-4 h-9 drop-shadow-md lg:hidden" />
         </div>
       </div>
 
@@ -167,12 +183,6 @@ export function OnboardingScreen() {
           anywhere still changes slides; the actions re-enable clicks.
           Desktop: right column on white, content vertically centred. */}
       <div className="pointer-events-none mt-auto px-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-10 lg:pointer-events-auto lg:mt-0 lg:flex lg:min-h-0 lg:flex-col lg:px-16 lg:py-8 xl:px-24">
-        {/* Desktop-only brand lockup (green, on white). */}
-        <div className="hidden items-center gap-3 lg:flex">
-          <LogoMark tone="brand" decorative className="h-10" />
-          <LogoWordmark tone="brand" className="h-6" />
-        </div>
-
         <div className="w-full max-w-xl lg:my-auto">
           {/* Re-keyed per slide so the text animates in each time. */}
           <div key={slide.id} className="animate-soft-rise motion-reduce:animate-none">

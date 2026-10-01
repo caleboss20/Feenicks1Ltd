@@ -6,10 +6,14 @@
  *      live in Ghana. Country of residence is therefore fixed to Ghana.
  *   2. Nationality can be any country (foreigners living in Ghana are welcome).
  *   3. Accepted ID depends on nationality:
- *        Ghanaian citizens → Ghana Card only (Bank of Ghana requires the
- *                            Ghana Card for financial services)
- *        Everyone else     → Non-Citizen Ghana Card (issued by the NIA to
- *                            foreign residents) or Passport
+ *        Ghanaian citizens → Ghana Card (recommended), Driver's Licence or Passport
+ *        Everyone else     → Passport (pre-selected) or Non-Citizen Ghana Card
+ *                            (issued by the NIA to foreigners living in Ghana)
+ *
+ *      ⚠️ COMPLIANCE CHECK: the Bank of Ghana (2022) made the Ghana Card the
+ *      primary ID for financial services. Confirm with compliance that our
+ *      SEC licence allows Ghanaians to verify with a Driver's Licence or
+ *      Passport. If not, edit getAcceptedDocuments() below; nothing else changes.
  *
  * Content lives here, separate from the screen, so the rules can change
  * without touching the UI. Codes/ids are what gets saved (keep them stable);
@@ -55,15 +59,21 @@ export const COUNTRIES: { code: CountryCode; name: string }[] = [
 export const IDENTITY_DOCUMENTS = {
   "ghana-card": {
     label: "Ghana Card",
-    hint: "Required for Ghanaian citizens",
+    hint: "National ID (recommended)",
   },
+  "drivers-licence": {
+    label: "Driver's Licence",
+    hint: "Valid DVLA licence",
+  },
+  // Official name "Non-Citizen Ghana Card": issued by the NIA to foreigners
+  // who live in Ghana legally. Labelled so it's clearly a Ghana Card variant.
   "non-citizen-ghana-card": {
-    label: "Non-Citizen Ghana Card",
-    hint: "Issued by the NIA to foreign residents",
+    label: "Ghana Card (Non-Citizen)",
+    hint: "For foreigners living in Ghana, issued by the NIA",
   },
   passport: {
     label: "Passport",
-    hint: "Valid passport from your country",
+    hint: "Valid international passport",
   },
 } as const;
 
@@ -93,5 +103,9 @@ export function getDocumentSides(document: IdentityDocumentId): DocumentSide[] {
 
 /** Which documents a person can verify with, based on their nationality. */
 export function getAcceptedDocuments(nationality: CountryCode): IdentityDocumentId[] {
-  return nationality === "GH" ? ["ghana-card"] : ["non-citizen-ghana-card", "passport"];
+  // Listed in the order shown on screen; the first one is pre-selected.
+  return nationality === "GH"
+    ? ["ghana-card", "drivers-licence", "passport"]
+    : // Foreigners: passport first (everyone has one); the NIA card is an option.
+      ["passport", "non-citizen-ghana-card"];
 }
