@@ -1,10 +1,12 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import * as demo from "@/demo/demoAccounts";
 
 /**
  * Account-security service (PIN, later biometrics and 2-step verification):
  * the single place these screens talk to the server.
  *
- * In DEMO MODE (see config/demoMode.ts) every call succeeds.
+ * In DEMO MODE (see config/demoMode.ts) every call succeeds, and the PIN
+ * (hashed) and progress are saved in this browser (src/demo).
  */
 
 export type SecurityResult = { ok: true } | { ok: false; message: string };
@@ -20,9 +22,15 @@ export type SecurityResult = { ok: true } | { ok: false; message: string };
  */
 export async function createPin(pin: string): Promise<SecurityResult> {
   // TODO(api): POST /api/security/pin  { pin }
-  void pin;
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
+    const email = demo.getSessionEmail();
+    if (email) {
+      await demo.setPin(email, pin);
+      demo.advanceStep(email, "two-factor");
+    }
+    // They just proved who they are, so no need to ask for the PIN again now.
+    demo.markUnlocked();
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
@@ -64,4 +72,39 @@ export async function registerBiometric(): Promise<SecurityResult> {
     return { ok: true };
   }
   return { ok: false, message: "We couldn't set up biometrics. Please try again in a moment." };
+}
+
+/**
+ * Checks the PIN of a returning user (after log-in, before the dashboard).
+ *
+ * Server requirements (for the backend):
+ *   - compare against the stored hash only
+ *   - count wrong attempts ON THE SERVER and lock the session after a few
+ *     (the screen's own counter is only a courtesy; it can be bypassed)
+ */
+export async function verifyPin(pin: string): Promise<SecurityResult> {
+  // TODO(api): POST /api/security/pin/verify  { pin }
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    const email = demo.getSessionEmail();
+    if (!email || !(await demo.checkPin(email, pin))) {
+      return { ok: false, message: "Wrong PIN. Please try again." };
+    }
+    demo.markUnlocked();
+    return { ok: true };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}
+
+/**
+ * Marks registration as finished: called once the user has set up 2FA or
+ * chosen to skip it. From now on, log-in leads to Enter PIN → dashboard.
+ */
+export async function completeAccountSetup(): Promise<SecurityResult> {
+  // TODO(api): POST /api/account/setup-complete
+  if (IS_DEMO_MODE) {
+    demo.advanceSessionStep("complete");
+    return { ok: true };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
 }

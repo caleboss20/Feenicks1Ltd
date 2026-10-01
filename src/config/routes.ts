@@ -24,6 +24,11 @@ export const ROUTES = {
   createPin: "/security/create-pin",
   /** Choose a two-factor method (fingerprint, SMS, authenticator app), or skip. */
   twoFactor: "/security/two-factor",
+  /** Returning users: unlock the app with their PIN after logging in. */
+  enterPin: "/security/enter-pin",
+
+  // The app (signed-in, fully registered users)
+  dashboard: "/dashboard",
 
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",

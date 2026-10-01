@@ -224,9 +224,58 @@ This is a financial product, so security is built in from the start.
 
 ## Demo mode
 
-The backend isn't built yet. So the password-reset flow can be reviewed end to end, it runs in **demo mode during `npm run dev` only**: any 4-digit code is accepted and each step succeeds.
+The backend isn't built yet, so the app runs in **demo mode** (`NEXT_PUBLIC_DEMO_MODE`, on unless set to `false`) and can be used end to end:
 
-A production build (`npm run build`) turns demo mode **off**, and screens show a clear "not connected yet" message instead. Nothing is faked in production. Remove demo mode from `src/features/forgot-password/passwordResetService.ts` once the real API is connected.
+- Accounts are saved **in your own browser** (`src/demo/demoAccounts.ts`). Passwords and PINs are stored only as salted hashes.
+- Your progress through registration is remembered. Log out, log back in, and you continue where you left off; once registered, log-in asks for your PIN and then opens the dashboard.
+- A wrong email/password or wrong PIN is refused. Any verification code of the right length is accepted, and nothing is sent anywhere.
+
+To start over, clear the site data in your browser (or remove the `feenicks1-demo-*` keys from localStorage).
+
+⚠️ Set `NEXT_PUBLIC_DEMO_MODE=false` and delete `src/demo` once the real API is connected. Every `…Service.ts` file marks the real call to add with `TODO(api)`.
+
+## Git workflow
+
+- `main` is always deployable. Build new work on a branch, e.g. `feature/dashboard` or `fix/login-error`.
+- Write clear commit messages: a short summary line, then what changed and why.
+- Open a pull request into `main`. `npm run lint` and `npm run build` must pass.
+
+## Roadmap
+
+- [x] Project setup, brand theme, SEO foundations
+- [x] Splash screen
+- [x] Onboarding
+- [x] Sign up and log in
+- [x] Forgot password flow
+- [ ] Backend and authentication (API, secure sessions)
+- [x] Identity verification (KYC): ID document, selfie, profile
+- [x] Security PIN and two-factor method choice
+- [x] Resume registration on log-in; PIN unlock for returning users
+- [ ] Two-factor setup screens (SMS code, fingerprint, authenticator app)
+- [ ] Investment plan selection
+- [ ] Deposits and withdrawals
+- [ ] Portfolio dashboard (placeholder in place) (placeholder in place)
+- [ ] Transaction history
+- [ ] Settings, including the dark mode toggle
+- [ ] Admin panel for managing users and investments
+
+---
+
+<div align="center">
+
+© Feenicks1 Solutions Ltd. All rights reserved. This is proprietary software; do not copy or distribute without permission.
+
+</div>## Demo mode
+
+The backend isn't built yet, so the app runs in **demo mode** (`NEXT_PUBLIC_DEMO_MODE`, on unless set to `false`) and can be used end to end:
+
+- Accounts are saved **in your own browser** (`src/demo/demoAccounts.ts`). Passwords and PINs are stored only as salted hashes.
+- Your progress through registration is remembered. Log out, log back in, and you continue where you left off; once registered, log-in asks for your PIN and then opens the dashboard.
+- A wrong email/password or wrong PIN is refused. Any verification code of the right length is accepted, and nothing is sent anywhere.
+
+To start over, clear the site data in your browser (or remove the `feenicks1-demo-*` keys from localStorage).
+
+⚠️ Set `NEXT_PUBLIC_DEMO_MODE=false` and delete `src/demo` once the real API is connected. Every `…Service.ts` file marks the real call to add with `TODO(api)`.
 
 ## Git workflow
 

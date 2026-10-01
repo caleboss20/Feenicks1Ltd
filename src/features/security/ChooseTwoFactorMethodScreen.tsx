@@ -36,23 +36,29 @@ import { ROUTES } from "@/config/routes";
 import { useKycStore } from "@/features/kyc/useKycStore";
 import { maskPhone } from "@/lib/maskContactDetails";
 import { cn } from "@/lib/utils";
-import { registerBiometric, sendTwoFactorSetupCode, type SecurityResult } from "./securityService";
+import {
+  completeAccountSetup,
+  registerBiometric,
+  sendTwoFactorSetupCode,
+  type SecurityResult,
+} from "./securityService";
 import { useBiometricSupport } from "./useBiometricSupport";
 
 type TwoFactorMethod = "biometric" | "sms" | "authenticator-app";
 
 /**
- * Where each choice leads.
+ * Where each choice leads. This is the last registration step, so all
+ * roads lead to the dashboard.
  * TODO(security): point each method at its own setup screen once built
- *   (biometric → success, sms → "Verify your phone", app → QR code).
- * TODO(dashboard): SKIP → the dashboard once built.
+ *   (biometric → success, sms → "Verify your phone", app → QR code); that
+ *   screen then calls completeAccountSetup() and goes on to the dashboard.
  */
 const NEXT_SCREEN: Record<TwoFactorMethod, string> = {
-  biometric: ROUTES.login,
-  sms: ROUTES.login,
-  "authenticator-app": ROUTES.login,
+  biometric: ROUTES.dashboard,
+  sms: ROUTES.dashboard,
+  "authenticator-app": ROUTES.dashboard,
 };
-const NEXT_SCREEN_SKIP = ROUTES.login;
+const NEXT_SCREEN_SKIP = ROUTES.dashboard;
 
 /** Ghana's country calling code; profile numbers are stored without it. */
 const GHANA_CALLING_CODE = "+233";
@@ -105,16 +111,26 @@ export function ChooseTwoFactorMethodScreen() {
     if (selected === "biometric") result = await registerBiometric();
     if (selected === "sms") result = await sendTwoFactorSetupCode();
 
+    // TODO(security): move to the method's setup screen once it exists.
+    if (result.ok) result = await completeAccountSetup();
+
     if (!result.ok) {
       setAction(null);
       setError(result.message);
       return;
     }
-    router.push(NEXT_SCREEN[selected]);
+    router.replace(NEXT_SCREEN[selected]);
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    setError(null);
     setAction("skip");
+    const result = await completeAccountSetup();
+    if (!result.ok) {
+      setAction(null);
+      setError(result.message);
+      return;
+    }
     // replace: Back shouldn't return here once they've decided.
     router.replace(NEXT_SCREEN_SKIP);
   };

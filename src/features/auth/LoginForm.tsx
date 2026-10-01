@@ -33,14 +33,16 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { PasswordField, TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/config/routes";
-import { getRouteAfterLogin } from "@/features/kyc/kycStatus";
-import { logIn } from "./authService";
+import { getRouteForStep } from "./accountProgress";
+import { logIn, sendEmailVerificationCode } from "./authService";
 import { AuthFooterLink, AuthScreenLayout, authFormSpacing, authSectionSpacing } from "./AuthScreenLayout";
 import { loginSchema, type LoginInput, type LoginValues } from "./authValidation";
 import { SocialLoginButtons } from "./SocialLoginButtons";
+import { useSignUpStore } from "./useSignUpStore";
 
 export function LoginForm() {
   const router = useRouter();
+  const saveSignUpEmail = useSignUpStore((s) => s.saveEmail);
   /** Form-level error (e.g. wrong credentials, network failure). */
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -69,10 +71,17 @@ export function LoginForm() {
       setFormError(result.message);
       return;
     }
-    // Where to go depends on how far the user is in identity verification:
-    // not verified yet → continue KYC; verified → the app.
     setIsRedirecting(true);
-    router.push(getRouteAfterLogin(result.kycStatus));
+
+    // Email never verified: send a fresh code and show the Verify Email screen.
+    if (result.nextStep === "verify-email") {
+      saveSignUpEmail(result.email);
+      void sendEmailVerificationCode(result.email);
+    }
+
+    // Continue where they left off: a registration step, or (all done)
+    // Enter PIN → dashboard. See accountProgress.ts.
+    router.replace(getRouteForStep(result.nextStep));
   };
 
   return (

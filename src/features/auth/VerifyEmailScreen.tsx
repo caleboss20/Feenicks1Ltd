@@ -22,20 +22,25 @@ import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { SuccessDialog } from "@/components/ui/SuccessDialog";
 import { ROUTES } from "@/config/routes";
 import { maskEmail } from "@/lib/maskContactDetails";
+import { getRouteForStep } from "./accountProgress";
 import { sendEmailVerificationCode, verifyEmailCode } from "./authService";
+import { useCurrentAccount } from "./useCurrentAccount";
 import { useSignUpStore } from "./useSignUpStore";
 
 /**
- * Where the user goes once their email is verified: Log in. After logging
- * in, they're sent on to identity verification (see getRouteAfterLogin).
+ * Where the user goes once their email is verified:
+ *   - straight after sign-up → Log in (then on to identity verification)
+ *   - already logged in (came back to finish) → straight on to identity verification
  */
-const NEXT_SCREEN_AFTER_VERIFICATION = ROUTES.login;
+const NEXT_SCREEN_AFTER_SIGN_UP = ROUTES.login;
+const NEXT_SCREEN_WHEN_LOGGED_IN = getRouteForStep("kyc-investment-goals");
 
 export function VerifyEmailScreen() {
   const router = useRouter();
   const email = useSignUpStore((s) => s.email);
   const clearSignUp = useSignUpStore((s) => s.clear);
   const [isVerified, setIsVerified] = useState(false);
+  const isLoggedIn = useCurrentAccount().status === "signed-in";
 
   // No email = sign-up was skipped or the page was refreshed → back to sign up.
   // Skipped once verified, because the email is cleared on the way out.
@@ -45,9 +50,9 @@ export function VerifyEmailScreen() {
 
   // Stable function, so the popup's timer isn't restarted on every render.
   const goToNextScreen = useCallback(() => {
-    router.replace(NEXT_SCREEN_AFTER_VERIFICATION);
+    router.replace(isLoggedIn ? NEXT_SCREEN_WHEN_LOGGED_IN : NEXT_SCREEN_AFTER_SIGN_UP);
     clearSignUp();
-  }, [router, clearSignUp]);
+  }, [router, clearSignUp, isLoggedIn]);
 
   if (!email && !isVerified) return null;
 
@@ -72,8 +77,12 @@ export function VerifyEmailScreen() {
         // Acknowledge this step only. The account isn't "ready" until
         // profile and identity checks are done, so lead the user onward.
         title="Email verified"
-        message="Great start! Log in to continue your registration and verify your identity, so you can start investing securely."
-        spinnerLabel="Taking you to log in"
+        message={
+          isLoggedIn
+            ? "Great start! Next, let's verify your identity so you can start investing securely."
+            : "Great start! Log in to continue your registration and verify your identity, so you can start investing securely."
+        }
+        spinnerLabel={isLoggedIn ? "Continuing" : "Taking you to log in"}
         onFinished={goToNextScreen}
       />
     </StepScreenLayout>

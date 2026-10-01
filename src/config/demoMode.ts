@@ -2,9 +2,11 @@
  * DEMO MODE: lets the app be used end to end before the backend exists.
  *
  * When ON (the current default):
- *   - sign up, log in, email verification and password reset all succeed
- *   - ANY code of the right length is accepted
- *   - nothing is actually sent or saved anywhere
+ *   - accounts are kept in THIS browser (src/demo/demoAccounts.ts): sign
+ *     up, log out, log back in and continue where you left off
+ *   - wrong email/password and wrong PIN are refused, like the real thing
+ *   - ANY verification code of the right length is accepted
+ *   - nothing is sent anywhere (no emails, no SMS, no server)
  *
  * When OFF: the real server calls (the TODO(api) spots in each
  * `…Service.ts` file) are used.

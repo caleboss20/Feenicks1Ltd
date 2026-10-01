@@ -1,4 +1,5 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import * as demo from "@/demo/demoAccounts";
 import type { CountryCode, DocumentSide, IdentityDocumentId } from "./identityDocuments";
 import type { InvestmentGoalId } from "./investmentGoals";
 import type { ProfileValues } from "./profileValidation";
@@ -7,7 +8,10 @@ import type { ProfileValues } from "./profileValidation";
  * KYC service: the single place the identity-verification screens talk to
  * the server. Screens never `fetch` directly.
  *
- * In DEMO MODE (see config/demoMode.ts) every call succeeds.
+ * In DEMO MODE (see config/demoMode.ts) every call succeeds, and the
+ * account's progress is saved in this browser (src/demo) so a user who
+ * logs out can carry on where they left off. The real server records
+ * progress itself as it receives each step.
  */
 
 export type KycResult = { ok: true } | { ok: false; message: string };
@@ -17,12 +21,16 @@ const SOMETHING_WENT_WRONG: KycResult = {
   message: "Something went wrong. Please try again in a moment.",
 };
 
-/** Saves the user's investment goals (used to recommend suitable plans). */
+/**
+ * Saves the user's investment goals (used to recommend suitable plans).
+ * An empty list means they skipped the question.
+ */
 export async function saveInvestmentGoals(goals: InvestmentGoalId[]): Promise<KycResult> {
   // TODO(api): PUT /api/kyc/investment-goals  { goals }
   void goals;
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
+    demo.advanceSessionStep("kyc-verify-identity");
     return { ok: true };
   }
   return SOMETHING_WENT_WRONG;
@@ -102,6 +110,8 @@ export async function verifySelfieMatch(
   void source;
   if (IS_DEMO_MODE) {
     await wait(DEMO_FACE_MATCH_MS);
+    // ID and selfie accepted: next time, carry on from the profile.
+    demo.advanceSessionStep("kyc-profile");
     return { ok: true };
   }
   return SOMETHING_WENT_WRONG;
@@ -115,10 +125,15 @@ export async function saveProfile(
   // TODO(api): PUT /api/profile (multipart: profile fields + optional photo).
   //   Phone is stored with the +233 prefix; legal name and date of birth are
   //   checked against the verified ID document on the server.
-  void profile;
   void photo;
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
+    demo.updateSessionAccount({
+      fullName: profile.fullName,
+      gender: profile.gender,
+      phone: profile.phone,
+    });
+    demo.advanceSessionStep("create-pin");
     return { ok: true };
   }
   return SOMETHING_WENT_WRONG;

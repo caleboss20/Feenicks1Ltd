@@ -67,6 +67,9 @@ export function InvestmentGoalsScreen() {
   };
 
   const handleSkip = () => {
+    // Recorded in the background (so log-in resumes after this step);
+    // skipping shouldn't wait on the network or fail.
+    void saveInvestmentGoals([]);
     saveGoalsInStore([]);
     router.push(NEXT_SCREEN);
   };

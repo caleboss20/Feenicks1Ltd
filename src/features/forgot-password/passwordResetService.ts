@@ -1,4 +1,5 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import * as demo from "@/demo/demoAccounts";
 import type { ResetMethod } from "./passwordResetValidation";
 
 /**
@@ -7,7 +8,9 @@ import type { ResetMethod } from "./passwordResetValidation";
  * real backend only means changing this file.
  *
  * The backend doesn't exist yet, so in DEMO MODE (see config/demoMode.ts)
- * every step succeeds and any 4-digit code is accepted.
+ * every step succeeds, any 4-digit code is accepted, and the new password
+ * is saved on the demo account (found by its email, or by the phone number
+ * from its profile) so the user can log in with it.
  *
  * Security notes for the real implementation:
  *   - requestResetCode must respond the same way whether or not an account
@@ -16,6 +19,9 @@ import type { ResetMethod } from "./passwordResetValidation";
  *   - The server issues a one-time `resetToken` after a correct code; the
  *     new password is only accepted together with that token.
  */
+
+/** Demo mode only: marks the pretend reset token (see verifyResetCode). */
+const DEMO_TOKEN_PREFIX = "demo-reset:";
 
 const NOT_CONNECTED_MESSAGE = "Something went wrong. Please try again in a moment.";
 
@@ -44,11 +50,11 @@ export async function verifyResetCode(
   code: string,
 ): Promise<ServiceResult<{ resetToken: string }>> {
   // TODO(api): POST /api/auth/password-reset/verify  { contact, code }
-  void contact;
   void code;
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
-    return { ok: true, data: { resetToken: "demo-reset-token" } };
+    // Demo "token" just carries the contact, so step 3 knows which account to update.
+    return { ok: true, data: { resetToken: `${DEMO_TOKEN_PREFIX}${contact}` } };
   }
   return { ok: false, message: NOT_CONNECTED_MESSAGE };
 }
@@ -59,10 +65,11 @@ export async function saveNewPassword(
   newPassword: string,
 ): Promise<ServiceResult> {
   // TODO(api): POST /api/auth/password-reset/complete  { resetToken, newPassword }
-  void resetToken;
-  void newPassword;
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
+    const contact = resetToken.replace(DEMO_TOKEN_PREFIX, "");
+    const account = demo.findAccount(contact) ?? demo.findAccountByPhone(contact);
+    if (account) await demo.changePassword(account.email, newPassword);
     return { ok: true, data: undefined };
   }
   return { ok: false, message: NOT_CONNECTED_MESSAGE };
