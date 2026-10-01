@@ -28,6 +28,10 @@ export const ROUTES = {
   twoFactorSms: "/security/two-factor/sms",
   /** Returning users: unlock the app with their PIN after logging in. */
   enterPin: "/security/enter-pin",
+  // Forgot PIN (3 steps, in order)
+  forgotPin: "/security/forgot-pin",
+  forgotPinVerifyCode: "/security/forgot-pin/verify-code",
+  forgotPinNewPin: "/security/forgot-pin/new-pin",
 
   // The app (signed-in, fully registered users)
   dashboard: "/dashboard",

@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/Button";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
-import { maskPhone } from "@/lib/maskContactDetails";
+import { maskGhanaPhone } from "@/lib/maskContactDetails";
 import { cn } from "@/lib/utils";
 import { guessBiometricKind } from "@/lib/webAuthn";
 import {
@@ -44,6 +44,7 @@ import {
   type SecurityResult,
   type TwoFactorMethod,
 } from "./securityService";
+import { PhoneShieldIllustration } from "./SecurityIllustrations";
 import { TwoFactorEnabledScreen } from "./TwoFactorEnabledScreen";
 import { useBiometricSupport } from "./useBiometricSupport";
 
@@ -56,8 +57,6 @@ import { useBiometricSupport } from "./useBiometricSupport";
 const SMS_SETUP_SCREEN = ROUTES.twoFactorSms;
 const NEXT_SCREEN = ROUTES.dashboard;
 
-/** Ghana's country calling code; profile numbers are stored without it. */
-const GHANA_CALLING_CODE = "+233";
 
 export function ChooseTwoFactorMethodScreen() {
   const router = useRouter();
@@ -75,7 +74,7 @@ export function ChooseTwoFactorMethodScreen() {
   const selected: TwoFactorMethod = chosen ?? (hasBiometrics ? "biometric" : "sms");
 
   // Masked so someone glancing at the screen can't read the full number.
-  const maskedPhone = phone ? maskPhone(`${GHANA_CALLING_CODE}${phone}`) : "your phone";
+  const maskedPhone = maskGhanaPhone(phone);
 
   const methods: {
     id: TwoFactorMethod;
@@ -230,44 +229,5 @@ export function ChooseTwoFactorMethodScreen() {
         />
       )}
     </main>
-  );
-}
-
-/**
- * A phone rising out of a dotted circle, showing a card with a green shield:
- * "your phone keeps your account safe". Drawn in SVG (no image file), so it's
- * sharp at any size, uses the brand green and follows dark mode.
- */
-function PhoneShieldIllustration({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 160 140" aria-hidden className={className}>
-      <defs>
-        {/* Halftone dots for the circle. */}
-        <pattern id="tfa-dots" width="5" height="5" patternUnits="userSpaceOnUse">
-          <circle cx="2.5" cy="2.5" r="0.9" className="fill-neutral-300 dark:fill-white/20" />
-        </pattern>
-        {/* Everything is cut off flat at the bottom, so the phone "rises" out of the circle. */}
-        <clipPath id="tfa-cut">
-          <rect width="160" height="128" />
-        </clipPath>
-      </defs>
-
-      <g clipPath="url(#tfa-cut)">
-        <circle cx="80" cy="70" r="64" fill="url(#tfa-dots)" />
-        <circle cx="80" cy="70" r="64" className="fill-none stroke-neutral-200 dark:stroke-white/10" strokeWidth="1" />
-
-        {/* Phone body + speaker slot. */}
-        <rect x="47" y="20" width="66" height="124" rx="11" strokeWidth="2.5" className="fill-background stroke-neutral-800 dark:stroke-neutral-200" />
-        <rect x="71" y="27" width="18" height="3.5" rx="1.75" className="fill-neutral-800 dark:fill-neutral-200" />
-
-        {/* Card on the screen, with the shield. */}
-        <rect x="55" y="54" width="50" height="38" rx="6" strokeWidth="2" className="fill-brand-50 stroke-neutral-800 dark:fill-brand-500/10 dark:stroke-neutral-200" />
-        <path d="M80 60.5 71.5 63.7v6.4c0 5.3 3.6 9.7 8.5 11.3 4.9-1.6 8.5-6 8.5-11.3v-6.4Z" className="fill-brand-600" />
-        <path d="m76.3 70.6 2.6 2.6 4.9-5" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
-
-      {/* Flat base line where the phone is cut off. */}
-      <line x1="38" y1="128" x2="122" y2="128" strokeWidth="2.5" strokeLinecap="round" className="stroke-neutral-800 dark:stroke-neutral-200" />
-    </svg>
   );
 }

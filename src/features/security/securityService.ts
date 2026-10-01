@@ -171,3 +171,67 @@ export async function confirmTwoFactorSmsCode(code: string): Promise<SecurityRes
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
 }
+
+/**
+ * Locks the app (auto-lock after inactivity). The user stays logged in;
+ * the PIN or fingerprint / Face ID is needed to continue.
+ */
+export async function lockApp(): Promise<void> {
+  // TODO(api): optionally POST /api/security/lock so the server also requires a re-check.
+  if (IS_DEMO_MODE) demo.lockSession();
+}
+
+/* ── Forgot PIN ──────────────────────────────────────────────────────── */
+
+/** A correct reset code returns a one-time token that allows choosing a new PIN. */
+export type PinResetCodeResult = { ok: true; resetToken: string } | { ok: false; message: string };
+
+/**
+ * Forgot PIN, step 1: texts a 6-digit code to the phone ON THE ACCOUNT.
+ *
+ * Server requirements (for the backend):
+ *   - only for a logged-in session (password already checked)
+ *   - send to the account's phone, never a number from the browser
+ *   - rate-limit sends; codes single-use, expire after ~10 minutes
+ */
+export async function requestPinResetCode(): Promise<SecurityResult> {
+  // TODO(api): POST /api/security/pin/reset/request
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    return { ok: true };
+  }
+  return { ok: false, message: "We couldn't send the code. Please try again in a moment." };
+}
+
+/** Forgot PIN, step 2: checks the code; returns a one-time reset token. Demo accepts any code. */
+export async function verifyPinResetCode(code: string): Promise<PinResetCodeResult> {
+  // TODO(api): POST /api/security/pin/reset/verify  { code } → { resetToken }
+  // Wrong code → { ok: false, message: "That code isn't right. Check your messages and try again." }
+  void code;
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    return { ok: true, resetToken: "demo-pin-reset" };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}
+
+/**
+ * Forgot PIN, step 3: saves the new PIN, authorised by the reset token.
+ * The new PIN must differ from the current one. Unlocks the app on success.
+ */
+export async function resetPin(resetToken: string, newPin: string): Promise<SecurityResult> {
+  // TODO(api): POST /api/security/pin/reset  { resetToken, pin }
+  //   The server re-checks the PIN rules and stores only a hash.
+  void resetToken;
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    const email = demo.getSessionEmail();
+    if (email && (await demo.checkPin(email, newPin))) {
+      return { ok: false, message: "That's your current PIN. Choose a different one." };
+    }
+    if (email) await demo.setPin(email, newPin);
+    demo.markUnlocked();
+    return { ok: true };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}

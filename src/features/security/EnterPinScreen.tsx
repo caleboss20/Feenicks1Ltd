@@ -27,14 +27,22 @@
  *     user is logged out and must log in again (the server enforces the
  *     real limit; this counter is only a courtesy)
  *
+ * Also the lock screen for auto-lock (appLock.ts): then a small "Locked
+ * after 5 minutes of inactivity" note shows, and unlocking returns the
+ * user to the screen they were on instead of the dashboard.
+ *
+ * Bottom row: "Forgot PIN?" (reset by SMS code, /security/forgot-pin) and
+ * "Not you? Log out".
+ *
  * Who gets here: logged in + registration complete. Anyone else is sent to
  * Log in or to the registration step they reached.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
-import { FaceIdIcon, FingerprintIcon } from "@/components/icons";
+import { ClockIcon, FaceIdIcon, FingerprintIcon } from "@/components/icons";
 import { NumericKeypad } from "@/components/ui/NumericKeypad";
 import { PinDots } from "@/components/ui/PinDots";
 import { ROUTES } from "@/config/routes";
@@ -44,10 +52,11 @@ import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { cn } from "@/lib/utils";
 import { guessBiometricKind } from "@/lib/webAuthn";
+import { AUTO_LOCK_AFTER_MS, clearLockContext, peekLockContext, takeReturnPath } from "./appLock";
 import { PIN_LENGTH } from "./pinValidation";
 import { verifyBiometric, verifyPin } from "./securityService";
 
-/** Where a correct PIN leads. */
+/** Where a correct PIN leads (unless auto-lock saved the screen they were on). */
 const NEXT_SCREEN = ROUTES.dashboard;
 
 /** Wrong PINs allowed before the user is logged out. */
@@ -71,6 +80,8 @@ export function EnterPinScreen() {
   const [isLockedOut, setIsLockedOut] = useState(false);
   /** The phone's fingerprint / face prompt is open. */
   const [isAwaitingDevice, setIsAwaitingDevice] = useState(false);
+  /** Set when auto-lock brought the user here (read once, on arrival). */
+  const [lockContext] = useState(peekLockContext);
 
   // Send away anyone who shouldn't be here (see the header comment).
   // While authenticating, this screen does its own redirect after the delay.
@@ -98,7 +109,9 @@ export function EnterPinScreen() {
   const finishUnlock = async (startedAt: number) => {
     setIsAuthenticating(true);
     await wait(Math.max(0, AUTHENTICATING_MIN_MS - (Date.now() - startedAt)));
-    router.replace(NEXT_SCREEN); // stay blurred until the dashboard has loaded
+    // Back to where they were before the app locked, else the dashboard.
+    // (Stays blurred until that screen has loaded.)
+    router.replace(takeReturnPath(NEXT_SCREEN));
   };
 
   /**
@@ -145,8 +158,9 @@ export function EnterPinScreen() {
 
     if (left <= 0) {
       setIsLockedOut(true);
-      setError("Too many wrong attempts. For your security, please log in again.");
+      setError("Too many wrong attempts. Log in again, then tap “Forgot PIN?” if you need a new one.");
       setTimeout(async () => {
+        clearLockContext();
         await logOut();
         router.replace(ROUTES.login);
       }, LOCKOUT_REDIRECT_MS);
@@ -180,6 +194,7 @@ export function EnterPinScreen() {
   });
 
   const handleLogOut = async () => {
+    clearLockContext();
     await logOut();
     router.replace(ROUTES.login);
   };
@@ -206,6 +221,13 @@ export function EnterPinScreen() {
           subtitle={`Welcome back${firstName ? `, ${firstName}` : ""}! Enter your PIN to continue.`}
         >
           <div className="flex flex-1 flex-col sm:flex-none">
+            {lockContext?.reason === "inactive" && (
+              <p className="flex w-fit items-center gap-2 rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-medium text-neutral-600 dark:bg-white/5 dark:text-neutral-400">
+                <ClockIcon className="size-3.5" />
+                Locked after {AUTO_LOCK_AFTER_MS / 60_000} minutes of inactivity
+              </p>
+            )}
+
             <div className="my-auto flex flex-col gap-5 py-6 sm:my-0 lg:py-4">
               <PinDots
                 length={PIN_LENGTH}
@@ -244,22 +266,31 @@ export function EnterPinScreen() {
               }
             />
 
-            {/* Hidden (space kept) while authenticating: the spinner takes its place. */}
-            <p
+            {/* Forgot PIN? on the left, Log out on the right. Hidden (space kept)
+                while authenticating: the spinner takes its place. */}
+            <div
               className={cn(
-                "mt-auto pt-6 text-center text-sm text-neutral-500 sm:mt-8 sm:pt-0 lg:mt-6",
+                "mt-auto flex items-center justify-between gap-4 px-2 pt-6 text-sm sm:mt-8 sm:pt-0 lg:mt-6",
                 isAuthenticating && "invisible",
               )}
             >
-              Not you?{" "}
-              <button
-                type="button"
-                onClick={handleLogOut}
-                className="cursor-pointer font-semibold text-brand-600 hover:underline"
+              <Link
+                href={ROUTES.forgotPin}
+                className="font-semibold text-brand-600 hover:underline"
               >
-                Log out
-              </button>
-            </p>
+                Forgot PIN?
+              </Link>
+              <p className="text-neutral-500">
+                Not you?{" "}
+                <button
+                  type="button"
+                  onClick={handleLogOut}
+                  className="cursor-pointer font-semibold text-brand-600 hover:underline"
+                >
+                  Log out
+                </button>
+              </p>
+            </div>
           </div>
         </StepScreenLayout>
       </div>

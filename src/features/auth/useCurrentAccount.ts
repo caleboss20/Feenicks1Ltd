@@ -4,7 +4,7 @@ import { useMemo, useSyncExternalStore } from "react";
 import {
   findAccount,
   getSessionEmail,
-  isUnlocked,
+  getUnlockedAt,
   subscribeToSession,
 } from "@/demo/demoAccounts";
 import type { AccountStep } from "./accountProgress";
@@ -31,6 +31,8 @@ export type CurrentAccount = {
   step: AccountStep;
   /** True once the PIN has been entered (or created) in this session. */
   isUnlocked: boolean;
+  /** When it was unlocked (ms timestamp), or null while locked. Used by auto-lock. */
+  unlockedAt: number | null;
 };
 
 export type CurrentAccountState =
@@ -38,11 +40,15 @@ export type CurrentAccountState =
   | { status: "signed-out" }
   | { status: "signed-in"; account: CurrentAccount };
 
-/** "email|unlocked|step" as one string, so React can tell cheaply whether it changed. */
+/**
+ * Everything the screens react to, as one string ("email|unlockedAt|step|biometrics"),
+ * so React can tell cheaply whether anything changed.
+ */
 function readSnapshot() {
   const email = getSessionEmail();
   if (!email) return "";
-  return `${email}|${isUnlocked() ? 1 : 0}|${findAccount(email)?.step ?? ""}`;
+  const account = findAccount(email);
+  return [email, getUnlockedAt() ?? 0, account?.step ?? "", account?.biometricCredentialId ? 1 : 0].join("|");
 }
 
 export function useCurrentAccount(): CurrentAccountState {
@@ -53,7 +59,8 @@ export function useCurrentAccount(): CurrentAccountState {
     if (snapshot === null) return { status: "loading" };
     if (snapshot === "") return { status: "signed-out" };
 
-    const [email, unlocked] = snapshot.split("|");
+    const [email, unlockedAtText] = snapshot.split("|");
+    const unlockedAt = Number(unlockedAtText) || null;
     const account = findAccount(email);
     if (!account) return { status: "signed-out" };
 
@@ -65,7 +72,8 @@ export function useCurrentAccount(): CurrentAccountState {
         phone: account.phone ?? null,
         hasBiometrics: Boolean(account.biometricCredentialId),
         step: account.step,
-        isUnlocked: unlocked === "1",
+        isUnlocked: unlockedAt !== null,
+        unlockedAt,
       },
     };
   }, [snapshot]);

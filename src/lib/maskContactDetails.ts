@@ -28,3 +28,14 @@ export function maskPhone(phone: string): string {
   const hidden = "*".repeat(digits.length - prefix.length - last.length);
   return `${hasPlus ? "+" : ""}${prefix} ${hidden}${last}`;
 }
+
+/** Ghana's country calling code. Profile phone numbers are stored without it. */
+export const GHANA_CALLING_CODE = "+233";
+
+/**
+ * A profile phone number (9 digits, no +233 or leading 0) ready to show:
+ * "241234567" → "+233 *******67". `fallback` if there's no number.
+ */
+export function maskGhanaPhone(localDigits: string | null | undefined, fallback = "your phone"): string {
+  return localDigits ? maskPhone(`${GHANA_CALLING_CODE}${localDigits}`) : fallback;
+}

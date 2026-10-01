@@ -9,6 +9,12 @@
  *   keypad                         keypad
  *   (Continue)                     (Continue) → ✅ "PIN created" → next
  *
+ * Two modes (same screen, different words and destination):
+ *   "create"  during registration → "PIN created" → choose 2FA
+ *   "reset"   Forgot PIN, step 3 → "PIN changed" → back where they were
+ *             (needs the one-time reset token from step 2; must differ
+ *             from the current PIN)
+ *
  * Security (frontend):
  *   - digits are never displayed, only dots
  *   - no <input>: the browser can't save, autofill or suggest the PIN
@@ -30,15 +36,41 @@ import { ROUTES } from "@/config/routes";
 import { useKycStore } from "@/features/kyc/useKycStore";
 import { cn } from "@/lib/utils";
 import { PIN_LENGTH, getPinWeakness } from "./pinValidation";
-import { createPin } from "./securityService";
+import { takeReturnPath } from "./appLock";
+import { createPin, resetPin } from "./securityService";
+import { usePinResetStore } from "./usePinResetStore";
 
-/** Where the user goes once the PIN is created: the offer to turn on 2FA. */
-const NEXT_SCREEN = ROUTES.twoFactor;
+type Mode = "create" | "reset";
+
+/** What changes between creating a PIN at registration and resetting a forgotten one. */
+const MODES = {
+  create: {
+    backHref: ROUTES.kycAllSet,
+    subtitle: "Add a PIN to make your account more secure.",
+    successTitle: "PIN created",
+    successMessage:
+      "Your account is now more secure. You'll use this PIN to approve investments and withdrawals.",
+    /** Next: the offer to turn on 2FA. */
+    nextScreen: ROUTES.twoFactor,
+  },
+  reset: {
+    backHref: ROUTES.enterPin,
+    subtitle: "Choose a new 4-digit PIN. Don't reuse your old one.",
+    successTitle: "PIN changed",
+    successMessage:
+      "Your new PIN is ready. Use it to unlock the app and approve investments and withdrawals.",
+    /** Next: back to the screen they were on before the app locked, or the dashboard. */
+    nextScreen: ROUTES.dashboard,
+  },
+} satisfies Record<Mode, unknown>;
 
 type Step = "create" | "confirm";
 
-export function CreatePinScreen() {
+export function CreatePinScreen({ mode = "create" }: { mode?: Mode }) {
   const router = useRouter();
+  const config = MODES[mode];
+  const resetToken = usePinResetStore((s) => s.resetToken);
+  const clearResetToken = usePinResetStore((s) => s.clear);
   // Birth date (from the profile) lets us refuse PINs like 1992 or 0405.
   const dateOfBirth = useKycStore((s) => s.profile?.dateOfBirth);
 
@@ -52,6 +84,12 @@ export function CreatePinScreen() {
 
   const isComplete = entry.length === PIN_LENGTH;
   const isBusy = isSaving || isDone;
+
+  // Reset mode needs a verified code first (e.g. not after a page refresh).
+  const isMissingResetToken = mode === "reset" && !resetToken && !isDone;
+  useEffect(() => {
+    if (isMissingResetToken) router.replace(ROUTES.forgotPin);
+  }, [isMissingResetToken, router]);
 
   /** Shows an error, shakes the boxes and clears the current entry. */
   const fail = (message: string) => {
@@ -87,7 +125,8 @@ export function CreatePinScreen() {
     if (entry !== firstPin) return fail("PINs don't match. Please try again.");
 
     setIsSaving(true);
-    const result = await createPin(entry);
+    const result =
+      mode === "reset" ? await resetPin(resetToken ?? "", entry) : await createPin(entry);
     // Drop the PIN from this screen's memory as soon as it's been sent.
     setFirstPin("");
     setEntry("");
@@ -97,6 +136,7 @@ export function CreatePinScreen() {
       setStep("create");
       return fail(result.message);
     }
+    if (mode === "reset") clearResetToken(); // single use
     setIsDone(true);
   };
 
@@ -120,19 +160,19 @@ export function CreatePinScreen() {
   }, [addDigit, removeDigit, isBusy]);
 
   // Stable function, so the success popup's timer isn't restarted on re-render.
-  const goToNextScreen = useCallback(() => router.replace(NEXT_SCREEN), [router]);
+  const goToNextScreen = useCallback(() => {
+    router.replace(mode === "reset" ? takeReturnPath(config.nextScreen) : config.nextScreen);
+  }, [router, mode, config.nextScreen]);
+
+  if (isMissingResetToken) return null;
 
   const isConfirm = step === "confirm";
 
   return (
     <StepScreenLayout
       title={isConfirm ? "Confirm Your PIN" : "Create New PIN"}
-      subtitle={
-        isConfirm
-          ? "Enter your PIN again to confirm it."
-          : "Add a PIN to make your account more secure."
-      }
-      backHref={ROUTES.kycAllSet}
+      subtitle={isConfirm ? "Enter your PIN again to confirm it." : config.subtitle}
+      backHref={config.backHref}
     >
       <div className="flex flex-1 flex-col sm:flex-none">
         {/* Boxes + messages, vertically centred in the free space on phones. */}
@@ -184,8 +224,8 @@ export function CreatePinScreen() {
 
       <SuccessDialog
         open={isDone}
-        title="PIN created"
-        message="Your account is now more secure. You'll use this PIN to approve investments and withdrawals."
+        title={config.successTitle}
+        message={config.successMessage}
         spinnerLabel="Continuing"
         onFinished={goToNextScreen}
       />

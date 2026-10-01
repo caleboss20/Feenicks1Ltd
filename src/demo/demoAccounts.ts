@@ -19,7 +19,7 @@ import { isStepAfter, type AccountStep } from "@/features/auth/accountProgress";
 const ACCOUNTS_KEY = "feenicks1-demo-accounts";
 /** Who is logged in: localStorage if "Remember me" was ticked, else sessionStorage. */
 const SESSION_KEY = "feenicks1-demo-session";
-/** Set once the PIN has been entered in this browser tab session. */
+/** When the PIN (or fingerprint) was last entered in this tab: a timestamp in ms. */
 const UNLOCKED_KEY = "feenicks1-demo-unlocked";
 
 /** A salted one-way hash of a password or PIN. */
@@ -195,12 +195,28 @@ export function getSessionEmail(): string | null {
 
 /** Records that the PIN was entered (or just created) in this tab session. */
 export function markUnlocked() {
-  writeJson(session(), UNLOCKED_KEY, true);
+  writeJson(session(), UNLOCKED_KEY, Date.now());
   notifySessionChange();
 }
 
+/** Locks the app again (auto-lock): the PIN or fingerprint is needed to continue. */
+export function lockSession() {
+  try {
+    session()?.removeItem(UNLOCKED_KEY);
+  } catch {
+    // Storage blocked: nothing to clear.
+  }
+  notifySessionChange();
+}
+
+/** When the app was unlocked in this tab, or null if it's locked. */
+export function getUnlockedAt(): number | null {
+  const value = readJson<number>(session(), UNLOCKED_KEY);
+  return typeof value === "number" ? value : null;
+}
+
 export function isUnlocked(): boolean {
-  return readJson<boolean>(session(), UNLOCKED_KEY) === true;
+  return getUnlockedAt() !== null;
 }
 
 /* ── Change notifications (so screens re-read the session) ───────────── */

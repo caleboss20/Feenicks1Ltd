@@ -14,18 +14,15 @@
  * TODO(dashboard): replace with the real dashboard (portfolio, plans,
  * deposits, withdrawals). Keep the access check below.
  *
- * Access: logged in + registration complete + PIN entered this session.
- * Anyone else is sent to Log in, their registration step, or Enter PIN.
- * (In production the server must enforce this too; a client check alone
- * can be bypassed.)
+ * Access and auto-lock are handled by the (app) layout (AppLockGuard), so
+ * this screen can assume a logged-in, registered, unlocked user.
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ClockIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
-import { getRouteForStep } from "@/features/auth/accountProgress";
 import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 
@@ -42,26 +39,14 @@ export function DashboardScreen() {
   const current = useCurrentAccount();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const redirect =
-    current.status === "signed-out"
-      ? ROUTES.login
-      : current.status === "signed-in" && current.account.step !== "complete"
-        ? getRouteForStep(current.account.step)
-        : current.status === "signed-in" && !current.account.isUnlocked
-          ? ROUTES.enterPin
-          : null;
-
-  useEffect(() => {
-    if (redirect && !isLoggingOut) router.replace(redirect);
-  }, [redirect, isLoggingOut, router]);
-
   const handleLogOut = async () => {
     setIsLoggingOut(true);
     await logOut();
     router.replace(ROUTES.login);
   };
 
-  if (current.status !== "signed-in" || redirect) return null;
+  // Always signed in here (AppLockGuard); this just narrows the type.
+  if (current.status !== "signed-in") return null;
 
   const { firstName } = current.account;
 
