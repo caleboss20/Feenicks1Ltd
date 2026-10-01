@@ -49,6 +49,13 @@ const STEP_ROUTES: Record<AccountStep, string> = {
   complete: ROUTES.enterPin,
 };
 
+/**
+ * First screen once registration is finished (2FA set up or skipped):
+ * the start-investing intro (risk profile → packages), shown only then.
+ * Later log-ins go Enter PIN → dashboard.
+ */
+export const FIRST_SCREEN_AFTER_REGISTRATION = ROUTES.startInvesting;
+
 /** Where to send a user right after logging in. */
 export function getRouteForStep(step: AccountStep): string {
   return STEP_ROUTES[step];

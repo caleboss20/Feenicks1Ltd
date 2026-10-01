@@ -143,6 +143,37 @@ export function FingerprintIcon({ className }: IconProps) {
   );
 }
 
+/** Compass: "find your direction" (investor profile). */
+export function CompassIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15.5 8.5-2 5-5 2 2-5Z" />
+    </StrokeIcon>
+  );
+}
+
+/** Target with a centre dot: "matched to you". */
+export function TargetIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1" />
+    </StrokeIcon>
+  );
+}
+
+/** Line going up and to the right: growth, returns. */
+export function TrendUpIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="m3 17 6-6 4 4 8-8" />
+      <path d="M15 7h6v6" />
+    </StrokeIcon>
+  );
+}
+
 /** Two overlapping pages: "copy to clipboard". */
 export function CopyIcon({ className }: IconProps) {
   return (

@@ -11,7 +11,7 @@
  *   [ 244 642              (Confirm) ]          ← <OneTimeCodeForm>, no "Resend"
  *
  * The code is really checked (TOTP, lib/totp.ts): it must match what the
- * app shows right now. Correct → "2FA Enabled" (tap anywhere) → dashboard.
+ * app shows right now. Correct → "2FA Enabled" (tap anywhere) → start-investing intro.
  */
 
 import { useCallback, useEffect, useState } from "react";
@@ -19,13 +19,14 @@ import { useRouter } from "next/navigation";
 import { OneTimeCodeForm } from "@/components/forms/OneTimeCodeForm";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { ROUTES } from "@/config/routes";
+import { FIRST_SCREEN_AFTER_REGISTRATION } from "@/features/auth/accountProgress";
 import { CodeRefreshRing } from "./CodeRefreshRing";
 import { confirmAuthenticatorSetup } from "./securityService";
 import { TwoFactorEnabledScreen } from "./TwoFactorEnabledScreen";
 import { useAuthenticatorSetupStore } from "./useAuthenticatorSetupStore";
 
-/** Where "Tap anywhere to continue" leads. */
-const NEXT_SCREEN = ROUTES.dashboard;
+/** Where "Tap anywhere to continue" leads: registration is finished, so the start-investing intro. */
+const NEXT_SCREEN = FIRST_SCREEN_AFTER_REGISTRATION;
 
 export function ConfirmAuthenticatorCodeScreen() {
   const router = useRouter();

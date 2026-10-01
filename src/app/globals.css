@@ -78,6 +78,7 @@
   --animate-slide-in-from-left: slide-in-from-left 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-slide-out: slide-out 0.9s ease-out both;
   --animate-float: float 4s ease-in-out infinite;
+  --animate-twinkle: twinkle 2.4s ease-in-out infinite;
   --animate-scan-beam: scan-beam 2s ease-in-out infinite;
   --animate-card-flip-out: card-flip-out 0.55s ease-in both;
   --animate-card-flip-in: card-flip-in 0.55s ease-out both;
@@ -189,6 +190,19 @@
     }
     50% {
       transform: translateY(-8px);
+    }
+  }
+
+  /* Little coins/sparkles around an illustration: gently pulse and fade. */
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.45;
+      transform: scale(0.85);
     }
   }
 

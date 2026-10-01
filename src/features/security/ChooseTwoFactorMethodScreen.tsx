@@ -33,6 +33,7 @@ import { AuthenticatorAppIcon, FaceIdIcon, FingerprintIcon, MessageIcon } from "
 import { Button } from "@/components/ui/Button";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { ROUTES } from "@/config/routes";
+import { FIRST_SCREEN_AFTER_REGISTRATION } from "@/features/auth/accountProgress";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { maskGhanaPhone } from "@/lib/maskContactDetails";
 import { cn } from "@/lib/utils";
@@ -50,13 +51,14 @@ import { useBiometricSupport } from "./useBiometricSupport";
 
 /**
  * What "Continue" does for each method:
- *   biometric          phone's own fingerprint / face prompt here → "Biometrics enabled" → dashboard
- *   sms                code is texted → Confirmation code screen → "2FA Enabled" → dashboard
- *   authenticator-app  QR code screen → Confirmation code → "2FA Enabled" → dashboard
+ *   biometric          phone's own fingerprint / face prompt here → "Biometrics enabled" → start-investing intro
+ *   sms                code is texted → Confirmation code screen → "2FA Enabled" → start-investing intro
+ *   authenticator-app  QR code screen → Confirmation code → "2FA Enabled" → start-investing intro
  */
 const SMS_SETUP_SCREEN = ROUTES.twoFactorSms;
 const AUTHENTICATOR_SETUP_SCREEN = ROUTES.twoFactorAuthenticator;
-const NEXT_SCREEN = ROUTES.dashboard;
+/** Registration is finished: the start-investing intro (once), then the dashboard. */
+const NEXT_SCREEN = FIRST_SCREEN_AFTER_REGISTRATION;
 
 
 export function ChooseTwoFactorMethodScreen() {

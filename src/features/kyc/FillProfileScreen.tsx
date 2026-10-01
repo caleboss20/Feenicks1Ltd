@@ -4,7 +4,7 @@
  * KYC step 6: "Fill Your Profile".
  *
  *   ← Fill Your Profile
- *   Don't worry, you can always change these details later.
+ *   You can always change these details later.
  *
  *               ( 👤 )✏️                 ← optional profile photo
  *
@@ -86,7 +86,7 @@ export function FillProfileScreen() {
   return (
     <StepScreenLayout
       title="Fill Your Profile"
-      subtitle="Don't worry, you can always change these details later."
+      subtitle="You can always change these details later."
       backHref={ROUTES.kycSelfie}
       // Wider on desktop so the fields can sit in two columns and the whole
       // form fits on one laptop screen.

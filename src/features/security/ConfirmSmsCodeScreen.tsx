@@ -12,7 +12,7 @@
  *   [ 244 642              (Confirm) ]   ← <OneTimeCodeForm>
  *   Didn't get it? Resend code in 42 s
  *
- * Correct code → "2FA Enabled" (tap anywhere) → dashboard.
+ * Correct code → "2FA Enabled" (tap anywhere) → start-investing intro.
  */
 
 import { useCallback, useState } from "react";
@@ -20,14 +20,15 @@ import { useRouter } from "next/navigation";
 import { OneTimeCodeForm } from "@/components/forms/OneTimeCodeForm";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { ROUTES } from "@/config/routes";
+import { FIRST_SCREEN_AFTER_REGISTRATION } from "@/features/auth/accountProgress";
 import { TWO_FACTOR_CODE_LENGTH } from "@/config/verification";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { maskGhanaPhone } from "@/lib/maskContactDetails";
 import { confirmTwoFactorSmsCode, sendTwoFactorSetupCode } from "./securityService";
 import { TwoFactorEnabledScreen } from "./TwoFactorEnabledScreen";
 
-/** Where "Tap anywhere to continue" leads. */
-const NEXT_SCREEN = ROUTES.dashboard;
+/** Where "Tap anywhere to continue" leads: registration is finished, so the start-investing intro. */
+const NEXT_SCREEN = FIRST_SCREEN_AFTER_REGISTRATION;
 
 export function ConfirmSmsCodeScreen() {
   const router = useRouter();

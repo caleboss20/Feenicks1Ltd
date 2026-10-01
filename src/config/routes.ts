@@ -40,6 +40,8 @@ export const ROUTES = {
 
   // The app (signed-in, fully registered users)
   dashboard: "/dashboard",
+  /** Once, right after registration: intro to the risk profile and packages. */
+  startInvesting: "/start-investing",
 
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",
