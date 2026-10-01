@@ -37,11 +37,8 @@ import { verifySelfieMatch } from "./kycService";
 import { SelfieFrame, type MatchStage } from "./SelfieFrame";
 import { useKycStore } from "./useKycStore";
 
-/**
- * Where "Submit" leads.
- * TODO(kyc): change to "Fill Your Profile" once it's built.
- */
-const NEXT_SCREEN = ROUTES.login;
+/** Where "Submit" leads: filling in the profile. */
+const NEXT_SCREEN = ROUTES.kycProfile;
 
 /** Largest selfie we accept when uploaded instead of taken live. */
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024;

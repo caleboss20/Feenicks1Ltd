@@ -1,6 +1,7 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import type { CountryCode, DocumentSide, IdentityDocumentId } from "./identityDocuments";
 import type { InvestmentGoalId } from "./investmentGoals";
+import type { ProfileValues } from "./profileValidation";
 
 /**
  * KYC service: the single place the identity-verification screens talk to
@@ -101,6 +102,23 @@ export async function verifySelfieMatch(
   void source;
   if (IS_DEMO_MODE) {
     await wait(DEMO_FACE_MATCH_MS);
+    return { ok: true };
+  }
+  return SOMETHING_WENT_WRONG;
+}
+
+/** Saves the user's profile details (and optional profile photo). */
+export async function saveProfile(
+  profile: ProfileValues,
+  photo: Blob | null,
+): Promise<KycResult> {
+  // TODO(api): PUT /api/profile (multipart: profile fields + optional photo).
+  //   Phone is stored with the +233 prefix; legal name and date of birth are
+  //   checked against the verified ID document on the server.
+  void profile;
+  void photo;
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
     return { ok: true };
   }
   return SOMETHING_WENT_WRONG;

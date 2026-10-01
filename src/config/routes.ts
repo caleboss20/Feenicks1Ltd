@@ -17,6 +17,8 @@ export const ROUTES = {
   kycProofOfResidency: "/kyc/proof-of-residency",
   kycUploadId: "/kyc/upload-id",
   kycSelfie: "/kyc/selfie",
+  kycProfile: "/kyc/profile",
+  kycAllSet: "/kyc/all-set",
 
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",

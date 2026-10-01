@@ -164,6 +164,53 @@ export function CarIcon({ className }: IconProps) {
   );
 }
 
+/* ── Profile fields ──────────────────────────────────────────────────── */
+
+export function UserIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4.5 20.5c.9-3.6 3.9-5.5 7.5-5.5s6.6 1.9 7.5 5.5" />
+    </StrokeIcon>
+  );
+}
+
+export function CalendarIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </StrokeIcon>
+  );
+}
+
+export function MapPinIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </StrokeIcon>
+  );
+}
+
+export function PencilIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M15.5 4.5 19.5 8.5 8.5 19.5H4.5v-4Z" />
+      <path d="m13.5 6.5 4 4" />
+    </StrokeIcon>
+  );
+}
+
+export function ClockIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5V12l3 2" />
+    </StrokeIcon>
+  );
+}
+
 /* ── Camera ──────────────────────────────────────────────────────────── */
 
 export function CameraIcon({ className }: IconProps) {

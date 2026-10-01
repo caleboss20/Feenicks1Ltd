@@ -6,6 +6,7 @@ import {
   type IdentityDocumentId,
 } from "./identityDocuments";
 import type { InvestmentGoalId } from "./investmentGoals";
+import type { ProfileValues } from "./profileValidation";
 
 /**
  * Identity-verification (KYC) progress (Zustand), shared by the KYC steps.
@@ -37,6 +38,8 @@ type KycState = {
   idPhotos: Partial<Record<DocumentSide["id"], CapturedPhoto>>;
   /** The selfie that matched the ID. */
   selfie: CapturedPhoto | null;
+  /** Saved on "Fill Your Profile" (e.g. to greet the user by name). */
+  profile: ProfileValues | null;
 };
 
 type KycActions = {
@@ -44,6 +47,7 @@ type KycActions = {
   saveResidency: (nationality: CountryCode, identityDocument: IdentityDocumentId) => void;
   saveIdPhoto: (side: DocumentSide["id"], photo: CapturedPhoto) => void;
   saveSelfie: (photo: CapturedPhoto) => void;
+  saveProfile: (profile: ProfileValues) => void;
   /** Forget everything (and free the photos), e.g. once verification is submitted. */
   clear: () => void;
 };
@@ -54,6 +58,7 @@ const initialState: KycState = {
   identityDocument: null,
   idPhotos: {},
   selfie: null,
+  profile: null,
 };
 
 /** Frees a photo's preview URL from memory. */
@@ -85,6 +90,8 @@ export const useKycStore = create<KycState & KycActions>()((set, get) => ({
     release(get().selfie);
     set({ selfie: photo });
   },
+
+  saveProfile: (profile) => set({ profile }),
 
   clear: () => {
     Object.values(get().idPhotos).forEach(release);
