@@ -2,7 +2,8 @@
 
 /**
  * OneTimeCodeForm: "enter the code we texted you", in the 2FA design.
- * Shared by SMS 2FA setup and Forgot PIN, so both look and behave the same.
+ * Shared by SMS 2FA, Forgot PIN and authenticator-app setup, so they all
+ * look and behave the same.
  *
  *   Enter the confirmation code
  *   [ 244 642              (Confirm) ]   ← Confirm sits inside the field,
@@ -22,8 +23,12 @@ import { cn } from "@/lib/utils";
 type OneTimeCodeFormProps = {
   /** Checks the code. Return an error message to show, or null on success. */
   onConfirm: (code: string) => Promise<string | null>;
-  /** Sends a new code. Return an error message to show, or null on success. */
-  onResend: () => Promise<string | null>;
+  /**
+   * Sends a new code. Return an error message to show, or null on success.
+   * Leave out when nothing is sent (authenticator apps make their own codes):
+   * the "Didn't get it? Resend" line is then hidden.
+   */
+  onResend?: () => Promise<string | null>;
   /** Digits in the code (default: 6). */
   codeLength?: number;
   className?: string;
@@ -74,7 +79,7 @@ export function OneTimeCodeForm({
     setError(null);
     setCode("");
     setSecondsLeft(RESEND_CODE_AFTER_SECONDS);
-    const errorMessage = await onResend();
+    const errorMessage = (await onResend?.()) ?? null;
     if (errorMessage) setError(errorMessage);
   };
 
@@ -140,22 +145,24 @@ export function OneTimeCodeForm({
         </p>
       )}
 
-      <p className="mt-4 text-sm text-neutral-500">
-        Didn&apos;t get it?{" "}
-        {secondsLeft > 0 ? (
-          <span>
-            Resend code in <span className="font-semibold text-brand-600">{secondsLeft} s</span>
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={handleResend}
-            className="cursor-pointer font-semibold text-brand-600 hover:underline"
-          >
-            Resend code
-          </button>
-        )}
-      </p>
+      {onResend && (
+        <p className="mt-4 text-sm text-neutral-500">
+          Didn&apos;t get it?{" "}
+          {secondsLeft > 0 ? (
+            <span>
+              Resend code in <span className="font-semibold text-brand-600">{secondsLeft} s</span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResend}
+              className="cursor-pointer font-semibold text-brand-600 hover:underline"
+            >
+              Resend code
+            </button>
+          )}
+        </p>
+      )}
     </form>
   );
 }

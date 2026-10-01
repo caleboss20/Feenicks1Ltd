@@ -52,9 +52,10 @@ import { useBiometricSupport } from "./useBiometricSupport";
  * What "Continue" does for each method:
  *   biometric          phone's own fingerprint / face prompt here → "Biometrics enabled" → dashboard
  *   sms                code is texted → Confirmation code screen → "2FA Enabled" → dashboard
- *   authenticator-app  TODO(security): QR code screen once built; for now finishes and goes on
+ *   authenticator-app  QR code screen → Confirmation code → "2FA Enabled" → dashboard
  */
 const SMS_SETUP_SCREEN = ROUTES.twoFactorSms;
+const AUTHENTICATOR_SETUP_SCREEN = ROUTES.twoFactorAuthenticator;
 const NEXT_SCREEN = ROUTES.dashboard;
 
 
@@ -105,10 +106,9 @@ export function ChooseTwoFactorMethodScreen() {
     setError(null);
     setAction("continue");
 
-    let result: SecurityResult;
+    let result: SecurityResult = { ok: true }; // the authenticator app needs no call here
     if (selected === "biometric") result = await registerBiometric();
     else if (selected === "sms") result = await sendTwoFactorSetupCode();
-    else result = await completeAccountSetup(); // TODO(security): authenticator app setup
 
     if (!result.ok) {
       setAction(null);
@@ -116,9 +116,9 @@ export function ChooseTwoFactorMethodScreen() {
       return;
     }
     if (selected === "biometric") setIsBiometricEnabled(true);
-    // push for SMS, so Back returns here to pick another method.
+    // push, so Back returns here to pick another method.
     else if (selected === "sms") router.push(SMS_SETUP_SCREEN);
-    else router.replace(NEXT_SCREEN);
+    else router.push(AUTHENTICATOR_SETUP_SCREEN);
   };
 
   const handleSkip = async () => {

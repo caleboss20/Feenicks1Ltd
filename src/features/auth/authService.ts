@@ -1,5 +1,7 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { maskGhanaPhone } from "@/lib/maskContactDetails";
+import { verifyTotp } from "@/lib/totp";
 import type { AccountStep } from "./accountProgress";
 import type { LoginValues, SignUpValues } from "./authValidation";
 
@@ -40,12 +42,45 @@ export async function signUp(values: SignUpValues): Promise<AuthResult> {
 }
 
 /**
- * A successful log-in also says how far the user got through registration,
- * so they continue where they left off (see accountProgress.ts).
+ * Log-in result:
+ *   "signed-in"            password OK, no 2FA needed → continue where they left off
+ *                          (see accountProgress.ts)
+ *   "two-factor-required"  password OK, but 2FA is on and this device isn't
+ *                          remembered → NOT signed in yet; the user must enter
+ *                          a code first (LoginTwoStepScreen)
  */
 export type LogInResult =
-  | { ok: true; email: string; nextStep: AccountStep }
+  | { ok: true; status: "signed-in"; email: string; nextStep: AccountStep }
+  | { ok: true; status: "two-factor-required"; challenge: LoginChallenge }
   | { ok: false; message: string };
+
+/** The 2FA methods that ask for a code at log-in (fingerprint is checked on the PIN screen). */
+export type LoginCodeMethod = "sms" | "authenticator-app";
+
+/**
+ * A pending log-in, waiting for its 2FA code. Short-lived and single-use.
+ * In production `token` is an opaque server ID; the browser never learns
+ * the account's secrets.
+ */
+export type LoginChallenge = {
+  token: string;
+  method: LoginCodeMethod;
+  /** Where an SMS code goes, already masked: "+233 *******67". */
+  maskedPhone: string;
+  /** After this (ms timestamp) the user must log in again. */
+  expiresAt: number;
+  /** "Remember me" from the log-in form, applied once the code is right. */
+  rememberSession: boolean;
+};
+
+/** A pending log-in must be finished within this time. */
+const LOGIN_CHALLENGE_TTL_MS = 10 * 60 * 1000;
+
+/** "Remember this device" lasts this long. */
+export const REMEMBER_DEVICE_DAYS = 30;
+
+/** Demo only: the pretend challenge token carries the email (see logIn). */
+const DEMO_CHALLENGE_PREFIX = "demo-login:";
 
 /** One message for every failed log-in (see the security note in logIn). */
 const WRONG_CREDENTIALS = "Incorrect email or password. Check them and try again.";
@@ -61,8 +96,92 @@ export async function logIn(values: LoginValues): Promise<LogInResult> {
     await wait(DEMO_DELAY_MS);
     const account = await demo.checkPassword(values.email, values.password);
     if (!account) return { ok: false, message: WRONG_CREDENTIALS };
+
+    // 2FA on and this device not remembered → ask for a code BEFORE signing in.
+    const method = account.twoFactorMethod;
+    if ((method === "sms" || method === "authenticator-app") && !demo.isDeviceRemembered(account.email)) {
+      // TODO(api): for SMS, the server texts the code here.
+      return {
+        ok: true,
+        status: "two-factor-required",
+        challenge: {
+          token: `${DEMO_CHALLENGE_PREFIX}${account.email}`,
+          method,
+          maskedPhone: maskGhanaPhone(account.phone),
+          expiresAt: Date.now() + LOGIN_CHALLENGE_TTL_MS,
+          rememberSession: values.remember,
+        },
+      };
+    }
+
     demo.startSession(account.email, values.remember);
-    return { ok: true, email: account.email, nextStep: account.step };
+    return { ok: true, status: "signed-in", email: account.email, nextStep: account.step };
+  }
+  return NOT_AVAILABLE;
+}
+
+/**
+ * Log-in 2FA: checks the code for a pending log-in, then signs the user in.
+ *
+ * Server requirements (for the backend):
+ *   - the challenge is single-use, expires (10 min) and allows max 5 wrong codes
+ *   - authenticator codes: TOTP check (±30 s); a used code can't be reused
+ *   - only after a correct code: create the session cookie, and if
+ *     `rememberDevice`, a signed httpOnly device cookie for 30 days
+ *   - email the user "New sign-in to your account" for new devices
+ */
+export async function verifyLoginCode(
+  challenge: LoginChallenge,
+  code: string,
+  rememberDevice: boolean,
+): Promise<{ ok: true; nextStep: AccountStep } | { ok: false; message: string }> {
+  // TODO(api): POST /api/auth/login/verify  { challengeToken, code, rememberDevice }
+  if (Date.now() > challenge.expiresAt) {
+    return { ok: false, message: "This sign-in has expired. Please log in again." };
+  }
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    const account = demo.findAccount(challenge.token.replace(DEMO_CHALLENGE_PREFIX, ""));
+    if (!account) return { ok: false, message: "This sign-in has expired. Please log in again." };
+
+    // Authenticator: a real check against the app. SMS: any code in demo mode.
+    const isCorrect =
+      challenge.method === "authenticator-app"
+        ? Boolean(account.totpSecret) && (await verifyTotp(account.totpSecret!, code))
+        : /^\d{6}$/.test(code);
+    if (!isCorrect) {
+      return {
+        ok: false,
+        message:
+          challenge.method === "authenticator-app"
+            ? "That code isn't right. Use the newest code from your app."
+            : "That code isn't right. Check your messages and try again.",
+      };
+    }
+
+    if (rememberDevice) demo.rememberThisDevice(account.email, REMEMBER_DEVICE_DAYS);
+    demo.startSession(account.email, challenge.rememberSession);
+    return { ok: true, nextStep: account.step };
+  }
+  return NOT_AVAILABLE;
+}
+
+/**
+ * "Use another way": texts a code to the account's phone for THIS log-in
+ * only (e.g. the authenticator app isn't at hand). The 2FA method itself
+ * never changes here; that's only possible in Security settings, after
+ * logging in and confirming with the PIN.
+ */
+export async function sendLoginSmsCode(
+  challenge: LoginChallenge,
+): Promise<{ ok: true; challenge: LoginChallenge } | { ok: false; message: string }> {
+  // TODO(api): POST /api/auth/login/sms  { challengeToken } (rate-limited)
+  if (Date.now() > challenge.expiresAt) {
+    return { ok: false, message: "This sign-in has expired. Please log in again." };
+  }
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    return { ok: true, challenge: { ...challenge, method: "sms" } };
   }
   return NOT_AVAILABLE;
 }

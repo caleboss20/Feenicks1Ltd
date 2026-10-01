@@ -1,5 +1,6 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { buildOtpAuthUri, generateTotpSecret, verifyTotp } from "@/lib/totp";
 import { confirmWithDevice, createDeviceCredential, randomChallenge } from "@/lib/webAuthn";
 
 /**
@@ -143,6 +144,8 @@ export async function completeAccountSetup(): Promise<SecurityResult> {
   // TODO(api): POST /api/account/setup-complete
   if (IS_DEMO_MODE) {
     demo.advanceSessionStep("complete");
+    // Just verified with a 2FA method: counts as fresh activity for auto-lock.
+    demo.markUnlocked();
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
@@ -167,6 +170,8 @@ export async function confirmTwoFactorSmsCode(code: string): Promise<SecurityRes
     await wait(DEMO_DELAY_MS);
     demo.updateSessionAccount({ twoFactorMethod: "sms" });
     demo.advanceSessionStep("complete");
+    // Just verified with a 2FA method: counts as fresh activity for auto-lock.
+    demo.markUnlocked();
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
@@ -230,6 +235,51 @@ export async function resetPin(resetToken: string, newPin: string): Promise<Secu
       return { ok: false, message: "That's your current PIN. Choose a different one." };
     }
     if (email) await demo.setPin(email, newPin);
+    demo.markUnlocked();
+    return { ok: true };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}
+
+/* ── Authenticator app (TOTP) ────────────────────────────────────────── */
+
+/** What the QR screen shows: the secret (typed by hand) and the link inside the QR code. */
+export type AuthenticatorSetup = { secret: string; otpAuthUri: string };
+
+/**
+ * Authenticator setup, step 1: a new secret for the user's app.
+ *
+ * Server requirements (for the backend):
+ *   - create the secret on the server (random, 160 bits) and store it
+ *     ENCRYPTED, marked "pending" until a correct code is entered
+ *   - never log it; show it only on this screen
+ */
+export async function startAuthenticatorSetup(): Promise<AuthenticatorSetup> {
+  // TODO(api): POST /api/security/two-factor/authenticator/start → { secret, otpAuthUri }
+  const secret = generateTotpSecret();
+  const accountName = demo.getSessionEmail() ?? "Feenicks1 account";
+  return { secret, otpAuthUri: buildOtpAuthUri({ secret, accountName, issuer: "Feenicks1" }) };
+}
+
+/**
+ * Authenticator setup, step 2: checks the 6-digit code from the app.
+ * Correct → authenticator 2FA is on and registration is complete.
+ */
+export async function confirmAuthenticatorSetup(secret: string, code: string): Promise<SecurityResult> {
+  // TODO(api): POST /api/security/two-factor/authenticator/confirm  { code }
+  //   (the server already holds the pending secret; it is never sent back).
+  if (IS_DEMO_MODE) {
+    await wait(DEMO_DELAY_MS);
+    // Real check, even in demo: the code must match the app.
+    if (!(await verifyTotp(secret, code))) {
+      return {
+        ok: false,
+        message: "That code isn't right. Codes change every 30 seconds, so use the newest one.",
+      };
+    }
+    demo.updateSessionAccount({ totpSecret: secret, twoFactorMethod: "authenticator-app" });
+    demo.advanceSessionStep("complete");
+    // Just verified with a 2FA method: counts as fresh activity for auto-lock.
     demo.markUnlocked();
     return { ok: true };
   }

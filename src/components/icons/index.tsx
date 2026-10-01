@@ -143,6 +143,16 @@ export function FingerprintIcon({ className }: IconProps) {
   );
 }
 
+/** Two overlapping pages: "copy to clipboard". */
+export function CopyIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <rect x="8" y="8" width="12" height="13" rx="2.5" />
+      <path d="M16 8V5.5A2.5 2.5 0 0 0 13.5 3h-7A2.5 2.5 0 0 0 4 5.5v9A2.5 2.5 0 0 0 6.5 17H8" />
+    </StrokeIcon>
+  );
+}
+
 /** Face ID: a face inside scanning corners (iPhone face unlock). */
 export function FaceIdIcon({ className }: IconProps) {
   return (

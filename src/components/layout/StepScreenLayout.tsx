@@ -9,6 +9,10 @@
  *
  *   (      Continue      )      ← the screen's button, pinned to the bottom on phones
  *
+ * Centred-title variant (`centeredTitle`), as in the 2FA mockup:
+ *
+ *   ←      Two-factor authentication      ◌    ← back · title · optional action
+ *
  * Phones: fills the screen; the screen's content grows (flex-1) so its
  * button can sit at the bottom with `mt-auto`.
  * Tablets/desktop (sm+): everything is centred in the middle of the page.
@@ -32,6 +36,10 @@ type StepScreenLayoutProps = {
   subtitle?: string;
   /** Wider column on desktop, for screens with side-by-side content (e.g. 2-column options). */
   wide?: boolean;
+  /** Smaller title centred between the back arrow and `headerAction` (2FA screens). */
+  centeredTitle?: boolean;
+  /** Small element on the right of a centred header, e.g. a countdown ring. */
+  headerAction?: React.ReactNode;
   children: React.ReactNode;
 };
 
@@ -41,8 +49,23 @@ export function StepScreenLayout({
   backOnDesktopOnly,
   subtitle,
   wide,
+  centeredTitle,
+  headerAction,
   children,
 }: StepScreenLayoutProps) {
+  const backLink = backHref && (
+    <Link
+      href={backHref}
+      aria-label="Back"
+      className={cn(
+        "-ml-2 size-11 shrink-0 place-items-center rounded-full transition-colors hover:bg-foreground/5",
+        backOnDesktopOnly ? "hidden lg:grid" : "grid",
+      )}
+    >
+      <ArrowLeft className="size-6" />
+    </Link>
+  );
+
   return (
     <div
       className={cn(
@@ -51,21 +74,19 @@ export function StepScreenLayout({
       )}
     >
       <header>
-        <div className="flex min-h-11 items-center gap-2">
-          {backHref && (
-            <Link
-              href={backHref}
-              aria-label="Back"
-              className={cn(
-                "-ml-2 size-11 shrink-0 place-items-center rounded-full transition-colors hover:bg-foreground/5",
-                backOnDesktopOnly ? "hidden lg:grid" : "grid",
-              )}
-            >
-              <ArrowLeft className="size-6" />
-            </Link>
-          )}
-          <h1 className="text-[1.375rem] font-bold lg:text-xl">{title}</h1>
-        </div>
+        {centeredTitle ? (
+          // Equal side columns keep the title exactly centred on the screen.
+          <div className="grid min-h-11 grid-cols-[2.75rem_1fr_2.75rem] items-center">
+            {backLink || <span />}
+            <h1 className="text-center text-[1.0625rem] leading-tight font-bold">{title}</h1>
+            <div className="flex justify-end">{headerAction}</div>
+          </div>
+        ) : (
+          <div className="flex min-h-11 items-center gap-2">
+            {backLink}
+            <h1 className="text-[1.375rem] font-bold lg:text-xl">{title}</h1>
+          </div>
+        )}
         {subtitle && (
           <p className="mt-2 text-[0.9375rem] leading-relaxed text-neutral-600 lg:text-sm dark:text-neutral-400">
             {subtitle}

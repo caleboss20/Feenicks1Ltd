@@ -38,6 +38,8 @@ export type DemoAccount = {
   twoFactorMethod?: "sms" | "biometric" | "authenticator-app";
   /** Fingerprint / Face ID key on this device (WebAuthn credential ID). */
   biometricCredentialId?: string;
+  /** Authenticator-app secret (Base32). In production: server-side, encrypted. */
+  totpSecret?: string;
   createdAt: string;
 };
 
@@ -143,7 +145,7 @@ export async function changePassword(email: string, newPassword: string) {
 /** Saves details (name, phone…) on an account. */
 export function updateAccount(
   email: string,
-  details: Partial<Pick<DemoAccount, "fullName" | "gender" | "phone" | "twoFactorMethod" | "biometricCredentialId">>,
+  details: Partial<Pick<DemoAccount, "fullName" | "gender" | "phone" | "twoFactorMethod" | "biometricCredentialId" | "totpSecret">>,
 ) {
   const account = findAccount(email);
   if (account) saveAccount({ ...account, ...details });
@@ -249,4 +251,24 @@ export function advanceSessionStep(step: AccountStep) {
 export function updateSessionAccount(details: Parameters<typeof updateAccount>[1]) {
   const email = getSessionEmail();
   if (email) updateAccount(email, details);
+}
+
+/* ── Remembered devices (skip the log-in 2FA code) ───────────────────── */
+
+/**
+ * Accounts that ticked "Remember this device" on THIS browser, with when
+ * that expires. In production: a signed, httpOnly device cookie from the
+ * server (JavaScript can't read or forge it), checked on every log-in.
+ */
+const REMEMBERED_DEVICES_KEY = "feenicks1-demo-remembered-devices";
+
+export function rememberThisDevice(email: string, days: number) {
+  const devices = readJson<Record<string, number>>(local(), REMEMBERED_DEVICES_KEY) ?? {};
+  devices[normaliseEmail(email)] = Date.now() + days * 24 * 60 * 60 * 1000;
+  writeJson(local(), REMEMBERED_DEVICES_KEY, devices);
+}
+
+export function isDeviceRemembered(email: string): boolean {
+  const devices = readJson<Record<string, number>>(local(), REMEMBERED_DEVICES_KEY) ?? {};
+  return (devices[normaliseEmail(email)] ?? 0) > Date.now();
 }

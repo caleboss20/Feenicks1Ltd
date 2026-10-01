@@ -8,6 +8,8 @@ export const ROUTES = {
   splash: "/",
   onboarding: "/onboarding",
   login: "/login",
+  /** Log-in, step 2 when 2FA is on: enter the code from the app or SMS. */
+  loginTwoStep: "/login/two-step",
   signUp: "/sign-up",
   /** Enter the code emailed after sign-up. */
   verifyEmail: "/verify-email",
@@ -26,6 +28,9 @@ export const ROUTES = {
   twoFactor: "/security/two-factor",
   /** SMS 2FA setup: enter the code texted to the profile phone number. */
   twoFactorSms: "/security/two-factor/sms",
+  /** Authenticator-app 2FA setup: scan the QR code, then enter the app's code. */
+  twoFactorAuthenticator: "/security/two-factor/authenticator",
+  twoFactorAuthenticatorConfirm: "/security/two-factor/authenticator/confirm",
   /** Returning users: unlock the app with their PIN after logging in. */
   enterPin: "/security/enter-pin",
   // Forgot PIN (3 steps, in order)

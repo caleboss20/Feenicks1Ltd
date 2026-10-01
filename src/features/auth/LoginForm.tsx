@@ -38,11 +38,13 @@ import { logIn, sendEmailVerificationCode } from "./authService";
 import { AuthFooterLink, AuthScreenLayout, authFormSpacing, authSectionSpacing } from "./AuthScreenLayout";
 import { loginSchema, type LoginInput, type LoginValues } from "./authValidation";
 import { SocialLoginButtons } from "./SocialLoginButtons";
+import { useLoginChallengeStore } from "./useLoginChallengeStore";
 import { useSignUpStore } from "./useSignUpStore";
 
 export function LoginForm() {
   const router = useRouter();
   const saveSignUpEmail = useSignUpStore((s) => s.saveEmail);
+  const saveLoginChallenge = useLoginChallengeStore((s) => s.saveChallenge);
   /** Form-level error (e.g. wrong credentials, network failure). */
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -72,6 +74,13 @@ export function LoginForm() {
       return;
     }
     setIsRedirecting(true);
+
+    // 2FA is on: not signed in yet. Ask for the code from the app or SMS first.
+    if (result.status === "two-factor-required") {
+      saveLoginChallenge(result.challenge);
+      router.push(ROUTES.loginTwoStep);
+      return;
+    }
 
     // Email never verified: send a fresh code and show the Verify Email screen.
     if (result.nextStep === "verify-email") {
