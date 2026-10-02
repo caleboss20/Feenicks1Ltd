@@ -1,20 +1,35 @@
 "use client";
 
 /**
- * Account tab: who's logged in, and everything about their account.
+ * Account tab, after the user's reference (a "Profile" screen): a light grey
+ * page with white rounded cards.
  *
- *   Account
- *   (📷) Ama Mensah
- *        ama@example.com
+ *   (←)            Account            (🔔)
+ *   ╭────────────────────────────────────╮
+ *   │ (📷) Ama                            │
+ *   │      ama@example.com               │
+ *   ╰────────────────────────────────────╯
+ *   ╭── Invite a friend (photo cards) ───╮   ← swipeable; where the reference
+ *   ╰────────────────────────────────────╯     has "Upgrade to Pro"
+ *   ╭────────────────────────────────────╮
+ *   │ 🧭 Investor profile    Moderate  › │
+ *   │ ▦  Investment packages            › │
+ *   │ ↓  Withdraw                       › │
+ *   ╰────────────────────────────────────╯
+ *   ╭────────────────────────────────────╮
+ *   │ ☝  Unlock with fingerprint   (●) │   ← real toggle (this device)
+ *   │ 🔑 Reset PIN                      › │
+ *   │ 🔔 Notifications                  › │
+ *   ╰────────────────────────────────────╯
+ *   ╭────────────────────────────────────╮
+ *   │ 🎧 Help & support                 › │
+ *   ╰────────────────────────────────────╯
+ *   ╭────────────────────────────────────╮
+ *   │ ⇥  Log out                          │   ← red
+ *   ╰────────────────────────────────────╯
  *
- *   Investor profile        Moderate   ›
- *   Investment packages                ›
- *   Reset PIN                          ›
- *   Support                            ↗
- *   ─────────────────────────────────────
- *   ⇥ Log out                              ← red
- *
- * TODO(settings): change password, 2FA, fingerprint, dark mode toggle.
+ * Only rows that work today: more (personal details, privacy policy, dark
+ * mode…) get added as those features are built.
  */
 
 import { useState } from "react";
@@ -22,20 +37,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ArrowLeft,
+  ArrowRight,
+  BellIcon,
   ChevronDownIcon,
   CompassIcon,
+  FaceIdIcon,
+  FingerprintIcon,
   GridIcon,
   KeyIcon,
   LogoutIcon,
   SupportIcon,
 } from "@/components/icons";
-import { AppTabScreenLayout } from "@/components/layout/AppTabScreenLayout";
+import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
+import { Switch } from "@/components/ui/Switch";
 import { ROUTES } from "@/config/routes";
 import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
+import { InviteCarousel } from "@/features/referrals/InviteCarousel";
+import { disableBiometricUnlock, enableBiometricUnlock } from "@/features/security/securityService";
+import { useBiometricSupport } from "@/features/security/useBiometricSupport";
+import { guessBiometricKind } from "@/lib/webAuthn";
+import { cn } from "@/lib/utils";
 
-/** Company website, for "Support" until in-app support exists. */
+/** Company website, for "Help & support" until in-app support exists. */
 const SUPPORT_URL = "https://www.feenicks1solutions.com";
 
 export function AccountScreen() {
@@ -45,7 +71,7 @@ export function AccountScreen() {
 
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
-  const { email, firstName, avatarUrl, riskLevel } = current.account;
+  const { email, firstName, avatarUrl, riskLevel, hasBiometrics } = current.account;
 
   const handleLogOut = async () => {
     setIsLoggingOut(true);
@@ -53,77 +79,184 @@ export function AccountScreen() {
     router.replace(ROUTES.login);
   };
 
-  const rows = [
-    {
-      label: "Investor profile",
-      value: riskLevel ? RISK_LEVELS[riskLevel].name : "Not set",
-      href: riskLevel ? ROUTES.riskProfileResult : ROUTES.riskProfileQuestions,
-      icon: <CompassIcon />,
-    },
-    { label: "Investment packages", href: ROUTES.packages, icon: <GridIcon /> },
-    { label: "Reset PIN", href: ROUTES.forgotPin, icon: <KeyIcon /> },
-    { label: "Support", href: SUPPORT_URL, icon: <SupportIcon />, external: true },
-  ];
+  const circleButton =
+    "grid size-11 shrink-0 place-items-center rounded-full bg-black/5 transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15";
 
   return (
-    <AppTabScreenLayout title="Account">
+    <div
+      className={cn(
+        "mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 bg-neutral-100 px-4 pt-[max(1rem,env(safe-area-inset-top))] dark:bg-background",
+        appTabBarPadding,
+      )}
+    >
+      {/* Back to Home · title · notifications */}
+      <header className="grid grid-cols-[2.75rem_1fr_2.75rem] items-center pb-2">
+        <Link href={ROUTES.dashboard} aria-label="Back to home" className={circleButton}>
+          <ArrowLeft className="size-5" />
+        </Link>
+        <h1 className="text-center text-[1.0625rem] font-semibold">Account</h1>
+        <Link href={ROUTES.notifications} aria-label="Notifications" className={circleButton}>
+          <BellIcon className="size-5" />
+        </Link>
+      </header>
+
       {/* Who's logged in */}
-      <section className="flex items-center gap-4">
+      <section className="flex items-center gap-3.5 rounded-3xl bg-white px-4 py-4 dark:bg-white/5">
         {avatarUrl ? (
           <Image
             src={avatarUrl}
             alt=""
-            width={64}
-            height={64}
+            width={52}
+            height={52}
             unoptimized // a small local thumbnail: nothing to optimise
-            className="size-16 shrink-0 rounded-full object-cover"
+            className="size-13 shrink-0 rounded-full object-cover"
           />
         ) : (
           <span
             aria-hidden
-            className="grid size-16 shrink-0 place-items-center rounded-full bg-brand-50 text-lg font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"
+            className="grid size-13 shrink-0 place-items-center rounded-full bg-brand-50 text-base font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"
           >
             {(firstName ?? "F1").slice(0, 2).toUpperCase()}
           </span>
         )}
         <div className="min-w-0">
-          <p className="truncate text-lg font-semibold">{firstName ?? "Your account"}</p>
-          <p className="truncate text-sm text-neutral-500">{email}</p>
+          <p className="truncate text-base font-semibold">{firstName ?? "Your account"}</p>
+          <p className="mt-0.5 truncate text-sm text-neutral-500 dark:text-neutral-400">{email}</p>
         </div>
       </section>
 
-      {/* Settings rows */}
-      <ul className="divide-y divide-neutral-100 rounded-3xl border border-neutral-100 dark:divide-white/10 dark:border-white/10">
-        {rows.map((row) => (
-          <li key={row.label}>
-            <Link
-              href={row.href}
-              {...(row.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className="flex items-center gap-3.5 px-4 py-4 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5"
-            >
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-neutral-100 text-neutral-600 dark:bg-white/10 dark:text-neutral-300 [&_svg]:size-[18px]">
-                {row.icon}
-              </span>
-              <span className="flex-1 text-sm font-medium">{row.label}</span>
-              {row.value && <span className="text-sm text-neutral-500">{row.value}</span>}
-              {/* Chevron turned to point right ("open"). */}
-              <ChevronDownIcon className="size-4 -rotate-90 text-neutral-400" />
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {/* Invite friends, where the reference has "Upgrade to Pro". */}
+      <InviteCarousel email={email} />
 
-      <button
-        type="button"
-        onClick={handleLogOut}
-        disabled={isLoggingOut}
-        className="flex cursor-pointer items-center gap-3.5 rounded-3xl border border-neutral-100 px-4 py-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60 dark:border-white/10 dark:hover:bg-red-500/10"
+      <RowGroup>
+        <LinkRow
+          icon={<CompassIcon />}
+          label="Investor profile"
+          value={riskLevel ? RISK_LEVELS[riskLevel].name : "Not set"}
+          href={riskLevel ? ROUTES.riskProfileResult : ROUTES.riskProfileQuestions}
+        />
+        <LinkRow icon={<GridIcon />} label="Investment packages" href={ROUTES.packages} />
+        <LinkRow icon={<ArrowRight className="rotate-90" />} label="Withdraw" href={ROUTES.withdraw} />
+      </RowGroup>
+
+      <RowGroup>
+        <BiometricUnlockRow isOn={hasBiometrics} />
+        <LinkRow icon={<KeyIcon />} label="Reset PIN" href={ROUTES.forgotPin} />
+        <LinkRow icon={<BellIcon />} label="Notifications" href={ROUTES.notifications} />
+      </RowGroup>
+
+      <RowGroup>
+        <LinkRow icon={<SupportIcon />} label="Help & support" href={SUPPORT_URL} external />
+      </RowGroup>
+
+      <RowGroup>
+        <li>
+          <button
+            type="button"
+            onClick={handleLogOut}
+            disabled={isLoggingOut}
+            className="flex min-h-14 w-full cursor-pointer items-center gap-3.5 py-3.5 text-[0.9375rem] font-medium text-red-600 disabled:opacity-60 dark:text-red-400 [&_svg]:size-5"
+          >
+            <LogoutIcon />
+            {isLoggingOut ? "Logging out…" : "Log out"}
+          </button>
+        </li>
+      </RowGroup>
+
+      <AppTabBar />
+    </div>
+  );
+}
+
+/** A white rounded card of rows, with thin lines between them. */
+function RowGroup({ children }: { children: React.ReactNode }) {
+  return (
+    <ul className="divide-y divide-neutral-100 rounded-3xl bg-white px-4 dark:divide-white/10 dark:bg-white/5">
+      {children}
+    </ul>
+  );
+}
+
+const rowClass = "flex min-h-14 items-center gap-3.5 py-3.5";
+const iconClass = "shrink-0 text-neutral-600 dark:text-neutral-300 [&_svg]:size-5";
+
+/** A row that opens a screen (or an external site): icon, label, optional value, chevron. */
+function LinkRow({
+  icon,
+  label,
+  value,
+  href,
+  external,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value?: string;
+  href: string;
+  external?: boolean;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        className={cn(rowClass, "group")}
       >
-        <span className="grid size-9 place-items-center rounded-full bg-red-50 dark:bg-red-500/10">
-          <LogoutIcon className="size-[18px]" />
-        </span>
-        {isLoggingOut ? "Logging out…" : "Log out"}
-      </button>
-    </AppTabScreenLayout>
+        <span className={iconClass}>{icon}</span>
+        <span className="min-w-0 flex-1 truncate text-[0.9375rem]">{label}</span>
+        {value && <span className="text-sm text-neutral-500 dark:text-neutral-400">{value}</span>}
+        {/* Chevron turned to point right ("open"). */}
+        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+      </Link>
+    </li>
+  );
+}
+
+/**
+ * "Unlock with fingerprint / Face ID", on or off for this account on this
+ * device. Turning it on shows the phone's own prompt; turning it off means
+ * the PIN unlocks the app. Greyed out when the device can't do it.
+ */
+function BiometricUnlockRow({ isOn }: { isOn: boolean }) {
+  const isSupported = useBiometricSupport();
+  const [isBusy, setIsBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const kind = guessBiometricKind();
+  const label = kind === "face" ? "Unlock with Face ID" : "Unlock with fingerprint";
+
+  const toggle = async (turnOn: boolean) => {
+    setIsBusy(true);
+    setError(null);
+    const result = turnOn ? await enableBiometricUnlock() : await disableBiometricUnlock();
+    if (!result.ok) setError(result.message);
+    setIsBusy(false);
+  };
+
+  const unavailable = isSupported === false && !isOn;
+
+  return (
+    <li className={rowClass}>
+      <span className={iconClass}>{kind === "face" ? <FaceIdIcon /> : <FingerprintIcon />}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[0.9375rem]">{label}</span>
+        {(unavailable || error) && (
+          <span
+            role={error ? "alert" : undefined}
+            className={cn(
+              "mt-0.5 block text-xs",
+              error ? "text-red-600 dark:text-red-400" : "text-neutral-500 dark:text-neutral-400",
+            )}
+          >
+            {error ?? "Not available on this device"}
+          </span>
+        )}
+      </span>
+      <Switch
+        checked={isOn}
+        onChange={toggle}
+        label={label}
+        // Still checking the device, busy, or the device can't (unless it's on: it can always be turned off).
+        disabled={isBusy || isSupported === null || unavailable}
+      />
+    </li>
   );
 }

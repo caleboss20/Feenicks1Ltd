@@ -115,6 +115,47 @@ const BIOMETRIC_ERRORS = {
 } as const;
 
 /**
+ * Turns fingerprint / Face ID unlock on from the Account screen. Same device
+ * prompt and key as `registerBiometric`, but outside registration: the
+ * account's sign-in two-factor method is left as it is.
+ */
+export async function enableBiometricUnlock(): Promise<SecurityResult> {
+  // TODO(api): GET /api/security/biometric/challenge → create → POST /api/security/biometric
+  const email = demo.getSessionEmail();
+  const result = await createDeviceCredential({
+    challenge: randomChallenge(), // TODO(api): from the server
+    userId: crypto.getRandomValues(new Uint8Array(16)), // TODO(api): the server's user handle
+    userName: email ?? "Feenicks1 user",
+    displayName: email ?? "Feenicks1 user",
+  });
+  if (!result.ok) {
+    return {
+      ok: false,
+      message: result.reason === "cancelled" ? "Cancelled. It's still off." : BIOMETRIC_ERRORS[result.reason],
+    };
+  }
+
+  if (IS_DEMO_MODE) {
+    demo.updateSessionAccount({ biometricCredentialId: result.credentialId });
+    return { ok: true };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}
+
+/**
+ * Turns fingerprint / Face ID unlock off: the app unlocks with the PIN only.
+ * (No PIN needed to turn it off: it removes a way in, it doesn't add one.)
+ */
+export async function disableBiometricUnlock(): Promise<SecurityResult> {
+  // TODO(api): DELETE /api/security/biometric (the server forgets the public key)
+  if (IS_DEMO_MODE) {
+    demo.updateSessionAccount({ biometricCredentialId: undefined });
+    return { ok: true };
+  }
+  return { ok: false, message: "Something went wrong. Please try again in a moment." };
+}
+
+/**
  * Checks the PIN of a returning user (after log-in, before the dashboard).
  *
  * Server requirements (for the backend):

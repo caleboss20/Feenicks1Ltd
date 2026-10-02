@@ -2,7 +2,8 @@
 
 /**
  * BannerCarousel: swipeable white cards on the dashboard, after the "Bill
- * negotiator" card in the user's reference.
+ * negotiator" card in the user's reference. (Swiping, dots and autoplay:
+ * the shared <Carousel>.)
  *
  *   ╭──────────────────────────────────────╮
  *   │ 🎁 Invite a friend            ▬ • •  │   ← dots: which card is showing
@@ -13,23 +14,12 @@
  *   │ │ ╰──────────────────────────────╯ │ │
  *   │ ╰──────────────────────────────────╯ │
  *   ╰──────────────────────────────────────╯
- *
- * - Swipe (touch) or scroll horizontally; each card snaps into place.
- * - Advances on its own every AUTOPLAY_MS, looping back to the first.
- * - Autoplay pauses while the user touches it, for a while after, when the
- *   tab is hidden, and never runs with "reduce motion" on.
- * - Dots are buttons too: tap one to jump to that card.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckIcon } from "@/components/icons";
-import { cn } from "@/lib/utils";
-
-/** Time each card shows before moving on by itself. */
-const AUTOPLAY_MS = 5000;
-/** After the user touches the carousel, wait this long before auto-moving again. */
-const RESUME_AFTER_TOUCH_MS = 8000;
+import { Carousel } from "@/components/ui/Carousel";
 
 export type Banner = {
   id: string;
@@ -42,101 +32,20 @@ export type Banner = {
   action: { label: string; href: string } | { label: string; onClick: () => Promise<"done" | "copied"> };
 };
 
-/** Index of the card closest to the track's scroll position. */
-function visibleIndex(track: HTMLElement): number {
-  let closest = 0;
-  let closestDistance = Infinity;
-  Array.from(track.children).forEach((card, index) => {
-    const distance = Math.abs((card as HTMLElement).offsetLeft - track.scrollLeft);
-    if (distance < closestDistance) {
-      closest = index;
-      closestDistance = distance;
-    }
-  });
-  return closest;
-}
-
 export function BannerCarousel({ banners, label }: { banners: Banner[]; label: string }) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [current, setCurrent] = useState(0);
-  const pausedUntil = useRef(0);
-
-  const goTo = useCallback((index: number) => {
-    const card = trackRef.current?.children[index] as HTMLElement | undefined;
-    if (!card) return;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    trackRef.current?.scrollTo({ left: card.offsetLeft, behavior: reduceMotion ? "auto" : "smooth" });
-  }, []);
-
-  // Which card is showing, from the scroll position.
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const onScroll = () => setCurrent(visibleIndex(track));
-    track.addEventListener("scroll", onScroll, { passive: true });
-    return () => track.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Autoplay (see the rules at the top of the file).
-  useEffect(() => {
-    if (banners.length < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = setInterval(() => {
-      if (document.visibilityState !== "visible" || Date.now() < pausedUntil.current) return;
-      const track = trackRef.current;
-      if (track) goTo((visibleIndex(track) + 1) % banners.length);
-    }, AUTOPLAY_MS);
-    return () => clearInterval(timer);
-  }, [banners.length, goTo]);
-
-  const pause = () => {
-    pausedUntil.current = Date.now() + RESUME_AFTER_TOUCH_MS;
-  };
-
   return (
-    <section aria-roledescription="carousel" aria-label={label} className="relative">
-      <div
-        ref={trackRef}
-        onPointerDown={pause}
-        onTouchStart={pause}
-        onWheel={pause}
-        // `relative` so each card's offsetLeft is measured from the track.
-        className="relative flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {banners.map((banner, index) => (
-          <BannerCard key={banner.id} banner={banner} position={`${index + 1} of ${banners.length}`} />
-        ))}
-      </div>
-
-      {/* Dots, top-right of the card, level with its title. The current one is a short bar. */}
-      {banners.length > 1 && (
-        <div className="absolute top-[1.375rem] right-5 flex items-center gap-1.5">
-          {banners.map((banner, index) => (
-            <button
-              key={banner.id}
-              type="button"
-              aria-label={`Show card ${index + 1}`}
-              aria-current={index === current ? "true" : undefined}
-              onClick={() => {
-                pause();
-                goTo(index);
-              }}
-              className={cn(
-                "h-1.5 cursor-pointer rounded-full transition-all duration-300",
-                index === current
-                  ? "w-4 bg-brand-600 dark:bg-brand-400"
-                  : "w-1.5 bg-neutral-300 dark:bg-white/25",
-              )}
-            />
-          ))}
-        </div>
-      )}
-    </section>
+    <Carousel
+      label={label}
+      // Top-right of the card, level with its title.
+      dotsClassName="top-[1.375rem] right-5"
+      dotsTone="brand"
+      slides={banners.map((banner) => ({ id: banner.id, content: <BannerCard banner={banner} /> }))}
+    />
   );
 }
 
 /** One white card: icon and title, then a grey box with the message and a button. */
-function BannerCard({ banner, position }: { banner: Banner; position: string }) {
+function BannerCard({ banner }: { banner: Banner }) {
   const [copied, setCopied] = useState(false);
 
   // Put the button back to its label after a moment.
@@ -151,12 +60,7 @@ function BannerCard({ banner, position }: { banner: Banner; position: string }) 
   const arrow = <ArrowRight className="size-4" />;
 
   return (
-    <div
-      role="group"
-      aria-roledescription="slide"
-      aria-label={position}
-      className="flex w-full shrink-0 snap-start snap-always flex-col rounded-3xl border border-neutral-200/80 bg-background p-2.5 dark:border-white/10"
-    >
+    <div className="flex w-full flex-col rounded-3xl border border-neutral-200/80 bg-background p-2.5 dark:border-white/10">
       {/* Room on the right for the dots. */}
       <div className="flex items-center gap-2 px-2 pt-1 pr-16 pb-2.5">
         <span className="text-brand-600 dark:text-brand-400 [&_svg]:size-[18px]">{banner.icon}</span>

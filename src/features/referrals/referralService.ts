@@ -57,6 +57,17 @@ export function parseReferralCode(value: unknown): string | null {
   return REFERRAL_CODE_PATTERN.test(code) ? code : null;
 }
 
+/** The invite message that goes before the link. */
+const INVITE_MESSAGE = "Join me on Feenicks1 and start investing. Sign up with my link:";
+
+/**
+ * A wa.me link that opens WhatsApp (the app on phones, WhatsApp Web on
+ * computers) with the invite ready to send to any chat.
+ */
+export function whatsAppInviteUrl(email: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(`${INVITE_MESSAGE} ${referralLinkFor(email)}`)}`;
+}
+
 /**
  * Opens the phone's share sheet (WhatsApp, SMS…) with the invite, or copies
  * the link where sharing isn't supported (most desktops).
@@ -64,7 +75,7 @@ export function parseReferralCode(value: unknown): string | null {
  */
 export async function shareReferralLink(email: string): Promise<"shared" | "copied" | "failed"> {
   const url = referralLinkFor(email);
-  const text = `Join me on Feenicks1 and start investing. Sign up with my link:`;
+  const text = INVITE_MESSAGE;
 
   try {
     if (navigator.share) {
