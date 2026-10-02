@@ -43,7 +43,7 @@ export function RecommendedPackagesScreen() {
       backHref={riskLevel ? ROUTES.riskProfileResult : ROUTES.dashboard}
     >
       <div className="flex flex-1 flex-col sm:flex-none">
-        <p className="text-[0.9375rem] leading-relaxed text-neutral-600 lg:text-sm dark:text-neutral-400">
+        <p className="pt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           {riskLevel ? (
             <>
               Based on your{" "}
@@ -59,7 +59,7 @@ export function RecommendedPackagesScreen() {
         </p>
 
         {matched.length > 0 && (
-          <div className="mt-5 flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-5">
             {matched.map((pkg, index) => (
               <PackageCard key={pkg.id} pkg={pkg} isBestMatch={index === 0} />
             ))}
@@ -67,13 +67,13 @@ export function RecommendedPackagesScreen() {
         )}
 
         {others.length > 0 && (
-          <section className={matched.length > 0 ? "mt-8" : "mt-5"}>
+          <section className={matched.length > 0 ? "mt-12" : "mt-6"}>
             {matched.length > 0 && (
-              <h2 className="text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+              <h2 className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
                 Other packages
               </h2>
             )}
-            <div className={matched.length > 0 ? "mt-3 flex flex-col gap-3" : "flex flex-col gap-3"}>
+            <div className={matched.length > 0 ? "mt-4 flex flex-col gap-5" : "flex flex-col gap-5"}>
               {others.map((pkg) => (
                 <PackageCard key={pkg.id} pkg={pkg} />
               ))}
@@ -81,7 +81,7 @@ export function RecommendedPackagesScreen() {
           </section>
         )}
 
-        <p className="mt-6 text-xs leading-relaxed text-neutral-400">
+        <p className="mt-8 text-xs leading-relaxed text-neutral-400">
           Returns are expected ranges, not guaranteed. Past performance doesn&apos;t guarantee
           future results.
         </p>

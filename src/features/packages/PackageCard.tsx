@@ -86,14 +86,14 @@ export function PackageCard({
     <Link
       href={packageDetailsHref(pkg.id)}
       className={cn(
-        "block rounded-2xl border p-4 transition-colors hover:border-neutral-300 focus-visible:border-brand-400 focus-visible:outline-none dark:hover:border-white/20",
+        "block rounded-2xl border p-5 transition-colors hover:border-neutral-300 focus-visible:border-brand-400 focus-visible:outline-none dark:hover:border-white/20",
         isBestMatch ? "border-brand-600 dark:border-brand-500" : "border-neutral-200 dark:border-white/10",
       )}
     >
       <div className="flex items-center gap-3">
         <PackageIcon pkg={pkg} />
         <div className="min-w-0 flex-1">
-          <h3 className="text-[0.9375rem] leading-snug font-bold lg:text-sm">{pkg.name}</h3>
+          <h3 className="text-[0.9375rem] leading-snug font-semibold lg:text-sm">{pkg.name}</h3>
           {/* Ticker, with the "Best match" badge beside it (keeps the name unsqueezed). */}
           <p className="mt-0.5 flex items-center gap-2 text-xs font-medium text-neutral-500">
             {pkg.ticker}
@@ -108,15 +108,15 @@ export function PackageCard({
         <ChevronDownIcon className="size-4 shrink-0 -rotate-90 text-neutral-400" />
       </div>
 
-      <p className="mt-3 text-[0.8125rem] leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <p className="mt-4 text-[0.8125rem] leading-relaxed text-neutral-600 dark:text-neutral-400">
         {pkg.description}
       </p>
 
-      <dl className="mt-3 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-3 dark:border-white/10">
+      <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-neutral-100 pt-4 dark:border-white/10">
         {stats.map((stat) => (
           <div key={stat.label} className="min-w-0">
             <dt className="text-[0.6875rem] text-neutral-500">{stat.label}</dt>
-            <dd className="mt-0.5 truncate text-[0.8125rem] font-semibold">{stat.value}</dd>
+            <dd className="mt-1 truncate text-[0.8125rem] font-medium">{stat.value}</dd>
           </div>
         ))}
       </dl>

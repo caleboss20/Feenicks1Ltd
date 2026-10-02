@@ -138,6 +138,32 @@ export function packageDetailsHref(id: PackageId): string {
   return `/packages/${id}`;
 }
 
+/** URL of a package's Terms & Conditions (the first step of investing). */
+export function packageTermsHref(id: PackageId): string {
+  return `/packages/${id}/terms`;
+}
+
+/**
+ * Estimated profit for an amount over a number of months, as a [low, high]
+ * range from the expected monthly ROI. The management fee is a percentage
+ * of the PROFIT (not of the amount invested), so "after fee" is what the
+ * investor actually receives.
+ */
+export function estimateProfit(pkg: InvestmentPackage, amount: number, months: number) {
+  const [lowRoi, highRoi] = pkg.monthlyRoiPercent;
+  const beforeFee: [number, number] = [
+    (amount * lowRoi * months) / 100,
+    (amount * highRoi * months) / 100,
+  ];
+  const fee: [number, number] = [
+    (beforeFee[0] * pkg.managementFeePercent) / 100,
+    (beforeFee[1] * pkg.managementFeePercent) / 100,
+  ];
+  const afterFee: [number, number] = [beforeFee[0] - fee[0], beforeFee[1] - fee[1]];
+  const afterFeePerMonth: [number, number] = [afterFee[0] / months, afterFee[1] / months];
+  return { beforeFee, fee, afterFee, afterFeePerMonth };
+}
+
 export function isPackageId(value: string): value is PackageId {
   return value in INVESTMENT_PACKAGES;
 }

@@ -43,6 +43,8 @@ export type DemoAccount = {
   totpSecret?: string;
   /** Investor risk profile result (see investor-profile/riskProfileQuestions.ts). */
   riskProfile?: { level: RiskLevel; score: number; answeredAt: string };
+  /** Every Terms & Conditions acceptance: which package, which version, when. */
+  termsAcceptances?: { packageId: string; version: string; acceptedAt: string }[];
   createdAt: string;
 };
 
@@ -158,6 +160,7 @@ export function updateAccount(
       | "biometricCredentialId"
       | "totpSecret"
       | "riskProfile"
+      | "termsAcceptances"
     >
   >,
 ) {

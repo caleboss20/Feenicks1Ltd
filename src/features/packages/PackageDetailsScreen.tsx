@@ -1,32 +1,43 @@
 "use client";
 
 /**
- * Package details: everything about one package, plus a returns estimate.
+ * Package details: one package, laid out as a calm vertical page the user
+ * scrolls through (no boxes inside boxes, regular text sizes, generous
+ * spacing between sections).
  *
- *   ←          Package details
- *   (💼)  Mutual Fund Capital · MFC
- *   An entry-level investment portfolio…
- *   Suits: Conservative · Moderate investors
+ *   ←            Package details
  *
- *   Minimum investment        GH₵ 140
- *   Maximum investment        GH₵ 499.99
- *   Monthly ROI (expected)    5–10%
- *   Management fee            2%
- *   Withdrawals               Every month
+ *   (🌱)  Agribusiness Capital
+ *         ABC
+ *   Agriculture-backed investment opportunities…
+ *   [ Suits Moderate investors ]
+ *
+ *   KEY FIGURES
+ *   Minimum investment                 GH₵ 3,000
+ *   ─────────────────────────────────────────────
+ *   Maximum investment              GH₵ 4,999.99
+ *   …
  *
  *   ESTIMATE YOUR RETURNS
- *   Amount   [ GH₵ 300        ]
- *   Period   (1) (3) (6) (12 months)
- *   ┌ Estimated return over 12 months ┐
- *   │ GH₵ 180 – GH₵ 360               │
- *   │ GH₵ 15 – GH₵ 30 per month       │
- *   └─────────────────────────────────┘
- *   Estimates before the 2% management fee. Not guaranteed.
+ *   Amount
+ *   [ GH₵ 4000                                  ]
+ *   Between GH₵ 3,000 and GH₵ 4,999.99
+ *   Period
+ *   ( 1 mo ) ( 3 mo ) ( 6 mo ) ( 12 mo )
  *
- *   (        Invest in MFC        )
+ *   You could receive over 6 months
+ *   GH₵ 1,612.80 – GH₵ 2,304                     ← after the fee
+ *   About GH₵ 268.80 – GH₵ 384 a month
  *
- * Estimate = amount × monthly ROI × months (simple monthly returns, using
- * the low and high ends of the expected range).
+ *   Profit before fee             GH₵ 1,680 – 2,400
+ *   Fee (4% of profit)               − GH₵ 67.20 – 96
+ *   …not guaranteed…
+ *
+ *   (          Invest in ABC          )         ← pinned; opens the Terms
+ *
+ * Estimate (estimateProfit): amount × monthly ROI × months, using the low
+ * and high ends of the expected range; then the management fee, a % of the
+ * PROFIT, is deducted.
  */
 
 import { useState } from "react";
@@ -38,6 +49,8 @@ import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import {
+  estimateProfit,
+  packageTermsHref,
   riskLevelsForPackage,
   roiRangeLabel,
   withdrawalLabel,
@@ -49,11 +62,24 @@ import { PackageIcon } from "./PackageCard";
 const PERIODS = [1, 3, 6, 12];
 const DEFAULT_PERIOD = 12;
 
-/**
- * Where "Invest" leads.
- * TODO(invest): the investment flow (amount → payment by MoMo/bank → confirm) once built.
- */
-const INVEST_SCREEN = ROUTES.dashboard;
+/** Small, quiet section heading used throughout the page. */
+function SectionTitle({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <h3 id={id} className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
+      {children}
+    </h3>
+  );
+}
+
+/** One "label … value" row with a hairline divider. */
+function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-6 py-3.5">
+      <dt className="text-sm text-neutral-500">{label}</dt>
+      <dd className="text-right text-sm font-medium">{value}</dd>
+    </div>
+  );
+}
 
 export function PackageDetailsScreen({ pkg }: { pkg: InvestmentPackage }) {
   const router = useRouter();
@@ -70,78 +96,74 @@ export function PackageDetailsScreen({ pkg }: { pkg: InvestmentPackage }) {
           ? `The maximum is ${formatCedis(pkg.maximum)}`
           : null;
 
-  const [lowRoi, highRoi] = pkg.monthlyRoiPercent;
-  const perMonth = [(amount * lowRoi) / 100, (amount * highRoi) / 100];
-  const total = [perMonth[0] * months, perMonth[1] * months];
-
+  const estimate = estimateProfit(pkg, amount, months);
   const suits = riskLevelsForPackage(pkg.id).map((level) => RISK_LEVELS[level].name);
 
   const facts = [
     { label: "Minimum investment", value: formatCedis(pkg.minimum) },
     { label: "Maximum investment", value: formatCedis(pkg.maximum) },
-    { label: "Monthly ROI (expected)", value: roiRangeLabel(pkg.monthlyRoiPercent) },
-    { label: "Management fee", value: `${pkg.managementFeePercent}%` },
+    { label: "Expected monthly return", value: roiRangeLabel(pkg.monthlyRoiPercent) },
+    { label: "Management fee", value: `${pkg.managementFeePercent}% of profit` },
     { label: "Withdrawals", value: withdrawalLabel(pkg.withdrawalEveryMonths) },
   ];
 
+  const range = ([low, high]: [number, number]) => `${formatCedis(low)} – ${formatCedis(high)}`;
+  /** Shorter range for table rows: "GH₵ 67.20 – 96" (one currency sign). */
+  const shortRange = ([low, high]: [number, number]) =>
+    `${formatCedis(low)} – ${formatCedis(high).replace("GH₵ ", "")}`;
+
   return (
     <StepScreenLayout
-      // Generic title: the package name is shown big just below (never twice).
+      // Generic title: the package name is shown just below (never twice).
       title="Package details"
       centeredTitle
       stickyHeader
       backHref={ROUTES.packages}
     >
       <div className="flex flex-1 flex-col sm:flex-none">
-        {/* Identity */}
-        <div className="flex items-center gap-3.5">
-          <PackageIcon pkg={pkg} className="size-13 [&_svg]:size-6" />
+        {/* ── About ─────────────────────────────────────────────── */}
+        <div className="flex items-center gap-3.5 pt-2">
+          <PackageIcon pkg={pkg} className="size-12" />
           <div className="min-w-0">
-            <h2 className="text-lg leading-tight font-bold">{pkg.name}</h2>
-            <p className="text-sm font-medium text-neutral-500">{pkg.ticker}</p>
+            <h2 className="text-lg leading-snug font-semibold">{pkg.name}</h2>
+            <p className="text-[0.8125rem] text-neutral-500">{pkg.ticker}</p>
           </div>
         </div>
-        <p className="mt-4 text-[0.9375rem] leading-relaxed text-neutral-600 lg:text-sm dark:text-neutral-400">
+        <p className="mt-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           {pkg.description}
         </p>
         {suits.length > 0 && (
-          <p className="mt-2 text-sm text-neutral-500">
-            Suits <span className="font-semibold text-foreground">{suits.join(" · ")}</span>{" "}
-            investors
+          <p className="mt-4 w-fit rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-medium text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
+            Suits {suits.join(" and ")} investors
           </p>
         )}
 
-        {/* Key figures */}
-        <dl className="mt-6 divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-white/10 dark:border-white/10">
-          {facts.map((fact) => (
-            <div key={fact.label} className="flex items-center justify-between gap-4 py-3">
-              <dt className="text-sm text-neutral-500">{fact.label}</dt>
-              <dd className="text-right text-sm font-semibold">{fact.value}</dd>
-            </div>
-          ))}
-        </dl>
+        {/* ── Key figures ───────────────────────────────────────── */}
+        <section aria-labelledby="figures-title" className="mt-10">
+          <SectionTitle id="figures-title">Key figures</SectionTitle>
+          <dl className="mt-2 divide-y divide-neutral-100 dark:divide-white/10">
+            {facts.map((fact) => (
+              <Row key={fact.label} label={fact.label} value={fact.value} />
+            ))}
+          </dl>
+        </section>
 
-        {/* Returns estimate */}
-        <section className="mt-8" aria-labelledby="estimate-title">
-          <h3
-            id="estimate-title"
-            className="text-xs font-semibold tracking-wider text-neutral-500 uppercase"
-          >
-            Estimate your returns
-          </h3>
+        {/* ── Estimate your returns ─────────────────────────────── */}
+        <section aria-labelledby="estimate-title" className="mt-10">
+          <SectionTitle id="estimate-title">Estimate your returns</SectionTitle>
 
-          <label htmlFor="estimate-amount" className="mt-4 block text-[0.8125rem] font-medium text-neutral-500">
+          <label htmlFor="estimate-amount" className="mt-5 block text-sm text-neutral-600 dark:text-neutral-400">
             Amount
           </label>
           <div
             className={cn(
-              "mt-2 flex h-13 items-center gap-2 rounded-xl border px-4 transition-colors",
+              "mt-2 flex h-12 items-center gap-2 rounded-xl border px-4 transition-colors",
               amountError
                 ? "border-red-500 bg-red-50 dark:bg-red-500/10"
-                : "border-transparent bg-neutral-100 focus-within:border-brand-600 focus-within:bg-brand-50 dark:bg-white/5 dark:focus-within:bg-brand-500/10",
+                : "border-neutral-200 bg-background focus-within:border-brand-600 dark:border-white/10",
             )}
           >
-            <span className="text-base font-semibold text-neutral-500">GH₵</span>
+            <span className="text-sm text-neutral-500">GH₵</span>
             <input
               id="estimate-amount"
               value={amountText}
@@ -149,20 +171,21 @@ export function PackageDetailsScreen({ pkg }: { pkg: InvestmentPackage }) {
               inputMode="decimal"
               aria-invalid={amountError ? true : undefined}
               aria-describedby={amountError ? "estimate-amount-error" : "estimate-amount-hint"}
-              className="h-full w-0 min-w-0 flex-1 bg-transparent text-base font-semibold outline-none"
+              // 16px text: smaller makes iPhones zoom in on tap.
+              className="h-full w-0 min-w-0 flex-1 bg-transparent text-base outline-none"
             />
           </div>
           {amountError ? (
-            <p id="estimate-amount-error" role="alert" className="mt-2 px-1 text-sm text-red-600">
+            <p id="estimate-amount-error" role="alert" className="mt-2 text-xs text-red-600">
               {amountError}
             </p>
           ) : (
-            <p id="estimate-amount-hint" className="mt-2 px-1 text-xs text-neutral-500">
+            <p id="estimate-amount-hint" className="mt-2 text-xs text-neutral-500">
               Between {formatCedis(pkg.minimum)} and {formatCedis(pkg.maximum)}
             </p>
           )}
 
-          <p className="mt-4 text-[0.8125rem] font-medium text-neutral-500" id="estimate-period">
+          <p id="estimate-period" className="mt-6 text-sm text-neutral-600 dark:text-neutral-400">
             Period
           </p>
           <div role="radiogroup" aria-labelledby="estimate-period" className="mt-2 grid grid-cols-4 gap-2">
@@ -172,11 +195,12 @@ export function PackageDetailsScreen({ pkg }: { pkg: InvestmentPackage }) {
                 type="button"
                 role="radio"
                 aria-checked={months === period}
+                aria-label={`${period} ${period === 1 ? "month" : "months"}`}
                 onClick={() => setMonths(period)}
                 className={cn(
-                  "h-10 cursor-pointer rounded-xl border text-sm font-semibold transition-colors",
+                  "h-9 cursor-pointer rounded-full border text-[0.8125rem] font-medium transition-colors",
                   months === period
-                    ? "border-brand-600 bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"
+                    ? "border-brand-600 bg-brand-600 text-white"
                     : "border-neutral-200 text-neutral-600 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-300",
                 )}
               >
@@ -185,35 +209,42 @@ export function PackageDetailsScreen({ pkg }: { pkg: InvestmentPackage }) {
             ))}
           </div>
 
-          {/* The result, or nothing while the amount is invalid. */}
-          <div
-            aria-live="polite"
-            className="mt-4 rounded-2xl border border-brand-100 bg-brand-50/60 p-4 dark:border-brand-500/20 dark:bg-brand-500/10"
-          >
+          {/* Result: plain text, then the breakdown as quiet rows. */}
+          <div aria-live="polite" className="mt-8">
             {amountError ? (
               <p className="text-sm text-neutral-500">Enter a valid amount to see an estimate.</p>
             ) : (
               <>
-                <p className="text-[0.8125rem] text-neutral-600 dark:text-neutral-400">
-                  Estimated return over {months} {months === 1 ? "month" : "months"}
+                <p className="text-sm text-neutral-500">
+                  You could receive over {months} {months === 1 ? "month" : "months"}
                 </p>
-                <p className="mt-1 text-xl font-bold text-brand-700 dark:text-brand-300">
-                  {formatCedis(total[0])} – {formatCedis(total[1])}
+                <p className="mt-1.5 text-lg font-semibold text-brand-700 dark:text-brand-400">
+                  {range(estimate.afterFee)}
                 </p>
-                <p className="mt-1 text-[0.8125rem] text-neutral-600 dark:text-neutral-400">
-                  {formatCedis(perMonth[0])} – {formatCedis(perMonth[1])} per month
+                <p className="mt-1 text-[0.8125rem] text-neutral-500">
+                  About {range(estimate.afterFeePerMonth)} a month
                 </p>
+
+                <dl className="mt-5 divide-y divide-neutral-100 border-t border-neutral-100 dark:divide-white/10 dark:border-white/10">
+                  <Row label="Profit before fee" value={shortRange(estimate.beforeFee)} />
+                  <Row
+                    label={`Fee (${pkg.managementFeePercent}% of profit)`}
+                    value={`− ${shortRange(estimate.fee)}`}
+                  />
+                </dl>
               </>
             )}
           </div>
-          <p className="mt-2 text-xs leading-relaxed text-neutral-400">
-            Estimates use the expected monthly ROI, before the {pkg.managementFeePercent}%
-            management fee. Returns are not guaranteed.
+
+          <p className="mt-4 text-xs leading-relaxed text-neutral-400">
+            Based on the expected monthly return. The management fee is taken from the profit
+            only, never from the amount you invest. Returns are not guaranteed.
           </p>
         </section>
 
-        <div className={stickyActionsClass}>
-          <Button size="lg" fullWidth onClick={() => router.push(INVEST_SCREEN)}>
+        {/* Investing starts with the package's Terms & Conditions. */}
+        <div className={cn(stickyActionsClass, "sm:mt-10")}>
+          <Button size="lg" fullWidth onClick={() => router.push(packageTermsHref(pkg.id))}>
             Invest in {pkg.ticker}
           </Button>
         </div>
