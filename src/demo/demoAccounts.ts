@@ -34,6 +34,8 @@ export type DemoAccount = {
   gender?: "male" | "female";
   /** 9 digits, without +233 or the leading 0. */
   phone?: string;
+  /** Profile picture: a small JPEG thumbnail (data URL). */
+  avatarDataUrl?: string;
   pin?: SecretHash;
   /** The two-factor method turned on, if any. */
   twoFactorMethod?: "sms" | "biometric" | "authenticator-app";
@@ -156,6 +158,7 @@ export function updateAccount(
       | "fullName"
       | "gender"
       | "phone"
+      | "avatarDataUrl"
       | "twoFactorMethod"
       | "biometricCredentialId"
       | "totpSecret"

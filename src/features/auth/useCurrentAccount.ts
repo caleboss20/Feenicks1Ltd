@@ -27,6 +27,8 @@ export type CurrentAccount = {
   firstName: string | null;
   /** Profile phone: 9 digits, without +233 or the leading 0. */
   phone: string | null;
+  /** Profile picture (image URL), if one was added on "Fill Your Profile". */
+  avatarUrl: string | null;
   /** Fingerprint / Face ID is set up and can unlock the app. */
   hasBiometrics: boolean;
   /** Investor risk profile, once the questions are answered. */
@@ -44,7 +46,7 @@ export type CurrentAccountState =
   | { status: "signed-in"; account: CurrentAccount };
 
 /**
- * Everything the screens react to, as one string ("email|unlockedAt|step|biometrics|risk"),
+ * Everything the screens react to, as one string ("email|unlockedAt|step|biometrics|risk|avatar"),
  * so React can tell cheaply whether anything changed.
  */
 function readSnapshot() {
@@ -57,6 +59,8 @@ function readSnapshot() {
     account?.step ?? "",
     account?.biometricCredentialId ? 1 : 0,
     account?.riskProfile?.level ?? "",
+    // Changes when a picture is added (its length is a cheap fingerprint).
+    account?.avatarDataUrl?.length ?? 0,
   ].join("|");
 }
 
@@ -79,6 +83,7 @@ export function useCurrentAccount(): CurrentAccountState {
         email: account.email,
         firstName: account.fullName?.split(/\s+/)[0] ?? null,
         phone: account.phone ?? null,
+        avatarUrl: account.avatarDataUrl ?? null,
         hasBiometrics: Boolean(account.biometricCredentialId),
         riskLevel: account.riskProfile?.level ?? null,
         step: account.step,

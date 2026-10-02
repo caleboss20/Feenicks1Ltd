@@ -1,5 +1,6 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { makeSquareThumbnail } from "@/lib/imageThumbnail";
 import type { CountryCode, DocumentSide, IdentityDocumentId } from "./identityDocuments";
 import type { InvestmentGoalId } from "./investmentGoals";
 import type { ProfileValues } from "./profileValidation";
@@ -125,13 +126,15 @@ export async function saveProfile(
   // TODO(api): PUT /api/profile (multipart: profile fields + optional photo).
   //   Phone is stored with the +233 prefix; legal name and date of birth are
   //   checked against the verified ID document on the server.
-  void photo;
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
+    // Keep a small thumbnail of the photo for the dashboard avatar.
+    const avatarDataUrl = photo ? await makeSquareThumbnail(photo) : null;
     demo.updateSessionAccount({
       fullName: profile.fullName,
       gender: profile.gender,
       phone: profile.phone,
+      ...(avatarDataUrl ? { avatarDataUrl } : {}),
     });
     demo.advanceSessionStep("create-pin");
     return { ok: true };

@@ -7,7 +7,7 @@
  * space, regular text, round soft-grey icon buttons.
  *
  *   ╭──────────── brand green ─────────────╮
- *   │ (AM) Good morning,           ( ⇥ )  │   ← log out
+ *   │ (📷) Good morning,           ( ⇥ )  │   ← profile picture (or initials); log out
  *   │      Ama Mensah                       │
  *   │          Portfolio value (👁)         │   ← tap the eye to hide amounts
  *   │            GH₵ 0.00                   │
@@ -31,6 +31,7 @@
  */
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -129,7 +130,7 @@ export function DashboardScreen() {
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
 
-  const { firstName, riskLevel } = current.account;
+  const { firstName, riskLevel, avatarUrl } = current.account;
   const initials = (firstName ?? "F1").slice(0, 2).toUpperCase();
   const bestMatch = riskLevel ? INVESTMENT_PACKAGES[PACKAGES_FOR_RISK_LEVEL[riskLevel][0]] : null;
 
@@ -154,12 +155,24 @@ export function DashboardScreen() {
       {/* ── Balance header ─────────────────────────────────────── */}
       <header className="rounded-b-[2rem] bg-brand-600 px-6 pt-[max(1.25rem,env(safe-area-inset-top))] pb-8 text-white">
         <div className="flex items-center gap-3">
-          <span
-            aria-hidden
-            className="grid size-11 shrink-0 place-items-center rounded-full bg-white/15 text-sm font-semibold"
-          >
-            {initials}
-          </span>
+          {/* Their profile picture (from "Fill Your Profile"), else initials. */}
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt=""
+              width={44}
+              height={44}
+              unoptimized // a small local thumbnail: nothing to optimise
+              className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/30"
+            />
+          ) : (
+            <span
+              aria-hidden
+              className="grid size-11 shrink-0 place-items-center rounded-full bg-white/15 text-sm font-semibold"
+            >
+              {initials}
+            </span>
+          )}
           <div className="min-w-0 flex-1">
             <p className="text-[0.8125rem] text-white/70">{greetingForNow()},</p>
             <h1 className="truncate text-base font-semibold">{firstName ?? "Welcome"}</h1>
