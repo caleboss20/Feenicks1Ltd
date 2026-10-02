@@ -13,7 +13,7 @@
  *   │ GH₵ 0.00  (👁)                               │   ← big; eye hides amounts
  *   │ (▲ Profit earned GH₵ 0.00)                   │   ← stock-ticker arrow
  *   │                                              │
- *   │ [ + Invest ]  [ ↓ Withdraw ]  [■]            │   ← ■ = returns calculator
+ *   │ [ + Invest ]  [ ↓ Withdraw ]  [⛶]            │   ← ⛶ = referral QR code (/refer)
  *   │                                              │
  *   │ ╭── swipeable white cards (BannerCarousel) ─╮ │
  *   ╰─│─ Invite a friend · Your best match · … ──│─╯   ← gradient turns white here
@@ -43,6 +43,7 @@ import {
   EyeOffIcon,
   GiftIcon,
   PlusIcon,
+  ScanIcon,
   SupportIcon,
   TargetIcon,
   TriangleUpIcon,
@@ -316,13 +317,14 @@ export function DashboardScreen() {
           <ArrowRight className="rotate-90" />
           Withdraw
         </Link>
+        {/* Referral QR code for a friend to scan (like the reference's scan button). */}
         <Link
-          href={calculatorHref}
-          aria-label="Returns calculator"
-          title="Returns calculator"
+          href={ROUTES.refer}
+          aria-label="Invite a friend with your QR code"
+          title="Invite a friend with your QR code"
           className="grid size-13 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white transition-colors hover:bg-neutral-800 dark:bg-neutral-950"
         >
-          <CalculatorIcon className="size-5" />
+          <ScanIcon className="size-[22px]" />
         </Link>
       </div>
 

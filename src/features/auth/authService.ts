@@ -27,10 +27,20 @@ const NOT_AVAILABLE: { ok: false; message: string } = {
 /** Demo-mode wait on "Sign up", so the button's loading spinner shows for 3 seconds. */
 const DEMO_SIGN_UP_DELAY_MS = 3000;
 
-/** Creates the account; the server then emails a verification code. */
-export async function signUp(values: SignUpValues): Promise<AuthResult> {
-  // TODO(api): POST /api/auth/sign-up  { email, password, remember }
+/**
+ * Creates the account; the server then emails a verification code.
+ * `referralCode`: the friend's code when the user came from an invite link
+ * or QR code (see referralService), so the friend can be rewarded.
+ */
+export async function signUp(
+  values: SignUpValues,
+  { referralCode }: { referralCode?: string | null } = {},
+): Promise<AuthResult> {
+  // TODO(api): POST /api/auth/sign-up  { email, password, remember, referralCode }
+  //   The server checks the code and credits the friend (see referralService).
   if (IS_DEMO_MODE) {
+    // Demo: nothing to credit without a server, so the code is only shown on screen.
+    void referralCode;
     await wait(DEMO_SIGN_UP_DELAY_MS);
     const account = await demo.createAccount(values.email, values.password);
     if (!account) {

@@ -175,6 +175,15 @@ export function TriangleUpIcon({ className }: IconProps) {
   );
 }
 
+/** Scan frame (four corners and a line): "show a QR code to scan". */
+export function ScanIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M7 12h10" />
+    </StrokeIcon>
+  );
+}
+
 /** Wrapped gift: "invite a friend" / rewards. */
 export function GiftIcon({ className }: IconProps) {
   return (

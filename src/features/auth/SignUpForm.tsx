@@ -7,6 +7,7 @@
  *   Create your
  *   Account              ← large bold title
  *
+ *   (🎁 Invited by a friend · F1ABC123)   ← only with ?ref= (invite link / QR)
  *   [✉ Email          ]  ← grey fields, green when focused
  *   [🔒 Password    👁 ]
  *        ☑ Remember me
@@ -27,7 +28,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LockIcon, MailIcon } from "@/components/icons";
+import { GiftIcon, LockIcon, MailIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
@@ -39,7 +40,12 @@ import { signUpSchema, type SignUpInput, type SignUpValues } from "./authValidat
 import { SocialLoginButtons } from "./SocialLoginButtons";
 import { useSignUpStore } from "./useSignUpStore";
 
-export function SignUpForm() {
+type SignUpFormProps = {
+  /** The friend's code when the user came from an invite link or QR code (`?ref=`). */
+  referralCode?: string | null;
+};
+
+export function SignUpForm({ referralCode }: SignUpFormProps) {
   const router = useRouter();
   const saveEmail = useSignUpStore((s) => s.saveEmail);
   /** Form-level error (e.g. server/network failure), shown above the button. */
@@ -66,7 +72,7 @@ export function SignUpForm() {
 
   const onSubmit = async (values: SignUpValues) => {
     setFormError(null);
-    const result = await signUp(values);
+    const result = await signUp(values, { referralCode });
     if (!result.ok) {
       setFormError(result.message);
       return;
@@ -96,6 +102,13 @@ export function SignUpForm() {
       {/* noValidate: we show our own consistent error messages instead of
           the browser's built-in validation bubbles. */}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className={authFormSpacing}>
+        {referralCode && (
+          <p className="inline-flex w-fit items-center gap-2 rounded-full bg-brand-50 px-3.5 py-2 text-[0.8125rem] font-medium text-brand-700 dark:bg-brand-500/10 dark:text-brand-400">
+            <GiftIcon className="size-4" />
+            Invited by a friend · {referralCode}
+          </p>
+        )}
+
         <TextField
           label="Email"
           type="email"

@@ -48,6 +48,8 @@ export const ROUTES = {
   notifications: "/notifications",
   /** From the dashboard's Withdraw button. */
   withdraw: "/withdraw",
+  /** Invite a friend: the user's referral QR code (the dashboard's scan button). */
+  refer: "/refer",
   /** Once, right after registration: intro to the risk profile and packages. */
   startInvesting: "/start-investing",
   /** Investor risk profile: 3 short steps of questions, then the result. */

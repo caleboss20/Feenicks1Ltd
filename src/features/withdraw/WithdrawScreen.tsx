@@ -50,7 +50,7 @@ export function WithdrawScreen() {
       </div>
 
       <div className={stepActionsClass}>
-        <ButtonLink href={ROUTES.packages} fullWidth>
+        <ButtonLink href={ROUTES.packages} size="lg" fullWidth>
           Invest now
         </ButtonLink>
       </div>
