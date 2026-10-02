@@ -181,7 +181,8 @@ export function PackageTermsScreen({ pkg }: { pkg: InvestmentPackage }) {
             checked={hasAgreed}
             disabled={!hasReadToEnd || isSaving}
             onChange={(event) => setHasAgreed(event.target.checked)}
-            className="items-start text-sm leading-snug font-medium has-disabled:cursor-not-allowed has-disabled:opacity-50 lg:text-sm"
+            size="sm"
+            className="items-start gap-2.5 text-[0.8125rem] leading-snug font-normal text-neutral-700 has-disabled:cursor-not-allowed has-disabled:opacity-50 lg:text-[0.8125rem] dark:text-neutral-300"
           />
           <Button
             size="lg"

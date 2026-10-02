@@ -9,12 +9,17 @@ import { cn } from "@/lib/utils";
  * reacts to it through Tailwind's `peer-*` variants.
  *
  * Works with react-hook-form: `<Checkbox label="Remember me" {...register("remember")} />`
+ *
+ * Sizes: "md" (default, 24px, e.g. "Remember me") and "sm" (18px square,
+ * for a sentence-long label such as agreeing to terms; sits on the first
+ * line of the text).
  */
 export function Checkbox({
   label,
+  size = "md",
   className,
   ...inputProps
-}: Omit<React.ComponentProps<"input">, "type"> & { label: string }) {
+}: Omit<React.ComponentProps<"input">, "type" | "size"> & { label: string; size?: "md" | "sm" }) {
   return (
     <label
       className={cn(
@@ -25,9 +30,14 @@ export function Checkbox({
       <input type="checkbox" className="peer sr-only" {...inputProps} />
       <span
         aria-hidden
-        className="grid size-6 place-items-center rounded-lg border-[2.5px] border-brand-600 text-transparent transition-colors peer-checked:bg-brand-600 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-400"
+        className={cn(
+          "grid shrink-0 place-items-center border-brand-600 text-transparent transition-colors peer-checked:bg-brand-600 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-400",
+          size === "sm"
+            ? "mt-px size-[18px] rounded-[5px] border-2"
+            : "size-6 rounded-lg border-[2.5px]",
+        )}
       >
-        <CheckIcon className="size-4 stroke-3" />
+        <CheckIcon className={cn("stroke-3", size === "sm" ? "size-3" : "size-4")} />
       </span>
       {label}
     </label>
