@@ -24,7 +24,11 @@ import type { AccountStep } from "./accountProgress";
 
 export type CurrentAccount = {
   email: string;
+  /** As entered on "Fill Your Profile" (the name on their ID). */
+  fullName: string | null;
   firstName: string | null;
+  /** Chosen on Edit profile, without the "@"; null until they pick one. */
+  username: string | null;
   /** Profile phone: 9 digits, without +233 or the leading 0. */
   phone: string | null;
   /** Profile picture (image URL), if one was added on "Fill Your Profile". */
@@ -46,7 +50,8 @@ export type CurrentAccountState =
   | { status: "signed-in"; account: CurrentAccount };
 
 /**
- * Everything the screens react to, as one string ("email|unlockedAt|step|biometrics|risk|avatar"),
+ * Everything the screens react to, as one string
+ * ("email|unlockedAt|step|biometrics|risk|avatar|username"),
  * so React can tell cheaply whether anything changed.
  */
 function readSnapshot() {
@@ -61,6 +66,7 @@ function readSnapshot() {
     account?.riskProfile?.level ?? "",
     // Changes when a picture is added (its length is a cheap fingerprint).
     account?.avatarDataUrl?.length ?? 0,
+    account?.username ?? "",
   ].join("|");
 }
 
@@ -81,7 +87,9 @@ export function useCurrentAccount(): CurrentAccountState {
       status: "signed-in",
       account: {
         email: account.email,
+        fullName: account.fullName ?? null,
         firstName: account.fullName?.split(/\s+/)[0] ?? null,
+        username: account.username ?? null,
         phone: account.phone ?? null,
         avatarUrl: account.avatarDataUrl ?? null,
         hasBiometrics: Boolean(account.biometricCredentialId),

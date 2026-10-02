@@ -2,7 +2,8 @@ import { siteConfig } from "@/config/site";
 import { formatCedis } from "@/lib/money";
 
 /**
- * Referrals: "Invite a friend, earn GH₵ 20 for every friend who signs up".
+ * Referrals: "Invite a friend, earn 100 points (GH₵ 100) for every friend
+ * who signs up".
  *
  * The friend opens the user's link (shared, or scanned from the QR code on
  * the Invite screen): /sign-up?ref=F1ABC123. The sign-up screen reads the
@@ -14,8 +15,16 @@ import { formatCedis } from "@/lib/money";
  * verified person).
  */
 
-/** Reward per friend who signs up with the user's link, in GH₵. */
-export const REFERRAL_REWARD = 20;
+/** Reward per friend who signs up with the user's link, in points (confirmed by the CEO). */
+export const REFERRAL_POINTS = 100;
+/** What one point is worth, in GH₵ (100 points = GH₵ 100). */
+export const POINT_VALUE_CEDIS = 1;
+/** The same reward in GH₵. */
+export const REFERRAL_REWARD = REFERRAL_POINTS * POINT_VALUE_CEDIS;
+
+/** "100 points" */
+export const REFERRAL_POINTS_LABEL = `${REFERRAL_POINTS} points`;
+/** "GH₵ 100" */
 export const REFERRAL_REWARD_LABEL = formatCedis(REFERRAL_REWARD);
 
 /** "F1" followed by up to 6 letters or digits (see referralCodeFor). */

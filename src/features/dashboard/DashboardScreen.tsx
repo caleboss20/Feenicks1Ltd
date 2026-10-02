@@ -58,7 +58,11 @@ import {
   PACKAGES_FOR_RISK_LEVEL,
   packageDetailsHref,
 } from "@/features/packages/investmentPackages";
-import { REFERRAL_REWARD_LABEL, shareReferralLink } from "@/features/referrals/referralService";
+import {
+  REFERRAL_POINTS_LABEL,
+  REFERRAL_REWARD_LABEL,
+  shareReferralLink,
+} from "@/features/referrals/referralService";
 import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { type Banner, BannerCarousel } from "./BannerCarousel";
@@ -153,8 +157,11 @@ export function DashboardScreen() {
       title: "Invite a friend",
       text: (
         <>
-          Earn <strong>{REFERRAL_REWARD_LABEL}</strong> for every friend who signs up with your
-          link.
+          Earn{" "}
+          <strong>
+            {REFERRAL_POINTS_LABEL} ({REFERRAL_REWARD_LABEL})
+          </strong>{" "}
+          for every friend who signs up with your link.
         </>
       ),
       action: {
@@ -226,23 +233,26 @@ export function DashboardScreen() {
 
       {/* ── Greeting ─────────────────────────────────────────────── */}
       <header className="flex items-center gap-3 px-5 min-[360px]:gap-3.5 pt-[max(1.5rem,env(safe-area-inset-top))] text-white">
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
-            alt=""
-            width={48}
-            height={48}
-            unoptimized // a small local thumbnail: nothing to optimise
-            className="size-12 shrink-0 rounded-full object-cover ring-2 ring-white/30"
-          />
-        ) : (
-          <span
-            aria-hidden
-            className="grid size-12 shrink-0 place-items-center rounded-full bg-white/20 text-[0.9375rem] font-semibold"
-          >
-            {initials}
-          </span>
-        )}
+        {/* Photo (or initials): opens the Account screen. */}
+        <Link href={ROUTES.account} aria-label="Your account" className="shrink-0 rounded-full">
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt=""
+              width={48}
+              height={48}
+              unoptimized // a small local thumbnail: nothing to optimise
+              className="size-12 rounded-full object-cover ring-2 ring-white/30"
+            />
+          ) : (
+            <span
+              aria-hidden
+              className="grid size-12 place-items-center rounded-full bg-white/20 text-[0.9375rem] font-semibold"
+            >
+              {initials}
+            </span>
+          )}
+        </Link>
         <div className="min-w-0 flex-1">
           <p className="truncate text-[0.8125rem] text-white/80">
             {greetingForNow()} <span aria-hidden>👋</span>

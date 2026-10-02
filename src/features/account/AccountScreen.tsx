@@ -6,8 +6,8 @@
  *
  *   (←)            Account            (🔔)
  *   ╭────────────────────────────────────╮
- *   │ (📷) Ama                            │
- *   │      ama@example.com               │
+ *   │ (📷) Ama                          › │   ← opens Edit profile
+ *   │      @ama_m (or their email)        │
  *   ╰────────────────────────────────────╯
  *   ╭── Invite a friend (photo cards) ───╮   ← swipeable; where the reference
  *   ╰────────────────────────────────────╯     has "Upgrade to Pro"
@@ -71,7 +71,7 @@ export function AccountScreen() {
 
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
-  const { email, firstName, avatarUrl, riskLevel, hasBiometrics } = current.account;
+  const { email, firstName, username, avatarUrl, riskLevel, hasBiometrics } = current.account;
 
   const handleLogOut = async () => {
     setIsLoggingOut(true);
@@ -100,8 +100,12 @@ export function AccountScreen() {
         </Link>
       </header>
 
-      {/* Who's logged in */}
-      <section className="flex items-center gap-3.5 rounded-3xl bg-white px-4 py-4 dark:bg-white/5">
+      {/* Who's logged in: opens Edit profile. */}
+      <Link
+        href={ROUTES.editProfile}
+        aria-label="Edit profile"
+        className="group flex items-center gap-3.5 rounded-3xl bg-white px-4 py-4 transition-colors hover:bg-white/80 dark:bg-white/5 dark:hover:bg-white/10"
+      >
         {avatarUrl ? (
           <Image
             src={avatarUrl}
@@ -119,11 +123,14 @@ export function AccountScreen() {
             {(firstName ?? "F1").slice(0, 2).toUpperCase()}
           </span>
         )}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-base font-semibold">{firstName ?? "Your account"}</p>
-          <p className="mt-0.5 truncate text-sm text-neutral-500 dark:text-neutral-400">{email}</p>
+          <p className="mt-0.5 truncate text-sm text-neutral-500 dark:text-neutral-400">
+            {username ? `@${username}` : email}
+          </p>
         </div>
-      </section>
+        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+      </Link>
 
       {/* Invite friends, where the reference has "Upgrade to Pro". */}
       <InviteCarousel email={email} />

@@ -31,6 +31,8 @@ export type DemoAccount = {
   password: SecretHash;
   step: AccountStep;
   fullName?: string;
+  /** Chosen on Edit profile: lowercase, without the "@" (unique across accounts). */
+  username?: string;
   gender?: "male" | "female";
   /** 9 digits, without +233 or the leading 0. */
   phone?: string;
@@ -112,6 +114,11 @@ export function findAccount(email: string): DemoAccount | null {
   return readAccounts()[normaliseEmail(email)] ?? null;
 }
 
+export function findAccountByUsername(username: string): DemoAccount | null {
+  const wanted = username.trim().toLowerCase();
+  return Object.values(readAccounts()).find((account) => account.username === wanted) ?? null;
+}
+
 export function findAccountByPhone(phone: string): DemoAccount | null {
   const digits = phone.replace(/\D/g, "").replace(/^(233|0)/, "");
   return Object.values(readAccounts()).find((account) => account.phone === digits) ?? null;
@@ -156,6 +163,7 @@ export function updateAccount(
     Pick<
       DemoAccount,
       | "fullName"
+      | "username"
       | "gender"
       | "phone"
       | "avatarDataUrl"

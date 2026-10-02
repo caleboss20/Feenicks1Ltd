@@ -8,7 +8,7 @@
  *   ╭──────────────────────────────────────╮
  *   │ 🎁 Invite a friend            ▬ • •  │   ← dots: which card is showing
  *   │ ╭──────────────────────────────────╮ │
- *   │ │ Earn GH₵ 20 for every friend …   │ │   ← soft grey box with the message
+ *   │ │ Earn 100 points (GH₵ 100) for …  │ │   ← soft grey box with the message
  *   │ │ ╭──────────────────────────────╮ │ │
  *   │ │ │      Invite for free  →      │ │ │   ← full-width white button
  *   │ │ ╰──────────────────────────────╯ │ │

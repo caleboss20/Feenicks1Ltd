@@ -12,7 +12,7 @@
  *   │      Your referral code      │
  *   │       F1ABC123  (⧉)          │   ← tap to copy
  *   └──────────────────────────────┘
- *   (🎁) Earn GH₵ 20 for every friend …
+ *   (🎁) Earn 100 points (GH₵ 100) for every friend …
  *
  *   (      Share invite link      )   ← share sheet, or copies on desktop;
  *                                       pinned to the bottom of the screen
@@ -26,6 +26,7 @@ import { QrCode } from "@/components/ui/QrCode";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import {
+  REFERRAL_POINTS_LABEL,
   REFERRAL_REWARD_LABEL,
   referralCodeFor,
   referralLinkFor,
@@ -116,8 +117,11 @@ export function ReferScreen() {
           <GiftIcon className="size-5" />
         </span>
         <p className="text-[0.8125rem] leading-relaxed text-brand-900 dark:text-brand-100">
-          Earn <strong className="font-semibold">{REFERRAL_REWARD_LABEL}</strong> for every friend
-          who signs up with your code.
+          Earn{" "}
+          <strong className="font-semibold">
+            {REFERRAL_POINTS_LABEL} ({REFERRAL_REWARD_LABEL})
+          </strong>{" "}
+          for every friend who signs up with your code.
         </p>
       </div>
 

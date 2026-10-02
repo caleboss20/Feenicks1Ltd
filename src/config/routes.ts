@@ -44,6 +44,8 @@ export const ROUTES = {
   analytics: "/analytics",
   transactions: "/transactions",
   account: "/account",
+  /** Change photo and username (from the profile card on Account). */
+  editProfile: "/account/profile",
   /** From the dashboard's header bell. */
   notifications: "/notifications",
   /** From the dashboard's Withdraw button. */
