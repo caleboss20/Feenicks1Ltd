@@ -25,6 +25,7 @@
  *   ──────────────────────────────────────────────
  *    🏠 Home   📊 Analytics   🧾 Transactions   👤 Account   ← AppTabBar
  *
+ * Not invested yet → FirstInvestmentSheet rises from the bottom (once per visit).
  * Log out lives on the Account tab.
  * Honest by design: no made-up balances or transactions. Until investing is
  * built (TODO(invest)), amounts are GH₵ 0.00 and activity is empty.
@@ -61,6 +62,7 @@ import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { type Banner, BannerCarousel } from "./BannerCarousel";
 import { DASHBOARD_TOP_GRADIENT } from "./dashboardTheme";
+import { FirstInvestmentSheet } from "./FirstInvestmentSheet";
 
 /** Company website, for "Support" until in-app support exists. */
 const SUPPORT_URL = "https://www.feenicks1solutions.com";
@@ -74,6 +76,7 @@ const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
  */
 const PORTFOLIO_VALUE = 0;
 const PROFIT_EARNED = 0;
+const ACTIVE_INVESTMENTS = 0;
 
 /** Filters above the activity list. */
 const ACTIVITY_FILTERS = {
@@ -376,6 +379,9 @@ export function DashboardScreen() {
       </section>
 
       <AppTabBar />
+
+      {/* Not invested yet: a milestone sheet nudging the first investment. */}
+      <FirstInvestmentSheet hasInvested={ACTIVE_INVESTMENTS > 0} />
     </div>
   );
 }

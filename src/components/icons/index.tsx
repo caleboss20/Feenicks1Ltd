@@ -55,6 +55,15 @@ export function ArrowRight({ className }: IconProps) {
   );
 }
 
+/** × for closing popups and sheets. */
+export function CloseIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </StrokeIcon>
+  );
+}
+
 export function ArrowLeft({ className }: IconProps) {
   return (
     <StrokeIcon className={className}>
@@ -180,6 +189,17 @@ export function ScanIcon({ className }: IconProps) {
   return (
     <StrokeIcon className={className}>
       <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M7 12h10" />
+    </StrokeIcon>
+  );
+}
+
+/** Party popper with confetti: a celebration or milestone. */
+export function PartyPopperIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M3.5 20.5 8.5 9.5l6 6-11 5Z" />
+      <path d="M13.5 9.5c1-2 .6-4.3-1.3-5.4M15 11c2-1 4.4-.6 5.5 1.3" />
+      <path d="M17 3.5v.01M21 7.5v.01M19.5 17v.01M9.5 3.5v.01" />
     </StrokeIcon>
   );
 }
