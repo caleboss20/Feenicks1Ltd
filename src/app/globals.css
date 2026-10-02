@@ -93,8 +93,9 @@
   --animate-sheet-down: sheet-down 0.25s ease-in both;
   --animate-fade-in: fade-in 0.3s ease-out both;
   --animate-fade-out: fade-out 0.25s ease-in both;
-  /* Confetti bursting out of a badge and staying around it (milestones). */
-  --animate-confetti-burst: confetti-burst 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  /* Confetti that keeps popping out of a badge (milestones). Each piece sets
+     its own animation-duration and -delay so the popping never syncs up. */
+  --animate-confetti-pop: confetti-pop 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
   /* "No" shake, e.g. PINs that don't match */
   --animate-shake: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   /* Duration comes from `--slide-duration`, set inline by the component. */
@@ -293,16 +294,25 @@
     }
   }
 
-  /* Confetti piece: flies out from the badge's centre (--from-x/--from-y back
-     to it) to its place, spinning to --rotate, and stays there. */
-  @keyframes confetti-burst {
-    from {
+  /* Confetti piece, on repeat: pops out of the badge's centre (--from-x/-y,
+     the way back to it), flies past its place, drifting on outwards and a
+     little down (--drift-x/-y) while spinning, and fades out. */
+  @keyframes confetti-pop {
+    0% {
       opacity: 0;
-      transform: translate(var(--from-x, 0px), var(--from-y, 0px)) scale(0.2) rotate(0deg);
+      transform: translate(var(--from-x, 0px), var(--from-y, 0px)) scale(0.3) rotate(0deg);
     }
-    to {
+    12% {
+      opacity: 1;
+    }
+    55% {
       opacity: 1;
       transform: translate(0, 0) scale(1) rotate(var(--rotate, 0deg));
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--drift-x, 0px), var(--drift-y, 0px)) scale(0.8)
+        rotate(calc(var(--rotate, 0deg) + 120deg));
     }
   }
 

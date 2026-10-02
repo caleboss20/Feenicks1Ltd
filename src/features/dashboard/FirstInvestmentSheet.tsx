@@ -8,7 +8,8 @@
  *
  *   ┌──────────────── dashboard, dimmed ──────────────┐
  *   ╭──────────────────────────────────────────────(×)╮
- *   │       ✦ ·  (🎉)  · ✦     ← green seal, confetti │
+ *   │       ✦ ·  (🎉)  · ✦     ← green seal; confetti │
+ *   │                            keeps popping out    │
  *   │        You're ready to invest!                 │
  *   │   Make your first investment from just GH₵ 140 │
  *   │   and start growing your money.                │
@@ -16,12 +17,13 @@
  *   │   (        Start investing        )   ← green  │
  *   ╰────────────────────────────────────────────────╯
  *
- * About 40–50% of the screen. On short phones (≤ 700px tall) the badge is
- * smaller and the buttons sit side by side, to stay that size.
+ * Reaches about the middle of the screen (at least 54% of its height). On
+ * very short screens (≤ 620px tall) the badge is smaller and the buttons sit
+ * side by side.
  *
  * When: on the dashboard, a moment after it appears (so the user sees where
- * they are first), once per visit (browser tab session), until the user has
- * invested.
+ * they are first), once per visit, until the user has invested. A visit
+ * starts each time the user logs in or unlocks the app with their PIN.
  *
  * Native <dialog> in modal mode: dimmed backdrop, focus kept inside, Esc to
  * close, the page behind hidden from screen readers. Tapping the dimmed area
@@ -37,8 +39,8 @@ import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { DASHBOARD_TOP_COLOR } from "./dashboardTheme";
 
-/** Set once the sheet has been shown in this browser tab session. */
-const SHOWN_THIS_VISIT_KEY = "feenicks1-first-investment-prompt-shown";
+/** The visit (see `visitId`) the sheet was last shown in. */
+const SHOWN_IN_VISIT_KEY = "feenicks1-first-investment-prompt-visit";
 /** Pause after the dashboard appears before the sheet rises. */
 const OPEN_DELAY_MS = 800;
 /** Longer than the slide-down (`animate-sheet-down`, 0.25s): see `dismiss`. */
@@ -67,33 +69,42 @@ const SEAL_POINTS = Array.from({ length: 24 }, (_, i) => {
 }).join(" ");
 
 /** Opens once per visit, after OPEN_DELAY_MS, while `enabled`. */
-function useOncePerVisit(enabled: boolean) {
+function useOncePerVisit(enabled: boolean, visitId: string) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
     try {
-      if (window.sessionStorage.getItem(SHOWN_THIS_VISIT_KEY) === "1") return;
+      if (window.sessionStorage.getItem(SHOWN_IN_VISIT_KEY) === visitId) return;
     } catch {
       // Storage blocked: show it (it just can't be remembered).
     }
     const timer = setTimeout(() => {
       setIsOpen(true);
       try {
-        window.sessionStorage.setItem(SHOWN_THIS_VISIT_KEY, "1");
+        window.sessionStorage.setItem(SHOWN_IN_VISIT_KEY, visitId);
       } catch {
         // Ignored, see above.
       }
     }, OPEN_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [enabled]);
+  }, [enabled, visitId]);
 
   const close = useCallback(() => setIsOpen(false), []);
   return [isOpen, close] as const;
 }
 
-export function FirstInvestmentSheet({ hasInvested }: { hasInvested: boolean }) {
-  const [isOpen, close] = useOncePerVisit(!hasInvested);
+type FirstInvestmentSheetProps = {
+  hasInvested: boolean;
+  /**
+   * Identifies the current visit: when the app was last unlocked (log-in or
+   * PIN). A new value means a new visit, so the sheet shows again.
+   */
+  visitId: number | null;
+};
+
+export function FirstInvestmentSheet({ hasInvested, visitId }: FirstInvestmentSheetProps) {
+  const [isOpen, close] = useOncePerVisit(!hasInvested, String(visitId ?? "this-tab"));
   const [isClosing, setIsClosing] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeFallbackTimer = useRef<number | undefined>(undefined);
@@ -151,9 +162,9 @@ export function FirstInvestmentSheet({ hasInvested }: { hasInvested: boolean }) 
 
   if (!isOpen) return null;
 
-  // Full width when stacked; equal halves when side by side on short phones.
+  // Full width when stacked; equal halves when side by side on very short screens.
   const pill =
-    "flex h-13 w-full cursor-pointer items-center justify-center rounded-full px-5 text-[0.9375rem] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400 [@media(max-height:700px)]:w-auto [@media(max-height:700px)]:flex-1";
+    "flex h-13 w-full cursor-pointer items-center justify-center rounded-full px-5 text-[0.9375rem] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400 [@media(max-height:620px)]:w-auto [@media(max-height:620px)]:flex-1";
 
   return (
     <dialog
@@ -182,34 +193,41 @@ export function FirstInvestmentSheet({ hasInvested }: { hasInvested: boolean }) 
         "motion-reduce:animate-none motion-reduce:backdrop:animate-none",
       )}
     >
-      <div className="relative px-6 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center [@media(max-height:700px)]:pt-6">
+      {/* At least 54% of the screen tall, so the sheet reaches about the middle;
+          the badge and message are centred in the space above the buttons.
+          overflow-hidden: confetti never pokes out or adds scrollbars. */}
+      <div className="relative flex min-h-[54dvh] flex-col overflow-hidden px-6 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center [@media(max-height:620px)]:min-h-0 [@media(max-height:620px)]:pt-6">
         <button
           type="button"
           onClick={dismiss}
           aria-label="Close"
-          className="absolute top-4 right-4 grid size-9 cursor-pointer place-items-center rounded-full bg-neutral-100 text-neutral-600 transition-colors hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/15"
+          className="absolute top-4 right-4 z-10 grid size-9 cursor-pointer place-items-center rounded-full bg-neutral-100 text-neutral-600 transition-colors hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/15"
         >
           <CloseIcon className="size-[18px]" />
         </button>
 
-        <MilestoneBadge className="mx-auto" />
+        <div className="flex flex-1 flex-col items-center justify-center">
+          <MilestoneBadge />
 
-        <h2
-          id={titleId}
-          className="mt-6 text-[1.375rem] leading-tight font-bold tracking-tight [@media(max-height:700px)]:mt-4 [@media(max-height:700px)]:text-xl"
-        >
-          You&apos;re ready to invest!
-        </h2>
-        <p
-          id={textId}
-          className="mx-auto mt-2 max-w-[19rem] text-sm leading-relaxed text-neutral-500 dark:text-neutral-400"
-        >
-          Make your first investment from just{" "}
-          <strong className="font-semibold text-foreground">{formatCedis(SMALLEST_MINIMUM)}</strong>{" "}
-          and start growing your money.
-        </p>
+          <h2
+            id={titleId}
+            className="mt-6 text-[1.5rem] leading-tight font-bold tracking-tight [@media(max-height:620px)]:mt-4 [@media(max-height:620px)]:text-xl"
+          >
+            You&apos;re ready to invest!
+          </h2>
+          <p
+            id={textId}
+            className="mx-auto mt-2.5 max-w-[19rem] text-[0.9375rem] leading-relaxed text-neutral-500 dark:text-neutral-400 [@media(max-height:620px)]:text-sm"
+          >
+            Make your first investment from just{" "}
+            <strong className="font-semibold whitespace-nowrap text-foreground">
+              {formatCedis(SMALLEST_MINIMUM)}
+            </strong>{" "}
+            and start growing your money.
+          </p>
+        </div>
 
-        <div className="mt-7 flex flex-col gap-2.5 [@media(max-height:700px)]:mt-5 [@media(max-height:700px)]:flex-row">
+        <div className="mt-6 flex flex-col gap-2.5 [@media(max-height:620px)]:mt-5 [@media(max-height:620px)]:flex-row">
           <button
             type="button"
             onClick={dismiss}
@@ -230,42 +248,44 @@ export function FirstInvestmentSheet({ hasInvested }: { hasInvested: boolean }) 
 }
 
 /**
- * Confetti around the badge: where each piece ends up from the badge's centre
- * (x, y in px for an 80px badge; scaled with the badge's size, so it stays
- * inside the sheet and clear of the halo), its shape, colour and final tilt.
- * Hand-placed for a balanced look.
+ * Confetti around the badge, mostly small dashes: where each piece flies to
+ * from the badge's centre (x, y in px for an 80px badge; scaled with the
+ * badge's size, clear of the halo and kept beside/above it so it doesn't
+ * cover the text), its shape, colour and tilt. Hand-placed for a balanced look.
  */
-const BURST_PIECES = [
-  { x: -70, y: -30, shape: "bar", color: "bg-amber-400", rotate: -35 },
-  { x: -96, y: -4, shape: "dot", color: "bg-sky-400", rotate: 0 },
-  { x: -42, y: -52, shape: "dot", color: "bg-brand-500", rotate: 0 },
-  { x: -100, y: 26, shape: "bar", color: "bg-rose-400", rotate: 20 },
-  { x: -74, y: 44, shape: "dot", color: "bg-amber-400", rotate: 0 },
-  { x: -14, y: -60, shape: "dot", color: "bg-sky-400", rotate: 0 },
-  { x: 20, y: -60, shape: "bar", color: "bg-rose-400", rotate: 70 },
-  { x: 64, y: -40, shape: "bar", color: "bg-brand-500", rotate: 40 },
+const CONFETTI_PIECES = [
+  { x: -72, y: -30, shape: "dash", color: "bg-amber-400", rotate: -35 },
+  { x: -98, y: -2, shape: "dot", color: "bg-sky-400", rotate: 0 },
+  { x: -44, y: -52, shape: "dash", color: "bg-brand-500", rotate: 25 },
+  { x: -102, y: 28, shape: "dash", color: "bg-rose-400", rotate: 20 },
+  { x: -76, y: 44, shape: "dot", color: "bg-amber-400", rotate: 0 },
+  { x: -88, y: -38, shape: "dash", color: "bg-violet-400", rotate: 10 },
+  { x: -16, y: -60, shape: "dot", color: "bg-sky-400", rotate: 0 },
+  { x: 18, y: -60, shape: "dash", color: "bg-rose-400", rotate: 70 },
+  { x: 66, y: -38, shape: "dash", color: "bg-brand-500", rotate: 40 },
   { x: 44, y: -54, shape: "dot", color: "bg-amber-400", rotate: 0 },
-  { x: 92, y: -12, shape: "dot", color: "bg-rose-400", rotate: 0 },
-  { x: 100, y: 20, shape: "bar", color: "bg-sky-400", rotate: -25 },
-  { x: 74, y: 44, shape: "dot", color: "bg-brand-500", rotate: 0 },
+  { x: 86, y: -44, shape: "dot", color: "bg-violet-400", rotate: 0 },
+  { x: 94, y: -10, shape: "dash", color: "bg-rose-400", rotate: -60 },
+  { x: 102, y: 22, shape: "dash", color: "bg-sky-400", rotate: -25 },
+  { x: 76, y: 46, shape: "dot", color: "bg-brand-500", rotate: 0 },
+  { x: -56, y: 50, shape: "dash", color: "bg-violet-400", rotate: -40 },
+  { x: 56, y: 52, shape: "dash", color: "bg-amber-400", rotate: 35 },
 ] as const;
 
 /**
- * Green seal with a party popper on a soft halo, with confetti that bursts
- * out of it as the sheet arrives and stays around it: a milestone.
+ * Green seal with a party popper on a soft halo, with confetti that keeps
+ * popping out of it until the sheet is closed: a milestone. (With "reduce
+ * motion" on, the confetti just sits still around the badge.)
  */
-function MilestoneBadge({ className }: { className?: string }) {
+function MilestoneBadge() {
   return (
     <span
       aria-hidden
-      // --badge: the badge's size (smaller on short phones); the confetti scales with it.
-      className={cn(
-        "relative grid size-(--badge) place-items-center [--badge:5rem] [@media(max-height:700px)]:[--badge:4rem]",
-        className,
-      )}
+      // --badge: the badge's size (smaller on very short screens); the confetti scales with it.
+      className="relative grid size-(--badge) place-items-center [--badge:5rem] [@media(max-height:620px)]:[--badge:4rem]"
     >
-      {BURST_PIECES.map((piece, index) => {
-        const [width, height] = piece.shape === "bar" ? [4, 11] : [6, 6];
+      {CONFETTI_PIECES.map((piece, index) => {
+        const [width, height] = piece.shape === "dash" ? [4, 11] : [6, 6];
         // Offsets as a fraction of the badge's size (designed for 80px).
         const fx = piece.x / 80;
         const fy = piece.y / 80;
@@ -273,22 +293,27 @@ function MilestoneBadge({ className }: { className?: string }) {
           <span
             key={index}
             className={cn(
-              "absolute animate-confetti-burst rounded-full motion-reduce:animate-none",
+              "absolute animate-confetti-pop rounded-full motion-reduce:animate-none",
               piece.color,
             )}
             style={
               {
                 width,
                 height,
-                // The piece's centre at (x, y) from the badge's centre.
+                // The piece's resting place: its centre at (x, y) from the badge's centre.
                 left: `calc(50% + ${fx * 100}% - ${width / 2}px)`,
                 top: `calc(50% + ${fy * 100}% - ${height / 2}px)`,
-                // Fly out from the centre; tilt (also used without animation).
+                // Pops out from the centre, then drifts on outwards and a little down.
                 "--from-x": `calc(${-fx} * var(--badge))`,
                 "--from-y": `calc(${-fy} * var(--badge))`,
+                "--drift-x": `calc(${fx * 0.45} * var(--badge))`,
+                "--drift-y": `calc(${fy * 0.45} * var(--badge) + 10px)`,
                 "--rotate": `${piece.rotate}deg`,
+                // Tilt when not animating ("reduce motion").
                 transform: `rotate(${piece.rotate}deg)`,
-                animationDelay: `${0.35 + index * 0.025}s`,
+                // Varied lengths and start times, so the popping never syncs up.
+                animationDuration: `${1.6 + (index % 4) * 0.2}s`,
+                animationDelay: `${0.35 + ((index * 0.37) % 1.6)}s`,
               } as React.CSSProperties
             }
           />

@@ -25,7 +25,8 @@
  *   ──────────────────────────────────────────────
  *    🏠 Home   📊 Analytics   🧾 Transactions   👤 Account   ← AppTabBar
  *
- * Not invested yet → FirstInvestmentSheet rises from the bottom (once per visit).
+ * Not invested yet → FirstInvestmentSheet rises from the bottom (once per
+ * log-in / PIN unlock).
  * Log out lives on the Account tab.
  * Honest by design: no made-up balances or transactions. Until investing is
  * built (TODO(invest)), amounts are GH₵ 0.00 and activity is empty.
@@ -134,7 +135,7 @@ export function DashboardScreen() {
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
 
-  const { email, firstName, riskLevel, avatarUrl } = current.account;
+  const { email, firstName, riskLevel, avatarUrl, unlockedAt } = current.account;
   const initials = (firstName ?? "F1").slice(0, 2).toUpperCase();
   const bestMatch = INVESTMENT_PACKAGES[riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : "mfc"];
   const [lowestRoi, highestRoi] = bestMatch.monthlyRoiPercent;
@@ -381,7 +382,7 @@ export function DashboardScreen() {
       <AppTabBar />
 
       {/* Not invested yet: a milestone sheet nudging the first investment. */}
-      <FirstInvestmentSheet hasInvested={ACTIVE_INVESTMENTS > 0} />
+      <FirstInvestmentSheet hasInvested={ACTIVE_INVESTMENTS > 0} visitId={unlockedAt} />
     </div>
   );
 }
