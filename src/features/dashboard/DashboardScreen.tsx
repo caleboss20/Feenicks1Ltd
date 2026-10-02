@@ -6,21 +6,26 @@
  * styles are ready for the Settings toggle.
  *
  *   ┌─────────── brand green, fading down ─────────┐
- *   │ (📷) Good morning 👋                (🎧) (⇥) │   ← support, log out
+ *   │ (📷) Good morning 👋                (🎧) (🔔) │   ← support, notifications
  *   │      Ama                                     │
+ *   │                                              │
  *   │ Portfolio value                              │
- *   │ GH₵ 0.00  (👁)                               │   ← eye: hide amounts
- *   │ Profit earned GH₵ 0.00                       │
+ *   │ GH₵ 0.00  (👁)                               │   ← big; eye hides amounts
+ *   │ (▲ Profit earned GH₵ 0.00)                   │   ← stock-ticker arrow
+ *   │                                              │
  *   │ [ + Invest ]  [ ↓ Withdraw ]  [■]            │   ← ■ = returns calculator
+ *   │                                              │
  *   │ ╭── swipeable white cards (BannerCarousel) ─╮ │
  *   ╰─│─ Invite a friend · Your best match · … ──│─╯   ← gradient turns white here
  *     ╰──────────────────────────────────────────╯
+ *
  *     Recent activity
  *     (All) (Investments) (Withdrawals)
  *     🕓 No activity yet …
  *   ──────────────────────────────────────────────
  *    🏠 Home   📊 Analytics   🧾 Transactions   👤 Account   ← AppTabBar
  *
+ * Log out lives on the Account tab.
  * Honest by design: no made-up balances or transactions. Until investing is
  * built (TODO(invest)), amounts are GH₵ 0.00 and activity is empty.
  * Access and auto-lock: the (app) layout (AppLockGuard).
@@ -29,22 +34,21 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   ArrowRight,
+  BellIcon,
   CalculatorIcon,
   ClockIcon,
   EyeIcon,
   EyeOffIcon,
   GiftIcon,
-  LogoutIcon,
   PlusIcon,
   SupportIcon,
   TargetIcon,
+  TriangleUpIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { ROUTES } from "@/config/routes";
-import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import {
   INVESTMENT_PACKAGES,
@@ -52,7 +56,7 @@ import {
   packageDetailsHref,
 } from "@/features/packages/investmentPackages";
 import { REFERRAL_REWARD_LABEL, shareReferralLink } from "@/features/referrals/referralService";
-import { formatCedis } from "@/lib/money";
+import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { type Banner, BannerCarousel } from "./BannerCarousel";
 import { DASHBOARD_TOP_GRADIENT } from "./dashboardTheme";
@@ -107,9 +111,7 @@ function readHideAmounts(): boolean {
 }
 
 export function DashboardScreen() {
-  const router = useRouter();
   const current = useCurrentAccount();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   // The dashboard only renders in the browser (AppLockGuard), so storage is safe here.
   const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
   const [activityFilter, setActivityFilter] = useState<ActivityFilter>("all");
@@ -125,22 +127,18 @@ export function DashboardScreen() {
     });
   };
 
-  const handleLogOut = async () => {
-    setIsLoggingOut(true);
-    await logOut();
-    router.replace(ROUTES.login);
-  };
-
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
 
   const { email, firstName, riskLevel, avatarUrl } = current.account;
   const initials = (firstName ?? "F1").slice(0, 2).toUpperCase();
   const bestMatch = INVESTMENT_PACKAGES[riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : "mfc"];
+  const [lowestRoi, highestRoi] = bestMatch.monthlyRoiPercent;
   // The returns calculator lives on each package: open the best match.
   const calculatorHref = packageDetailsHref(bestMatch.id);
 
-  const [lowestRoi, highestRoi] = bestMatch.monthlyRoiPercent;
+  // The balance, split so the pesewas can be drawn smaller: "1,250" + "50".
+  const [balanceWhole, balanceFraction] = formatCedisNumber(PORTFOLIO_VALUE, { exact: true }).split(".");
 
   /** Cards in the swipeable carousel, all built from real data (no made-up offers). */
   const banners: Banner[] = [
@@ -203,9 +201,9 @@ export function DashboardScreen() {
 
   const filter = ACTIVITY_FILTERS[activityFilter];
   const headerIconButton =
-    "grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 [&_svg]:size-[18px]";
+    "grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white/15 min-[360px]:size-11 text-white transition-colors hover:bg-white/25 [&_svg]:size-5";
   const whiteButton =
-    "flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-2xl bg-white text-sm font-semibold [&_svg]:size-[18px]";
+    "flex h-13 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white text-sm font-semibold min-[360px]:gap-2 min-[360px]:text-[0.9375rem] text-neutral-900 transition-colors hover:bg-neutral-50 [&_svg]:size-5";
 
   return (
     <div
@@ -214,37 +212,39 @@ export function DashboardScreen() {
         appTabBarPadding,
       )}
     >
-      {/* Green at the top, fading into the page background behind the banners. */}
+      {/* Green at the top, fading into the page background behind the cards. */}
       <div
         aria-hidden
         style={{ backgroundImage: DASHBOARD_TOP_GRADIENT }}
-        className="absolute inset-x-0 top-0 -z-10 h-[26.5rem]"
+        className="absolute inset-x-0 top-0 -z-10 h-[31rem]"
       />
 
       {/* ── Greeting ─────────────────────────────────────────────── */}
-      <header className="flex items-center gap-3 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] text-white">
+      <header className="flex items-center gap-3 px-5 min-[360px]:gap-3.5 pt-[max(1.5rem,env(safe-area-inset-top))] text-white">
         {avatarUrl ? (
           <Image
             src={avatarUrl}
             alt=""
-            width={44}
-            height={44}
+            width={48}
+            height={48}
             unoptimized // a small local thumbnail: nothing to optimise
-            className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/30"
+            className="size-12 shrink-0 rounded-full object-cover ring-2 ring-white/30"
           />
         ) : (
           <span
             aria-hidden
-            className="grid size-11 shrink-0 place-items-center rounded-full bg-white/20 text-sm font-semibold"
+            className="grid size-12 shrink-0 place-items-center rounded-full bg-white/20 text-[0.9375rem] font-semibold"
           >
             {initials}
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-xs text-white/80">
+          <p className="truncate text-[0.8125rem] text-white/80">
             {greetingForNow()} <span aria-hidden>👋</span>
           </p>
-          <h1 className="truncate text-base font-semibold">{firstName ?? "Welcome"}</h1>
+          <h1 className="mt-0.5 truncate text-lg font-semibold tracking-tight">
+            {firstName ?? "Welcome"}
+          </h1>
         </div>
         <a
           href={SUPPORT_URL}
@@ -255,26 +255,27 @@ export function DashboardScreen() {
         >
           <SupportIcon />
         </a>
-        <button
-          type="button"
-          onClick={handleLogOut}
-          disabled={isLoggingOut}
-          aria-label="Log out"
-          className={headerIconButton}
-        >
-          <LogoutIcon />
-        </button>
+        <Link href={ROUTES.notifications} aria-label="Notifications" className={headerIconButton}>
+          <BellIcon />
+        </Link>
       </header>
 
       {/* ── Balance ──────────────────────────────────────────────── */}
-      <section aria-label="Your portfolio" className="mt-7 px-5 text-white">
-        <p className="text-[0.8125rem] text-white/80">Portfolio value</p>
-        <div className="mt-1 flex items-center gap-1.5">
-          <p className="text-[2.125rem] leading-tight font-semibold tracking-tight">
+      <section aria-label="Your portfolio" className="mt-11 px-5 text-white">
+        <p className="text-sm font-medium text-white/85">Portfolio value</p>
+
+        <div className="mt-3.5 flex items-center gap-3">
+          <p className="flex items-baseline gap-2 leading-none">
+            <span className="text-2xl font-semibold text-white/90">{CEDI_SYMBOL}</span>
             {hideAmounts ? (
-              <span aria-label="Amount hidden">GH₵ ••••••</span>
+              <span aria-label="Amount hidden" className="text-[2.25rem] font-bold tracking-[0.1em]">
+                ••••••
+              </span>
             ) : (
-              formatCedis(PORTFOLIO_VALUE, { exact: true })
+              <span className="text-[2.875rem] font-bold tracking-[-0.03em] tabular-nums">
+                {balanceWhole}
+                <span className="text-[1.875rem] text-white/80">.{balanceFraction}</span>
+              </span>
             )}
           </p>
           <button
@@ -282,13 +283,23 @@ export function DashboardScreen() {
             onClick={toggleHideAmounts}
             aria-label="Hide amounts"
             aria-pressed={hideAmounts}
-            className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full text-white/75 transition-colors hover:bg-white/10 hover:text-white"
+            className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
           >
-            {hideAmounts ? <EyeOffIcon className="size-[18px]" /> : <EyeIcon className="size-[18px]" />}
+            {hideAmounts ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
           </button>
         </div>
-        <p className="mt-1 text-xs text-white/80">
-          Profit earned{" "}
+
+        <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/15 py-1.5 pr-3.5 pl-1.5 text-[0.8125rem] text-white/90">
+          {/* Stock-ticker arrow: green ▲ for a gain (or nothing yet), red ▼ for a loss. */}
+          <span className="grid size-6 place-items-center rounded-full bg-white">
+            <TriangleUpIcon
+              className={cn(
+                "size-3",
+                PROFIT_EARNED < 0 ? "rotate-180 text-red-600" : "text-brand-600",
+              )}
+            />
+          </span>
+          Profit earned
           <span className="font-semibold text-white">
             {hideAmounts ? "••••" : formatCedis(PROFIT_EARNED, { exact: true })}
           </span>
@@ -296,42 +307,37 @@ export function DashboardScreen() {
       </section>
 
       {/* ── Actions: two white buttons and a dark square ─────────── */}
-      <div className="mt-6 flex gap-2.5 px-5">
-        <Link href={ROUTES.packages} className={cn(whiteButton, "text-neutral-900 transition-colors hover:bg-neutral-50")}>
+      <div className="mt-10 flex gap-2.5 px-5 min-[360px]:gap-3">
+        <Link href={ROUTES.packages} className={whiteButton}>
           <PlusIcon />
           Invest
         </Link>
-        {/* Nothing to withdraw yet: shown, but unavailable until there's an investment. */}
-        <span
-          aria-disabled="true"
-          title="Available once you have an investment"
-          className={cn(whiteButton, "cursor-not-allowed text-neutral-400")}
-        >
+        <Link href={ROUTES.withdraw} className={whiteButton}>
           <ArrowRight className="rotate-90" />
           Withdraw
-        </span>
+        </Link>
         <Link
           href={calculatorHref}
           aria-label="Returns calculator"
           title="Returns calculator"
-          className="grid size-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white transition-colors hover:bg-neutral-800 dark:bg-neutral-950"
+          className="grid size-13 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white transition-colors hover:bg-neutral-800 dark:bg-neutral-950"
         >
           <CalculatorIcon className="size-5" />
         </Link>
       </div>
 
-      {/* ── Banners, where the green fades into white ───────────── */}
-      <div className="mt-6 px-4">
+      {/* ── Cards, where the green fades into white ─────────────── */}
+      <div className="mt-10 px-4">
         <BannerCarousel label="Offers and tips" banners={banners} />
       </div>
 
       {/* ── Recent activity ──────────────────────────────────────── */}
-      <section aria-labelledby="activity-title" className="mt-8 px-4">
-        <h2 id="activity-title" className="text-base font-semibold">
+      <section aria-labelledby="activity-title" className="mt-12 px-4">
+        <h2 id="activity-title" className="text-lg font-semibold tracking-tight">
           Recent activity
         </h2>
 
-        <div role="group" aria-label="Show" className="mt-3 flex gap-2">
+        <div role="group" aria-label="Show" className="mt-4 flex gap-2">
           {(Object.keys(ACTIVITY_FILTERS) as ActivityFilter[]).map((key) => {
             const isActive = key === activityFilter;
             return (
@@ -341,7 +347,7 @@ export function DashboardScreen() {
                 aria-pressed={isActive}
                 onClick={() => setActivityFilter(key)}
                 className={cn(
-                  "h-8 cursor-pointer rounded-full px-3.5 text-xs font-medium transition-colors",
+                  "h-9 cursor-pointer rounded-full px-4 text-[0.8125rem] font-medium transition-colors",
                   isActive
                     ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
                     : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300",
@@ -354,13 +360,13 @@ export function DashboardScreen() {
         </div>
 
         {/* TODO(invest): the list of transactions once investing exists. */}
-        <div className="mt-4 flex items-center gap-3.5 py-1">
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-neutral-100 text-neutral-500 dark:bg-white/10">
+        <div className="mt-6 flex items-center gap-4">
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-neutral-100 text-neutral-500 dark:bg-white/10">
             <ClockIcon className="size-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-medium">{filter.emptyTitle}</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+            <p className="text-[0.9375rem] font-medium">{filter.emptyTitle}</p>
+            <p className="mt-1 text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
               {filter.emptyText}
             </p>
           </div>

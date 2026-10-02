@@ -23,8 +23,8 @@ const BRAND_GREEN = "#13934f";
  */
 export const DASHBOARD_TOP_GRADIENT = `linear-gradient(to bottom,
   ${DASHBOARD_TOP_COLOR} 0%,
-  ${BRAND_GREEN} 40%,
-  color-mix(in srgb, ${BRAND_GREEN} 80%, var(--background)) 58%,
-  color-mix(in srgb, ${BRAND_GREEN} 35%, var(--background)) 76%,
-  color-mix(in srgb, ${BRAND_GREEN} 8%, var(--background)) 92%,
+  ${BRAND_GREEN} 50%,
+  color-mix(in srgb, ${BRAND_GREEN} 80%, var(--background)) 66%,
+  color-mix(in srgb, ${BRAND_GREEN} 35%, var(--background)) 82%,
+  color-mix(in srgb, ${BRAND_GREEN} 8%, var(--background)) 93%,
   var(--background) 100%)`;

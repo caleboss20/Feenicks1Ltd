@@ -44,6 +44,10 @@ export const ROUTES = {
   analytics: "/analytics",
   transactions: "/transactions",
   account: "/account",
+  /** From the dashboard's header bell. */
+  notifications: "/notifications",
+  /** From the dashboard's Withdraw button. */
+  withdraw: "/withdraw",
   /** Once, right after registration: intro to the risk profile and packages. */
   startInvesting: "/start-investing",
   /** Investor risk profile: 3 short steps of questions, then the result. */

@@ -166,6 +166,15 @@ export function TargetIcon({ className }: IconProps) {
 
 /* ── App navigation & dashboard ─────────────────────────────────────── */
 
+/** Solid up triangle (rounded corners): a gain, as on stock tickers. Rotate 180° for a loss. */
+export function TriangleUpIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={iconClasses(className)}>
+      <path d="M12 5.5c.4 0 .77.2.98.55l7.1 11.4a1.15 1.15 0 0 1-.98 1.75H4.9a1.15 1.15 0 0 1-.98-1.75l7.1-11.4c.21-.35.58-.55.98-.55Z" />
+    </svg>
+  );
+}
+
 /** Wrapped gift: "invite a friend" / rewards. */
 export function GiftIcon({ className }: IconProps) {
   return (

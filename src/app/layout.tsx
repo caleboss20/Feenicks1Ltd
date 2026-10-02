@@ -11,11 +11,16 @@ import "./globals.css";
    - Inter: brand typeface for all UI text. The closest free match to
      Apple's SF Pro, for a premium iOS-style fintech feel. To change the app
      font, swap it here.
+       · "latin-ext" carries the cedi sign ₵: without it, "GH₵" falls back
+         to the phone's own font and looks out of place.
+       · the "opsz" axis lets big text (balances, titles) use Inter's display
+         design automatically: tighter and sharper, like SF Pro Display.
    - Geist Mono: tabular figures for numbers (balances, prices) later on.
    --------------------------------------------------------------------------- */
 const brandSans = Inter({
   variable: "--font-brand-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
+  axes: ["opsz"],
   display: "swap",
 });
 
