@@ -12,7 +12,7 @@
  *   │ GH₵ 0.00  (👁)                               │   ← eye: hide amounts
  *   │ Profit earned GH₵ 0.00                       │
  *   │ [ + Invest ]  [ ↓ Withdraw ]  [■]            │   ← ■ = returns calculator
- *   │ ╭──── swipeable banners (BannerCarousel) ──╮ │
+ *   │ ╭── swipeable white cards (BannerCarousel) ─╮ │
  *   ╰─│─ Invite a friend · Your best match · … ──│─╯   ← gradient turns white here
  *     ╰──────────────────────────────────────────╯
  *     Recent activity
@@ -36,9 +36,11 @@ import {
   ClockIcon,
   EyeIcon,
   EyeOffIcon,
+  GiftIcon,
   LogoutIcon,
   PlusIcon,
   SupportIcon,
+  TargetIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { ROUTES } from "@/config/routes";
@@ -138,46 +140,63 @@ export function DashboardScreen() {
   // The returns calculator lives on each package: open the best match.
   const calculatorHref = packageDetailsHref(bestMatch.id);
 
-  /**
-   * Banners in the swipeable carousel, all built from real data (no made-up
-   * offers). Each banner's colour is picked from its photo.
-   * ⚠️ Confirm the licence of each photo (or replace it) before launch.
-   */
+  const [lowestRoi, highestRoi] = bestMatch.monthlyRoiPercent;
+
+  /** Cards in the swipeable carousel, all built from real data (no made-up offers). */
   const banners: Banner[] = [
     {
       id: "invite",
+      icon: <GiftIcon />,
       title: "Invite a friend",
-      text: `Earn ${REFERRAL_REWARD_LABEL} for every friend who signs up.`,
-      image: "/illustrations/invite-friend.jpg",
-      // Feenicks1 green.
-      colors: ["#0c6236", "#23a05e"],
+      text: (
+        <>
+          Earn <strong>{REFERRAL_REWARD_LABEL}</strong> for every friend who signs up with your
+          link.
+        </>
+      ),
       action: {
         label: "Invite for free",
         onClick: async () => ((await shareReferralLink(email)) === "copied" ? "copied" : "done"),
       },
     },
-    {
-      id: "best-match",
-      title: riskLevel ? "Your best match" : "Start investing",
-      text: riskLevel
-        ? `${bestMatch.name} suits your investor profile.`
-        : "Pick a package that fits your goals.",
-      image: "/onboarding/start.jpg",
-      imagePosition: "50% 20%",
-      // Indigo violet, from the blue patterned apron and headwrap.
-      colors: ["#3b2a8c", "#5b6bc9"],
-      action: riskLevel
-        ? { label: "View package", href: packageDetailsHref(bestMatch.id) }
-        : { label: "See packages", href: ROUTES.packages },
-    },
+    riskLevel
+      ? {
+          id: "best-match",
+          icon: <TargetIcon />,
+          title: "Your best match",
+          text: (
+            <>
+              <strong>{bestMatch.name}</strong> matches your investor profile, with an expected{" "}
+              <strong className="whitespace-nowrap">
+                {lowestRoi}–{highestRoi}% a month
+              </strong>
+              .
+            </>
+          ),
+          action: { label: "View package", href: packageDetailsHref(bestMatch.id) },
+        }
+      : {
+          id: "best-match",
+          icon: <TargetIcon />,
+          title: "Find your package",
+          text: (
+            <>
+              Answer a few quick questions and we&apos;ll <strong>match you</strong> to the right
+              package.
+            </>
+          ),
+          action: { label: "Get matched", href: ROUTES.startInvesting },
+        },
     {
       id: "calculator",
-      title: "Watch your money grow",
-      text: "Estimate your returns before you invest.",
-      image: "/onboarding/peace-of-mind.jpg",
-      imagePosition: "50% 45%",
-      // Golden mustard, from her trousers.
-      colors: ["#8a5a06", "#d19a1f"],
+      icon: <CalculatorIcon />,
+      title: "Returns calculator",
+      text: (
+        <>
+          See what <strong>{bestMatch.name}</strong> could earn you{" "}
+          <strong>before you invest</strong>.
+        </>
+      ),
       action: { label: "Try the calculator", href: calculatorHref },
     },
   ];

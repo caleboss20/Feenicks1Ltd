@@ -166,6 +166,17 @@ export function TargetIcon({ className }: IconProps) {
 
 /* ── App navigation & dashboard ─────────────────────────────────────── */
 
+/** Wrapped gift: "invite a friend" / rewards. */
+export function GiftIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <rect x="3" y="8" width="18" height="4" rx="1" />
+      <path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+      <path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5" />
+    </StrokeIcon>
+  );
+}
+
 export function HomeIcon({ className }: IconProps) {
   return (
     <StrokeIcon className={className}>

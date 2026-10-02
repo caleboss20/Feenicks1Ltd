@@ -1,48 +1,60 @@
 "use client";
 
 /**
- * BannerCarousel: swipeable promo banners on the dashboard, like adverts.
+ * BannerCarousel: swipeable white cards on the dashboard, after the "Bill
+ * negotiator" card in the user's reference.
  *
  *   ╭──────────────────────────────────────╮
- *   │ Invite a friend          [ photo ]   │   ← swipe right → left
- *   │ Earn GH₵ 20 …                         │
- *   │ ( Invite for free )            ▬ • • │   ← dots: which banner is showing
+ *   │ 🎁 Invite a friend            ▬ • •  │   ← dots: which card is showing
+ *   │ ╭──────────────────────────────────╮ │
+ *   │ │ Earn GH₵ 20 for every friend …   │ │   ← soft grey box with the message
+ *   │ │ ╭──────────────────────────────╮ │ │
+ *   │ │ │      Invite for free  →      │ │ │   ← full-width white button
+ *   │ │ ╰──────────────────────────────╯ │ │
+ *   │ ╰──────────────────────────────────╯ │
  *   ╰──────────────────────────────────────╯
  *
- * - Swipe (touch) or scroll horizontally; each banner snaps into place.
+ * - Swipe (touch) or scroll horizontally; each card snaps into place.
  * - Advances on its own every AUTOPLAY_MS, looping back to the first.
  * - Autoplay pauses while the user touches it, for a while after, when the
  *   tab is hidden, and never runs with "reduce motion" on.
- * - Dots are buttons too: tap one to jump to that banner.
+ * - Dots are buttons too: tap one to jump to that card.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { CheckIcon } from "@/components/icons";
+import { ArrowRight, CheckIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/** Time each banner shows before moving on by itself. */
+/** Time each card shows before moving on by itself. */
 const AUTOPLAY_MS = 5000;
 /** After the user touches the carousel, wait this long before auto-moving again. */
 const RESUME_AFTER_TOUCH_MS = 8000;
 
 export type Banner = {
   id: string;
+  /** Small icon before the title, shown in brand green. */
+  icon: React.ReactNode;
   title: string;
-  text: string;
-  image: string;
-  /**
-   * Banner colour: a gradient [left, right] picked from the photo (e.g. the
-   * colour of the person's clothes) so photo and colour blend. The left
-   * colour sits behind the white text: keep it deep enough for contrast.
-   */
-  colors: [string, string];
-  /** Focus point of the photo, e.g. "50% 25%". */
-  imagePosition?: string;
-  /** The banner's button: a link, or an action (e.g. sharing). */
+  /** The message in the grey box. Wrap the key part in <strong> to highlight it. */
+  text: React.ReactNode;
+  /** The card's button: a link, or an action (e.g. sharing). */
   action: { label: string; href: string } | { label: string; onClick: () => Promise<"done" | "copied"> };
 };
+
+/** Index of the card closest to the track's scroll position. */
+function visibleIndex(track: HTMLElement): number {
+  let closest = 0;
+  let closestDistance = Infinity;
+  Array.from(track.children).forEach((card, index) => {
+    const distance = Math.abs((card as HTMLElement).offsetLeft - track.scrollLeft);
+    if (distance < closestDistance) {
+      closest = index;
+      closestDistance = distance;
+    }
+  });
+  return closest;
+}
 
 export function BannerCarousel({ banners, label }: { banners: Banner[]; label: string }) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -50,17 +62,17 @@ export function BannerCarousel({ banners, label }: { banners: Banner[]; label: s
   const pausedUntil = useRef(0);
 
   const goTo = useCallback((index: number) => {
-    const track = trackRef.current;
-    if (!track) return;
+    const card = trackRef.current?.children[index] as HTMLElement | undefined;
+    if (!card) return;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    track.scrollTo({ left: index * track.clientWidth, behavior: reduceMotion ? "auto" : "smooth" });
+    trackRef.current?.scrollTo({ left: card.offsetLeft, behavior: reduceMotion ? "auto" : "smooth" });
   }, []);
 
-  // Which banner is showing, from the scroll position.
+  // Which card is showing, from the scroll position.
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    const onScroll = () => setCurrent(Math.round(track.scrollLeft / track.clientWidth));
+    const onScroll = () => setCurrent(visibleIndex(track));
     track.addEventListener("scroll", onScroll, { passive: true });
     return () => track.removeEventListener("scroll", onScroll);
   }, []);
@@ -72,9 +84,7 @@ export function BannerCarousel({ banners, label }: { banners: Banner[]; label: s
     const timer = setInterval(() => {
       if (document.visibilityState !== "visible" || Date.now() < pausedUntil.current) return;
       const track = trackRef.current;
-      if (!track) return;
-      const index = Math.round(track.scrollLeft / track.clientWidth);
-      goTo((index + 1) % banners.length);
+      if (track) goTo((visibleIndex(track) + 1) % banners.length);
     }, AUTOPLAY_MS);
     return () => clearInterval(timer);
   }, [banners.length, goTo]);
@@ -90,25 +100,22 @@ export function BannerCarousel({ banners, label }: { banners: Banner[]; label: s
         onPointerDown={pause}
         onTouchStart={pause}
         onWheel={pause}
-        className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-[1.75rem] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        // `relative` so each card's offsetLeft is measured from the track.
+        className="relative flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {banners.map((banner, index) => (
-          <BannerSlide
-            key={banner.id}
-            banner={banner}
-            position={`${index + 1} of ${banners.length}`}
-          />
+          <BannerCard key={banner.id} banner={banner} position={`${index + 1} of ${banners.length}`} />
         ))}
       </div>
 
-      {/* Dots, on the banner (bottom-right). The current one is a longer bar. */}
+      {/* Dots, top-right of the card, level with its title. The current one is a short bar. */}
       {banners.length > 1 && (
-        <div className="absolute right-5 bottom-4 flex items-center gap-1.5">
+        <div className="absolute top-[1.375rem] right-5 flex items-center gap-1.5">
           {banners.map((banner, index) => (
             <button
               key={banner.id}
               type="button"
-              aria-label={`Show banner ${index + 1}`}
+              aria-label={`Show card ${index + 1}`}
               aria-current={index === current ? "true" : undefined}
               onClick={() => {
                 pause();
@@ -116,7 +123,9 @@ export function BannerCarousel({ banners, label }: { banners: Banner[]; label: s
               }}
               className={cn(
                 "h-1.5 cursor-pointer rounded-full transition-all duration-300",
-                index === current ? "w-5 bg-white" : "w-1.5 bg-white/50",
+                index === current
+                  ? "w-4 bg-brand-600 dark:bg-brand-400"
+                  : "w-1.5 bg-neutral-300 dark:bg-white/25",
               )}
             />
           ))}
@@ -126,10 +135,11 @@ export function BannerCarousel({ banners, label }: { banners: Banner[]; label: s
   );
 }
 
-/** One banner: text and button on the left, photo on the right fading into the banner colour. */
-function BannerSlide({ banner, position }: { banner: Banner; position: string }) {
+/** One white card: icon and title, then a grey box with the message and a button. */
+function BannerCard({ banner, position }: { banner: Banner; position: string }) {
   const [copied, setCopied] = useState(false);
 
+  // Put the button back to its label after a moment.
   useEffect(() => {
     if (!copied) return;
     const timer = setTimeout(() => setCopied(false), 2000);
@@ -137,55 +147,54 @@ function BannerSlide({ banner, position }: { banner: Banner; position: string })
   }, [copied]);
 
   const buttonClass =
-    "mt-3 inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full bg-white px-4 text-xs font-semibold transition-opacity hover:opacity-90";
+    "group mt-3.5 flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-background text-[0.8125rem] font-medium text-neutral-900 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:text-white dark:hover:bg-white/5";
+  const arrow = <ArrowRight className="size-4" />;
 
   return (
     <div
       role="group"
       aria-roledescription="slide"
       aria-label={position}
-      className="relative isolate h-[9.25rem] w-full shrink-0 snap-center snap-always overflow-hidden text-white"
-      style={{ backgroundImage: `linear-gradient(110deg, ${banner.colors[0]} 35%, ${banner.colors[1]})` }}
+      className="flex w-full shrink-0 snap-start snap-always flex-col rounded-3xl border border-neutral-200/80 bg-background p-2.5 dark:border-white/10"
     >
-      <Image
-        src={banner.image}
-        alt=""
-        fill
-        sizes="(min-width: 448px) 260px, 60vw"
-        className="-z-10 left-auto! w-[58%]! object-cover [mask-image:linear-gradient(to_right,transparent,black_45%)]"
-        style={{ objectPosition: banner.imagePosition ?? "50% 25%" }}
-      />
+      {/* Room on the right for the dots. */}
+      <div className="flex items-center gap-2 px-2 pt-1 pr-16 pb-2.5">
+        <span className="text-brand-600 dark:text-brand-400 [&_svg]:size-[18px]">{banner.icon}</span>
+        <h2 className="truncate text-sm font-semibold">{banner.title}</h2>
+      </div>
 
-      <div className="flex h-full flex-col justify-center px-5">
-        <h2 className="text-base leading-tight font-semibold">{banner.title}</h2>
-        <p className="mt-1 max-w-[11rem] text-xs leading-snug text-white/85">{banner.text}</p>
-        <div>
-          {"href" in banner.action ? (
-            <Link href={banner.action.href} className={buttonClass} style={{ color: banner.colors[0] }}>
-              {banner.action.label}
-            </Link>
-          ) : (
-            <button
-              type="button"
-              className={buttonClass}
-              style={{ color: banner.colors[0] }}
-              onClick={async () => {
-                if ("onClick" in banner.action && (await banner.action.onClick()) === "copied") {
-                  setCopied(true);
-                }
-              }}
-            >
-              {copied ? (
-                <>
-                  <CheckIcon className="size-3.5" />
-                  Link copied
-                </>
-              ) : (
-                banner.action.label
-              )}
-            </button>
-          )}
-        </div>
+      <div className="flex flex-1 flex-col rounded-2xl border border-neutral-100 bg-neutral-50 p-3.5 dark:border-white/5 dark:bg-white/5">
+        <p className="flex-1 text-[0.8125rem] leading-relaxed text-neutral-600 dark:text-neutral-300 [&_strong]:font-semibold [&_strong]:text-neutral-900 dark:[&_strong]:text-white">
+          {banner.text}
+        </p>
+        {"href" in banner.action ? (
+          <Link href={banner.action.href} className={buttonClass}>
+            {banner.action.label}
+            {arrow}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className={buttonClass}
+            onClick={async () => {
+              if ("onClick" in banner.action && (await banner.action.onClick()) === "copied") {
+                setCopied(true);
+              }
+            }}
+          >
+            {copied ? (
+              <>
+                <CheckIcon className="size-4 text-brand-600" />
+                Link copied
+              </>
+            ) : (
+              <>
+                {banner.action.label}
+                {arrow}
+              </>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
