@@ -15,6 +15,7 @@
  */
 
 import { isStepAfter, type AccountStep } from "@/features/auth/accountProgress";
+import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
 
 const ACCOUNTS_KEY = "feenicks1-demo-accounts";
 /** Who is logged in: localStorage if "Remember me" was ticked, else sessionStorage. */
@@ -41,7 +42,7 @@ export type DemoAccount = {
   /** Authenticator-app secret (Base32). In production: server-side, encrypted. */
   totpSecret?: string;
   /** Investor risk profile result (see investor-profile/riskProfileQuestions.ts). */
-  riskProfile?: { level: "conservative" | "moderate" | "growth"; score: number; answeredAt: string };
+  riskProfile?: { level: RiskLevel; score: number; answeredAt: string };
   createdAt: string;
 };
 

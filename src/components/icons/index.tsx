@@ -164,6 +164,37 @@ export function TargetIcon({ className }: IconProps) {
   );
 }
 
+/** Briefcase: a managed portfolio (Mutual Fund Capital). */
+export function BriefcaseIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <rect x="3" y="7" width="18" height="13" rx="2.5" />
+      <path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7M3 12.5h18M11 12.5v1.5h2v-1.5" />
+    </StrokeIcon>
+  );
+}
+
+/** Sprout: agriculture (Agribusiness Capital). */
+export function SproutIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M12 21v-9" />
+      <path d="M12 12c0-4 2.5-6.5 7-6.5 0 4.5-2.5 6.5-7 6.5Z" />
+      <path d="M12 14.5c0-3.2-2-5.2-6-5.2 0 3.6 2 5.2 6 5.2Z" />
+    </StrokeIcon>
+  );
+}
+
+/** Buildings: real estate (Real Estate Pool Fund). */
+export function BuildingIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h7A1.5 1.5 0 0 1 14 5.5V21M14 10h4.5a1.5 1.5 0 0 1 1.5 1.5V21M2.5 21h19" />
+      <path d="M7.5 8h3M7.5 12h3M7.5 16h3M16.5 14h1M16.5 17.5h1" />
+    </StrokeIcon>
+  );
+}
+
 /** Line going up and to the right: growth, returns. */
 export function TrendUpIcon({ className }: IconProps) {
   return (

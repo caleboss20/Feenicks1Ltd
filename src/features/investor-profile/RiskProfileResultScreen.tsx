@@ -9,18 +9,18 @@
  *   You want your money to grow, with limited ups and downs…
  *
  *   ▬▬▬▬▬▬  ██████  ▬▬▬▬▬▬                  ← risk meter (3 levels)
- *   Conservative  Moderate  Growth
+ *   Conservative  Moderate  Aggressive
  *
- *   Main goal           Balance safety and growth
- *   Ups and downs       Moderate
- *   Typical horizon     Medium
+ *   Volatility          Moderate
+ *   Returns             Medium to high
+ *   Growth from         Tangible assets
  *
  *   We'll use this to recommend packages… not financial advice…
  *   (            Continue            )
  *          Retake questions
  *
  * Reads the saved profile from the account, so it survives a refresh.
- * TODO(packages): show the matching packages here once they're defined.
+ * Continue → "Packages for you" (/packages).
  */
 
 import { useEffect } from "react";
@@ -32,8 +32,8 @@ import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { cn } from "@/lib/utils";
 import { RISK_LEVEL_ORDER, RISK_LEVELS, type RiskLevel } from "./riskProfileQuestions";
 
-/** Where "Continue" leads. */
-const NEXT_SCREEN = ROUTES.dashboard;
+/** Where "Continue" leads: the packages that match this profile. */
+const NEXT_SCREEN = ROUTES.packages;
 
 export function RiskProfileResultScreen() {
   const router = useRouter();
@@ -104,7 +104,7 @@ export function RiskProfileResultScreen() {
   );
 }
 
-/** Three segments (Conservative · Moderate · Growth) with the user's level highlighted. */
+/** Three segments (Conservative · Moderate · Aggressive) with the user's level highlighted. */
 function RiskMeter({ level, className }: { level: RiskLevel; className?: string }) {
   return (
     <div className={className} role="img" aria-label={`Risk level: ${RISK_LEVELS[level].name}`}>

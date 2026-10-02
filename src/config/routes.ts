@@ -45,6 +45,8 @@ export const ROUTES = {
   /** Investor risk profile: 3 short steps of questions, then the result. */
   riskProfileQuestions: "/investor-profile",
   riskProfileResult: "/investor-profile/result",
+  /** Investment packages (matched to the risk profile); details at /packages/[id]. */
+  packages: "/packages",
 
   // Forgot-password flow (3 steps, in order)
   forgotPassword: "/forgot-password",

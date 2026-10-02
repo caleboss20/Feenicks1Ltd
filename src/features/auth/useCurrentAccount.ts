@@ -7,6 +7,7 @@ import {
   getUnlockedAt,
   subscribeToSession,
 } from "@/demo/demoAccounts";
+import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
 import type { AccountStep } from "./accountProgress";
 
 /**
@@ -29,7 +30,7 @@ export type CurrentAccount = {
   /** Fingerprint / Face ID is set up and can unlock the app. */
   hasBiometrics: boolean;
   /** Investor risk profile, once the questions are answered. */
-  riskLevel: "conservative" | "moderate" | "growth" | null;
+  riskLevel: RiskLevel | null;
   step: AccountStep;
   /** True once the PIN has been entered (or created) in this session. */
   isUnlocked: boolean;

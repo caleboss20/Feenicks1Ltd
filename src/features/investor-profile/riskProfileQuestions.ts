@@ -4,17 +4,21 @@
  * here (wording, points, thresholds), not in the screens.
  *
  * Scoring: every answer is worth 1 (cautious), 2 (balanced) or 3 (bold).
- * Six questions → a total between 6 and 18:
- *     6–10  Conservative
- *    11–14  Moderate
- *    15–18  Growth
+ * Six questions → a total between 6 and 18, mapped to the four levels of
+ * Feenicks1's "Investor Risk Tolerance & Portfolio Match" document:
+ *     6–10  Conservative  (low risk)
+ *    11–14  Moderate      (balanced risk)
+ *    15–18  Aggressive    (high risk)
+ * (The document's 4th level, "Speculative", is left out: its products,
+ * crypto/DeFi and forex trading, aren't offered in the app.)
+ * Which packages suit each level: features/packages/investmentPackages.ts.
  *
  * ⚠️ Have compliance review the questions and thresholds before launch.
  * Investment firms are expected to check that products suit each client
  * (suitability / "know your client"); this questionnaire is that check.
  */
 
-export type RiskLevel = "conservative" | "moderate" | "growth";
+export type RiskLevel = "conservative" | "moderate" | "aggressive";
 
 export type QuestionId =
   | "horizon"
@@ -122,14 +126,19 @@ export function scoreAnswers(answers: RiskAnswers): number {
 export function riskLevelForScore(score: number): RiskLevel {
   if (score <= 10) return "conservative";
   if (score <= 14) return "moderate";
-  return "growth";
+  return "aggressive";
 }
 
-/** How each profile is described on the result screen. */
+/**
+ * How each level is described on the result screen. Wording follows the
+ * company's "Investor Risk Tolerance & Portfolio Match" document.
+ */
 export const RISK_LEVELS: Record<
   RiskLevel,
   {
     name: string;
+    /** Short label under the risk meter. */
+    meterLabel: string;
     summary: string;
     /** Short facts shown as a list: label → value. */
     facts: { label: string; value: string }[];
@@ -137,35 +146,38 @@ export const RISK_LEVELS: Record<
 > = {
   conservative: {
     name: "Conservative",
+    meterLabel: "Low",
     summary:
-      "You prefer keeping your money safe over chasing high returns. Steady, lower-risk packages suit you best.",
+      "You value protecting your money and predictable outcomes. Low-risk packages with steady returns suit you best.",
     facts: [
-      { label: "Main goal", value: "Protect your money" },
-      { label: "Ups and downs", value: "Kept small" },
-      { label: "Typical horizon", value: "Short to medium" },
+      { label: "Volatility", value: "Low" },
+      { label: "Returns", value: "Lower, steadier" },
+      { label: "Safety of your capital", value: "High" },
     ],
   },
   moderate: {
     name: "Moderate",
+    meterLabel: "Balanced",
     summary:
-      "You want your money to grow, with limited ups and downs. A balance of stability and growth suits you best.",
+      "You want a balance of stability and growth, and accept some ups and downs. Packages backed by real, tangible assets suit you best.",
     facts: [
-      { label: "Main goal", value: "Balance safety and growth" },
-      { label: "Ups and downs", value: "Moderate" },
-      { label: "Typical horizon", value: "Medium" },
+      { label: "Volatility", value: "Moderate" },
+      { label: "Returns", value: "Medium to high" },
+      { label: "Growth from", value: "Tangible assets" },
     ],
   },
-  growth: {
-    name: "Growth",
+  aggressive: {
+    name: "Aggressive",
+    meterLabel: "High",
     summary:
-      "You're comfortable with ups and downs in exchange for higher long-term returns. Growth-focused packages suit you best.",
+      "You're comfortable with market ups and downs and focus on building long-term wealth. Higher-return packages suit you best.",
     facts: [
-      { label: "Main goal", value: "Grow your money" },
-      { label: "Ups and downs", value: "Larger, short-term" },
-      { label: "Typical horizon", value: "Long" },
+      { label: "Volatility", value: "High" },
+      { label: "Returns", value: "Higher" },
+      { label: "Focus", value: "Long-term wealth" },
     ],
   },
 };
 
 /** Order of the levels on the risk meter (left → right). */
-export const RISK_LEVEL_ORDER: RiskLevel[] = ["conservative", "moderate", "growth"];
+export const RISK_LEVEL_ORDER: RiskLevel[] = ["conservative", "moderate", "aggressive"];
