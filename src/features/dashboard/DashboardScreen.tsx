@@ -143,10 +143,14 @@ export function DashboardScreen() {
           fill
           preload
           sizes="(min-width: 448px) 448px, 100vw"
-          className="-z-10 object-cover"
+          // Brightened so the green silk reads light and fresh, not dark.
+          className="-z-10 object-cover brightness-[1.35] saturate-[1.05]"
         />
-        {/* Gentle tint so the white text always reads clearly on the fabric. */}
-        <span aria-hidden className="absolute inset-0 -z-10 bg-black/20" />
+        {/* A very light tint at the top only, behind the greeting and balance. */}
+        <span
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-linear-to-b from-black/15 via-transparent to-transparent"
+        />
 
         <div className="flex items-center gap-3">
           {avatarUrl ? (
