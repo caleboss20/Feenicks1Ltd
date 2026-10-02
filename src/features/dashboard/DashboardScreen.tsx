@@ -1,42 +1,40 @@
 "use client";
 
 /**
- * Dashboard (Home): layout of the "Vytinqo" fintech reference (coloured
- * balance header, quick access, activity, tab bar with a raised centre
- * button), styled like the clean green/white reference: lots of white
- * space, regular text, round soft-grey icon buttons.
+ * Dashboard (Home), built after a premium fintech reference, in Feenicks1
+ * green on white (with dark-mode styles ready for the Settings toggle).
  *
- *   ╭──────────── brand green ─────────────╮
- *   │ (📷) Good morning,           ( ⇥ )  │   ← profile picture (or initials); log out
- *   │      Ama Mensah                       │
- *   │          Portfolio value (👁)         │   ← tap the eye to hide amounts
- *   │            GH₵ 0.00                   │
- *   │        Profit earned GH₵ 0.00         │
- *   │   ( ↗ Invest )  ( ↓ Withdraw )        │
- *   ╰───────────────────────────────────────╯
- *   Quick access
- *   (▦)        (🧮)         (🧭)          (🎧)
- *   Packages  Calculator  Risk profile  Support
- *
- *   Your investments
- *   ┌ You haven't invested yet … best match ┐
- *   Recent activity
- *   No activity yet …
- *
- *   🏠 Home   ▦ Packages   (+)   🧭 Profile   🎧 Support
+ *   ╭───────── green gradient card ─────────╮
+ *   │ (📷) Good morning 👋          (🎧) (⇥) │   ← support, log out (deeper-tone circles)
+ *   │      Ama Mensah                        │
+ *   │ Portfolio value                        │
+ *   │ GH₵ 0.00                         (👁)  │   ← big amount; eye on the right
+ *   │ [ ↗ ]   [ ↙ ]    [ 🧮 ]     [ ▦ ]      │
+ *   │ Invest Withdraw Calculator Packages    │   ← tiles one tone deeper than the card
+ *   ╰────────────────────────────────────────╯
+ *   ╭──── green silk photo ──────────────────╮
+ *   │ Invite a friend                         │
+ *   │ Earn GH₵ 20 for every friend…           │
+ *   │ ( Invite for free )                     │   ← phone share sheet / copy link
+ *   ╰────────────────────────────────────────╯
+ *   ╭──── Recent activity ───────────────────╮
+ *   │ No activity yet …                       │
+ *   ╰────────────────────────────────────────╯
+ *          ( 🏠 Home ) (▦) (🧭) (🎧)            ← floating capsule tab bar
  *
  * Honest by design: no made-up balances or transactions. Until investing is
- * built (TODO(invest)), amounts are GH₵ 0.00 and the lists show empty states.
+ * built (TODO(invest)), amounts are GH₵ 0.00 and activity is empty.
  * Access and auto-lock: the (app) layout (AppLockGuard).
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   CalculatorIcon,
+  CheckIcon,
   ClockIcon,
   CompassIcon,
   EyeIcon,
@@ -44,25 +42,28 @@ import {
   GridIcon,
   HomeIcon,
   LogoutIcon,
-  PlusIcon,
   SupportIcon,
 } from "@/components/icons";
 import { ROUTES } from "@/config/routes";
 import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
-import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
 import {
   INVESTMENT_PACKAGES,
   PACKAGES_FOR_RISK_LEVEL,
   packageDetailsHref,
-  roiRangeLabel,
 } from "@/features/packages/investmentPackages";
-import { PackageIcon } from "@/features/packages/PackageCard";
+import { REFERRAL_REWARD_LABEL, shareReferralLink } from "@/features/referrals/referralService";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 /** Company website, for "Support" until in-app support exists. */
 const SUPPORT_URL = "https://www.feenicks1solutions.com";
+
+/**
+ * Background of the "Invite a friend" banner.
+ * ⚠️ Confirm the licence of this photo (or replace it) before launch.
+ */
+const INVITE_BANNER_IMAGE = "/illustrations/banner-silk-green.jpg";
 
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
@@ -72,7 +73,6 @@ const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
  * Zero until then; never fake numbers on a money screen.
  */
 const PORTFOLIO_VALUE = 0;
-const PROFIT_EARNED = 0;
 
 /** "Good morning" / "Good afternoon" / "Good evening" by the user's clock. */
 function greetingForNow() {
@@ -90,18 +90,13 @@ function readHideAmounts(): boolean {
   }
 }
 
-/** "GH₵ 1,240.50" → big whole part + small decimals, like banking apps. */
-function BigAmount({ amount, hidden }: { amount: number; hidden: boolean }) {
-  if (hidden) return <span aria-label="Amount hidden">GH₵ ••••••</span>;
-  const [whole, decimals] = amount.toFixed(2).split(".");
-  return (
-    <>
-      <span className="text-[1.375rem] font-medium opacity-80">GH₵ </span>
-      {Number(whole).toLocaleString("en-GH")}
-      <span className="text-[1.375rem] font-medium opacity-80">.{decimals}</span>
-    </>
-  );
-}
+/**
+ * The balance card's background: a soft, even green gradient, lighter at
+ * the top-right and deeper at the bottom-left (like the reference), never
+ * neon. Built from the brand greens.
+ */
+const BALANCE_CARD_BACKGROUND =
+  "bg-[radial-gradient(130%_115%_at_85%_0%,#86dfab_0%,#2fab66_40%,#15803d_100%)]";
 
 export function DashboardScreen() {
   const router = useRouter();
@@ -130,248 +125,256 @@ export function DashboardScreen() {
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
 
-  const { firstName, riskLevel, avatarUrl } = current.account;
+  const { email, firstName, riskLevel, avatarUrl } = current.account;
   const initials = (firstName ?? "F1").slice(0, 2).toUpperCase();
-  const bestMatch = riskLevel ? INVESTMENT_PACKAGES[PACKAGES_FOR_RISK_LEVEL[riskLevel][0]] : null;
+  const bestMatchId = riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : "mfc";
 
-  const quickAccess = [
-    { label: "Packages", href: ROUTES.packages, icon: <GridIcon /> },
+  /** The four tiles on the green card. */
+  const actions = [
+    { label: "Invest", href: ROUTES.packages, icon: <ArrowRight className="-rotate-45" /> },
+    // Nothing to withdraw yet: shown, but unavailable until there's an investment.
+    { label: "Withdraw", href: null, icon: <ArrowRight className="rotate-[135deg]" /> },
     {
       label: "Calculator",
-      // The returns estimate lives on each package; open the best match (or the entry package).
-      href: packageDetailsHref(bestMatch?.id ?? "mfc"),
+      // The returns estimate lives on each package: open the best match.
+      href: packageDetailsHref(INVESTMENT_PACKAGES[bestMatchId].id),
       icon: <CalculatorIcon />,
     },
-    {
-      label: "Risk profile",
-      href: riskLevel ? ROUTES.riskProfileResult : ROUTES.riskProfileQuestions,
-      icon: <CompassIcon />,
-    },
-    { label: "Support", href: SUPPORT_URL, icon: <SupportIcon />, external: true },
+    { label: "Packages", href: ROUTES.packages, icon: <GridIcon /> },
   ];
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background pb-[calc(6rem+env(safe-area-inset-bottom))]">
-      {/* ── Balance header ─────────────────────────────────────── */}
-      <header className="rounded-b-[2rem] bg-brand-600 px-6 pt-[max(1.25rem,env(safe-area-inset-top))] pb-8 text-white">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-2.5 bg-background px-2 pt-2 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      {/* ── Balance card (reaches the top of the screen, like the reference) ── */}
+      <header
+        className={cn(
+          "rounded-[2rem] px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 text-white",
+          BALANCE_CARD_BACKGROUND,
+        )}
+      >
+        {/* Avatar, greeting and name · two round buttons in a deeper tone. */}
         <div className="flex items-center gap-3">
-          {/* Their profile picture (from "Fill Your Profile"), else initials. */}
           {avatarUrl ? (
             <Image
               src={avatarUrl}
               alt=""
-              width={44}
-              height={44}
+              width={48}
+              height={48}
               unoptimized // a small local thumbnail: nothing to optimise
-              className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/30"
+              className="size-12 shrink-0 rounded-full object-cover"
             />
           ) : (
             <span
               aria-hidden
-              className="grid size-11 shrink-0 place-items-center rounded-full bg-white/15 text-sm font-semibold"
+              className="grid size-12 shrink-0 place-items-center rounded-full bg-black/15 text-sm font-semibold"
             >
               {initials}
             </span>
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-[0.8125rem] text-white/70">{greetingForNow()},</p>
-            <h1 className="truncate text-base font-semibold">{firstName ?? "Welcome"}</h1>
+            <p className="text-[0.8125rem] text-white/80">{greetingForNow()} 👋</p>
+            <h1 className="mt-0.5 truncate text-[1.0625rem] font-semibold">
+              {firstName ?? "Welcome"}
+            </h1>
           </div>
+          <a
+            href={SUPPORT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Support"
+            className="grid size-10 shrink-0 place-items-center rounded-full bg-black/15 transition-colors hover:bg-black/25"
+          >
+            <SupportIcon className="size-[18px]" />
+          </a>
           <button
             type="button"
             onClick={handleLogOut}
             disabled={isLoggingOut}
             aria-label="Log out"
-            className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border border-white/25 transition-colors hover:bg-white/10 disabled:opacity-60"
+            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-black/15 transition-colors hover:bg-black/25 disabled:opacity-60"
           >
-            <LogoutIcon className="size-5" />
+            <LogoutIcon className="size-[18px]" />
           </button>
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="flex items-center justify-center gap-2 text-[0.8125rem] text-white/75">
-            Portfolio value
-            <button
-              type="button"
-              onClick={toggleHideAmounts}
-              aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
-              aria-pressed={hideAmounts}
-              className="-m-1.5 grid size-7 cursor-pointer place-items-center rounded-full hover:bg-white/10"
-            >
-              {hideAmounts ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
-            </button>
-          </p>
-          <p className="mt-2 text-[2.25rem] leading-none font-semibold tracking-tight">
-            <BigAmount amount={PORTFOLIO_VALUE} hidden={hideAmounts} />
-          </p>
-          <p className="mt-3 text-[0.8125rem] text-white/75">
-            Profit earned{" "}
-            <span className="font-semibold text-white">
-              {hideAmounts ? "••••" : formatCedis(PROFIT_EARNED, { exact: true })}
-            </span>
-          </p>
-        </div>
-
-        {/* Actions: white pills, as in the reference. */}
-        <div className="mt-7 grid grid-cols-2 gap-3">
-          <Link
-            href={ROUTES.packages}
-            className="flex h-12 items-center justify-center gap-2 rounded-full bg-white text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50"
-          >
-            <ArrowRight className="size-4 -rotate-45" />
-            Invest
-          </Link>
-          {/* Nothing to withdraw yet: shown, but unavailable (and says why). */}
+        {/* Label + big amount on the left, the eye (hide/show) on the right. */}
+        <div className="mt-9 flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm text-white/80">Portfolio value</p>
+            <p className="mt-2 text-[2.375rem] leading-none font-semibold tracking-tight">
+              {hideAmounts ? (
+                <span aria-label="Amount hidden">GH₵ ••••••</span>
+              ) : (
+                formatCedis(PORTFOLIO_VALUE, { exact: true })
+              )}
+            </p>
+          </div>
           <button
             type="button"
-            disabled
-            title="Available once you have an investment"
-            className="flex h-12 items-center justify-center gap-2 rounded-full border border-white/30 text-sm font-semibold text-white/60"
+            onClick={toggleHideAmounts}
+            aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
+            aria-pressed={hideAmounts}
+            className="-mr-1.5 grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-white/90 transition-colors hover:bg-white/10"
           >
-            <ArrowRight className="size-4 rotate-[135deg]" />
-            Withdraw
+            {hideAmounts ? <EyeIcon className="size-5" /> : <EyeOffIcon className="size-5" />}
           </button>
         </div>
+
+        {/* Four rounded tiles, one tone deeper than the card. */}
+        <ul className="mt-7 grid grid-cols-4 gap-2">
+          {actions.map((action) => {
+            const tileClass =
+              "flex h-[5.25rem] flex-col items-center justify-center gap-2 rounded-[1.375rem] bg-black/12 text-[0.8125rem] font-medium transition-colors [&_svg]:size-5";
+            return (
+              <li key={action.label}>
+                {action.href ? (
+                  <Link href={action.href} className={cn(tileClass, "hover:bg-black/20")}>
+                    {action.icon}
+                    {action.label}
+                  </Link>
+                ) : (
+                  <span
+                    aria-disabled="true"
+                    title="Available once you have an investment"
+                    className={cn(tileClass, "text-white/55")}
+                  >
+                    {action.icon}
+                    {action.label}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </header>
 
-      <main className="flex flex-col gap-10 px-6 pt-8">
-        {/* ── Quick access ───────────────────────────────────── */}
-        <section aria-labelledby="quick-access-title">
-          <h2 id="quick-access-title" className="text-[0.9375rem] font-semibold">
-            Quick access
-          </h2>
-          <ul className="mt-4 grid grid-cols-4 gap-2">
-            {quickAccess.map((item) => (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="group flex flex-col items-center gap-2 text-center"
-                >
-                  <span className="grid size-14 place-items-center rounded-full bg-neutral-100 text-brand-700 transition-colors group-hover:bg-brand-50 dark:bg-white/5 dark:text-brand-400 [&_svg]:size-6">
-                    {item.icon}
-                  </span>
-                  <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
-                    {item.label}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+      <InviteBanner email={email} />
 
-        {/* ── Your investments ───────────────────────────────── */}
-        <section aria-labelledby="investments-title">
-          <div className="flex items-baseline justify-between">
-            <h2 id="investments-title" className="text-[0.9375rem] font-semibold">
-              Your investments
-            </h2>
-            <Link href={ROUTES.packages} className="text-[0.8125rem] font-semibold text-brand-600 hover:underline">
-              See packages
-            </Link>
-          </div>
+      {/* ── Recent activity ────────────────────────────────────── */}
+      <section
+        aria-labelledby="activity-title"
+        className="rounded-[2rem] bg-neutral-50 px-5 pt-5 pb-6 dark:bg-white/5"
+      >
+        <h2 id="activity-title" className="text-[0.9375rem] font-semibold">
+          Recent activity
+        </h2>
+        <div className="mt-5 flex items-center gap-3.5">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-background text-neutral-500 dark:bg-white/10">
+            <ClockIcon className="size-5" />
+          </span>
+          <p className="text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
+            No activity yet. Your deposits, investments and returns will show here.
+          </p>
+        </div>
+      </section>
 
-          <div className="mt-4 rounded-3xl bg-neutral-100 p-5 dark:bg-white/5">
-            <p className="text-sm font-semibold">You haven&apos;t invested yet</p>
-            <p className="mt-1 text-[0.8125rem] leading-relaxed text-neutral-500">
-              {bestMatch && riskLevel
-                ? `Based on your ${RISK_LEVELS[riskLevel].name} profile, we suggest:`
-                : "Pick a package to start growing your money."}
-            </p>
-
-            {bestMatch ? (
-              <Link
-                href={packageDetailsHref(bestMatch.id)}
-                className="mt-4 flex items-center gap-3 rounded-2xl bg-background p-3.5 transition-colors hover:bg-white/70 dark:bg-white/5"
-              >
-                <PackageIcon pkg={bestMatch} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold">{bestMatch.name}</span>
-                  <span className="block text-xs text-neutral-500">
-                    {roiRangeLabel(bestMatch.monthlyRoiPercent)} a month · from{" "}
-                    <span className="whitespace-nowrap">{formatCedis(bestMatch.minimum)}</span>
-                  </span>
-                </span>
-                <ArrowRight className="size-4 shrink-0 -rotate-45 text-brand-600" />
-              </Link>
-            ) : (
-              <Link
-                href={ROUTES.riskProfileQuestions}
-                className="mt-4 inline-flex text-[0.8125rem] font-semibold text-brand-600 hover:underline"
-              >
-                Find packages that suit you
-              </Link>
-            )}
-          </div>
-        </section>
-
-        {/* ── Recent activity ────────────────────────────────── */}
-        <section aria-labelledby="activity-title">
-          <h2 id="activity-title" className="text-[0.9375rem] font-semibold">
-            Recent activity
-          </h2>
-          <div className="mt-4 flex items-center gap-3.5 rounded-3xl border border-neutral-100 p-5 dark:border-white/10">
-            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-neutral-100 text-neutral-500 dark:bg-white/5">
-              <ClockIcon className="size-5" />
-            </span>
-            <p className="text-[0.8125rem] leading-relaxed text-neutral-500">
-              No activity yet. Your deposits, investments and returns will show here.
-            </p>
-          </div>
-        </section>
-      </main>
-
-      <BottomTabBar />
+      <FloatingTabBar />
     </div>
   );
 }
 
 /**
- * Bottom tab bar with a raised round centre button (Invest), as in the
- * reference. Fixed to the bottom of the screen.
+ * "Invite a friend" banner on a green silk photo. "Invite for free" opens
+ * the phone's share sheet (WhatsApp, SMS…) or copies the link on desktop.
  */
-function BottomTabBar() {
-  // Two tabs either side of the raised centre button.
-  const tabs = [
-    { label: "Home", href: ROUTES.dashboard, icon: <HomeIcon />, isActive: true },
+function InviteBanner({ email }: { email: string }) {
+  const [copied, setCopied] = useState(false);
+
+  // Put the button back to "Invite for free" after a moment.
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+
+  const invite = async () => {
+    const result = await shareReferralLink(email);
+    if (result === "copied") setCopied(true);
+  };
+
+  return (
+    <section
+      aria-labelledby="invite-title"
+      className="relative overflow-hidden rounded-[2rem] text-white"
+    >
+      <Image
+        src={INVITE_BANNER_IMAGE}
+        alt=""
+        fill
+        sizes="(min-width: 448px) 424px, 100vw"
+        className="object-cover"
+      />
+      {/* Darker on the left so the text always reads clearly. */}
+      <span
+        aria-hidden
+        className="absolute inset-0 bg-linear-to-r from-black/45 via-black/15 to-transparent"
+      />
+
+      <div className="relative px-5 py-5">
+        <h2 id="invite-title" className="text-lg font-semibold">
+          Invite a friend
+        </h2>
+        <p className="mt-1 max-w-[13.5rem] text-[0.8125rem] leading-snug text-white/85">
+          Earn {REFERRAL_REWARD_LABEL} for every friend who signs up.
+        </p>
+        <button
+          type="button"
+          onClick={invite}
+          className="mt-4 inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-full bg-white px-5 text-[0.8125rem] font-semibold text-brand-800 transition-colors hover:bg-brand-50"
+        >
+          {copied ? (
+            <>
+              <CheckIcon className="size-4" />
+              Link copied
+            </>
+          ) : (
+            "Invite for free"
+          )}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Floating capsule tab bar: the current tab is a white pill with its name;
+ * the others are round icons. Dark capsule, so it stands out on white.
+ */
+function FloatingTabBar() {
+  const otherTabs = [
     { label: "Packages", href: ROUTES.packages, icon: <GridIcon /> },
-    { label: "Profile", href: ROUTES.riskProfileResult, icon: <CompassIcon /> },
+    { label: "Investor profile", href: ROUTES.riskProfileResult, icon: <CompassIcon /> },
     { label: "Support", href: SUPPORT_URL, icon: <SupportIcon />, external: true },
   ];
 
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-100 bg-background pb-[env(safe-area-inset-bottom)] dark:border-white/10"
+      className="fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 flex justify-center"
     >
-      <ul className="relative mx-auto grid h-16 max-w-md grid-cols-[1fr_1fr_4.5rem_1fr_1fr] px-2">
-        {tabs.map((tab, index) => (
-          <li key={tab.label} className={cn(index === 2 && "col-start-4")}>
+      <ul className="flex items-center gap-1.5 rounded-full bg-neutral-900 p-1.5 dark:bg-neutral-800">
+        <li>
+          <Link
+            href={ROUTES.dashboard}
+            aria-current="page"
+            className="flex h-12 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-neutral-900"
+          >
+            <HomeIcon className="size-5 text-brand-600" />
+            Home
+          </Link>
+        </li>
+        {otherTabs.map((tab) => (
+          <li key={tab.label}>
             <Link
               href={tab.href}
-              aria-current={tab.isActive ? "page" : undefined}
+              aria-label={tab.label}
               {...(tab.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className={cn(
-                "flex h-full flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium [&_svg]:size-[22px]",
-                tab.isActive ? "text-brand-700 dark:text-brand-400" : "text-neutral-400 hover:text-neutral-600",
-              )}
+              className="grid size-12 place-items-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white [&_svg]:size-5"
             >
               {tab.icon}
-              {tab.label}
             </Link>
           </li>
         ))}
-
-        {/* Raised centre button: start investing. */}
-        <li className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <Link
-            href={ROUTES.packages}
-            aria-label="Invest"
-            className="grid size-14 place-items-center rounded-full bg-brand-600 text-white ring-4 ring-background transition-colors hover:bg-brand-700"
-          >
-            <PlusIcon className="size-6" />
-          </Link>
-        </li>
       </ul>
     </nav>
   );

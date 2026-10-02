@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import { themeInitScript } from "@/config/theme";
 import "./globals.css";
@@ -8,11 +8,12 @@ import "./globals.css";
    Fonts: self-hosted by next/font at build time (no request to Google at
    runtime, no layout shift). Exposed as CSS variables used in globals.css.
 
-   - Plus Jakarta Sans: brand typeface for all UI text. Modern and geometric,
-     pairs with the Feenicks1 wordmark. To change the app font, swap it here.
+   - Inter: brand typeface for all UI text. The closest free match to
+     Apple's SF Pro, for a premium iOS-style fintech feel. To change the app
+     font, swap it here.
    - Geist Mono: tabular figures for numbers (balances, prices) later on.
    --------------------------------------------------------------------------- */
-const brandSans = Plus_Jakarta_Sans({
+const brandSans = Inter({
   variable: "--font-brand-sans",
   subsets: ["latin"],
   display: "swap",
