@@ -14,12 +14,13 @@
  *   └──────────────────────────────┘
  *   (🎁) Earn GH₵ 20 for every friend …
  *
- *   (      Share invite link      )   ← share sheet, or copies on desktop
+ *   (      Share invite link      )   ← share sheet, or copies on desktop;
+ *                                       pinned to the bottom of the screen
  */
 
 import { useEffect, useState } from "react";
 import { CheckIcon, CopyIcon, GiftIcon } from "@/components/icons";
-import { StepScreenLayout, stepActionsClass } from "@/components/layout/StepScreenLayout";
+import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { Button } from "@/components/ui/Button";
 import { QrCode } from "@/components/ui/QrCode";
 import { ROUTES } from "@/config/routes";
@@ -75,20 +76,24 @@ export function ReferScreen() {
       backHref={ROUTES.dashboard}
       subtitle="Ask your friend to scan this code with their phone camera to sign up."
     >
+      {/* Short phones (≤ 700px tall): a smaller QR code and tighter spacing, so the
+          code and the Share button fit on one screen. */}
       <section
         aria-label="Your referral QR code"
-        className="flex flex-col items-center rounded-3xl border border-neutral-200/80 px-6 pt-7 pb-6 dark:border-white/10"
+        className="flex flex-col items-center rounded-3xl border border-neutral-200/80 px-6 pt-7 pb-6 dark:border-white/10 [@media(max-height:700px)]:pt-5 [@media(max-height:700px)]:pb-4"
       >
         {/* White behind the code even in dark mode: cameras read dark-on-white best. */}
         <div className="rounded-2xl bg-white p-1.5">
           <QrCode
             value={referralLinkFor(email)}
             label="QR code with your referral link"
-            className="size-52"
+            className="size-52 [@media(max-height:700px)]:size-44"
           />
         </div>
 
-        <p className="mt-6 text-xs text-neutral-500 dark:text-neutral-400">Your referral code</p>
+        <p className="mt-6 text-xs text-neutral-500 dark:text-neutral-400 [@media(max-height:700px)]:mt-4">
+          Your referral code
+        </p>
         <div className="mt-1 flex items-center gap-1.5">
           <p className="text-2xl font-bold tracking-[0.12em]">{code}</p>
           <button
@@ -106,7 +111,7 @@ export function ReferScreen() {
         </div>
       </section>
 
-      <div className="mt-5 flex items-center gap-3.5 rounded-2xl bg-brand-50 p-4 dark:bg-brand-500/10">
+      <div className="mt-5 flex items-center gap-3.5 rounded-2xl bg-brand-50 p-4 dark:bg-brand-500/10 [@media(max-height:700px)]:mt-3 [@media(max-height:700px)]:p-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand-600 dark:bg-white/10 dark:text-brand-400">
           <GiftIcon className="size-5" />
         </span>
@@ -116,7 +121,8 @@ export function ReferScreen() {
         </p>
       </div>
 
-      <div className={stepActionsClass}>
+      {/* Pinned to the bottom of the screen: never hidden below the fold. */}
+      <div className={stickyActionsClass}>
         <Button size="lg" fullWidth onClick={shareLink}>
           {linkCopied ? (
             <>

@@ -18,7 +18,7 @@
  */
 
 import { ArrowRight } from "@/components/icons";
-import { StepScreenLayout, stepActionsClass } from "@/components/layout/StepScreenLayout";
+import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
 import { formatCedis } from "@/lib/money";
@@ -38,7 +38,7 @@ export function WithdrawScreen() {
         </p>
       </section>
 
-      <div className="mt-12 flex flex-col items-center text-center">
+      <div className="mt-12 flex flex-col items-center text-center [@media(max-height:700px)]:mt-8">
         <span className="grid size-16 place-items-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-500/10">
           <ArrowRight className="size-7 rotate-90" />
         </span>
@@ -49,7 +49,8 @@ export function WithdrawScreen() {
         </p>
       </div>
 
-      <div className={stepActionsClass}>
+      {/* Pinned to the bottom of the screen: never hidden below the fold. */}
+      <div className={stickyActionsClass}>
         <ButtonLink href={ROUTES.packages} size="lg" fullWidth>
           Invest now
         </ButtonLink>
