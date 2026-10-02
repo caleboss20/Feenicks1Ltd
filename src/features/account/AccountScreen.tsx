@@ -22,14 +22,17 @@
  *   │ 🔔 Notifications                  › │
  *   ╰────────────────────────────────────╯
  *   ╭────────────────────────────────────╮
+ *   │ ☾  Dark mode                  (  ●) │   ← light by default
+ *   ╰────────────────────────────────────╯
+ *   ╭────────────────────────────────────╮
  *   │ 🎧 Help & support                 › │
  *   ╰────────────────────────────────────╯
  *   ╭────────────────────────────────────╮
  *   │ ⇥  Log out                          │   ← red; asks "Log out?" first
  *   ╰────────────────────────────────────╯
  *
- * Only rows that work today: more (personal details, privacy policy, dark
- * mode…) get added as those features are built.
+ * Only rows that work today: more (privacy policy, language…) get added as
+ * those features are built.
  */
 
 import { useState } from "react";
@@ -47,6 +50,7 @@ import {
   GridIcon,
   KeyIcon,
   LogoutIcon,
+  MoonIcon,
   SupportIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
@@ -59,8 +63,11 @@ import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
 import { InviteCarousel } from "@/features/referrals/InviteCarousel";
 import { disableBiometricUnlock, enableBiometricUnlock } from "@/features/security/securityService";
 import { useBiometricSupport } from "@/features/security/useBiometricSupport";
+import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { guessBiometricKind } from "@/lib/webAuthn";
 import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/stores/useThemeStore";
+import { ACCOUNT_PAGE_COLORS } from "./accountTheme";
 
 /** Company website, for "Help & support" until in-app support exists. */
 const SUPPORT_URL = "https://www.feenicks1solutions.com";
@@ -70,6 +77,7 @@ export function AccountScreen() {
   const current = useCurrentAccount();
   const [isConfirmingLogOut, setIsConfirmingLogOut] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  useStatusBarColor(ACCOUNT_PAGE_COLORS);
 
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
@@ -155,6 +163,10 @@ export function AccountScreen() {
       </RowGroup>
 
       <RowGroup>
+        <DarkModeRow />
+      </RowGroup>
+
+      <RowGroup>
         <LinkRow icon={<SupportIcon />} label="Help & support" href={SUPPORT_URL} external />
       </RowGroup>
 
@@ -228,6 +240,29 @@ function LinkRow({
         {/* Chevron turned to point right ("open"). */}
         <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
       </Link>
+    </li>
+  );
+}
+
+/**
+ * Dark mode on or off. Light is the default; the choice is saved on this
+ * device and applied before the page paints on the next visit (useThemeStore).
+ */
+function DarkModeRow() {
+  const theme = useThemeStore((state) => state.theme);
+  const setTheme = useThemeStore((state) => state.setTheme);
+
+  return (
+    <li className={rowClass}>
+      <span className={iconClass}>
+        <MoonIcon />
+      </span>
+      <span className="min-w-0 flex-1 text-[0.9375rem]">Dark mode</span>
+      <Switch
+        checked={theme === "dark"}
+        onChange={(isOn) => setTheme(isOn ? "dark" : "light")}
+        label="Dark mode"
+      />
     </li>
   );
 }

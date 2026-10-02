@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { ACCOUNT_PAGE_COLORS } from "@/features/account/accountTheme";
 import { AccountScreen } from "@/features/account/AccountScreen";
 
 /**
@@ -11,11 +12,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * Phone status bar in the page's light grey (`bg-neutral-100`), so the two
- * read as one surface.
+ * Phone status bar in the page's light grey, so the two read as one surface
+ * (the screen switches it to dark in dark mode: useStatusBarColor).
  */
 export const viewport: Viewport = {
-  themeColor: "#f5f5f5",
+  themeColor: ACCOUNT_PAGE_COLORS.light,
 };
 
 export default function AccountPage() {

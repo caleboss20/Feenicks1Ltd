@@ -184,6 +184,15 @@ export function TriangleUpIcon({ className }: IconProps) {
   );
 }
 
+/** Crescent moon: dark mode. */
+export function MoonIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+    </StrokeIcon>
+  );
+}
+
 /** Scan frame (four corners and a line): "show a QR code to scan". */
 export function ScanIcon({ className }: IconProps) {
   return (
