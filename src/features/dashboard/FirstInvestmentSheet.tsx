@@ -36,8 +36,8 @@ import { CloseIcon, PartyPopperIcon } from "@/components/icons";
 import { ROUTES } from "@/config/routes";
 import { INVESTMENT_PACKAGES } from "@/features/packages/investmentPackages";
 import { formatCedis } from "@/lib/money";
+import { useModalBackdropEffects } from "@/hooks/useModalBackdropEffects";
 import { cn } from "@/lib/utils";
-import { DASHBOARD_TOP_COLOR } from "./dashboardTheme";
 
 /** The visit (see `visitId`) the sheet was last shown in. */
 const SHOWN_IN_VISIT_KEY = "feenicks1-first-investment-prompt-visit";
@@ -45,18 +45,6 @@ const SHOWN_IN_VISIT_KEY = "feenicks1-first-investment-prompt-visit";
 const OPEN_DELAY_MS = 800;
 /** Longer than the slide-down (`animate-sheet-down`, 0.25s): see `dismiss`. */
 const CLOSE_FALLBACK_MS = 400;
-
-/** How dark the backdrop is (black at 40%): keep in sync with `backdrop:bg-black/40`. */
-const BACKDROP_OPACITY = 0.4;
-
-/** The dashboard's top green as seen through the backdrop, for the status bar. */
-const DIMMED_TOP_COLOR = `#${(DASHBOARD_TOP_COLOR.match(/[0-9a-f]{2}/gi) ?? [])
-  .map((channel) =>
-    Math.round(parseInt(channel, 16) * (1 - BACKDROP_OPACITY))
-      .toString(16)
-      .padStart(2, "0"),
-  )
-  .join("")}`;
 
 /** The smallest amount any package accepts: "from just GH₵ 140". */
 const SMALLEST_MINIMUM = Math.min(...Object.values(INVESTMENT_PACKAGES).map((pkg) => pkg.minimum));
@@ -117,24 +105,8 @@ export function FirstInvestmentSheet({ hasInvested, visitId }: FirstInvestmentSh
     if (isOpen && dialog && !dialog.open) dialog.showModal();
   }, [isOpen]);
 
-  // While open: the dashboard behind doesn't scroll, and the phone's status
-  // bar (theme-color) is dimmed like the page under the backdrop, so the two
-  // still read as one surface. Both are put back on close.
-  useEffect(() => {
-    if (!isOpen) return;
-    const root = document.documentElement;
-    const previousOverflow = root.style.overflow;
-    root.style.overflow = "hidden";
-
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    const previousThemeColor = meta?.content;
-    if (meta) meta.content = DIMMED_TOP_COLOR;
-
-    return () => {
-      root.style.overflow = previousOverflow;
-      if (meta && previousThemeColor) meta.content = previousThemeColor;
-    };
-  }, [isOpen]);
+  // While open: no scrolling behind, and the status bar dimmed like the page.
+  useModalBackdropEffects(isOpen);
 
   /** Closes the dialog and removes the sheet (safe to call more than once). */
   const finishClose = useCallback(() => {

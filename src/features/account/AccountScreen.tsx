@@ -25,7 +25,7 @@
  *   │ 🎧 Help & support                 › │
  *   ╰────────────────────────────────────╯
  *   ╭────────────────────────────────────╮
- *   │ ⇥  Log out                          │   ← red
+ *   │ ⇥  Log out                          │   ← red; asks "Log out?" first
  *   ╰────────────────────────────────────╯
  *
  * Only rows that work today: more (personal details, privacy policy, dark
@@ -50,6 +50,7 @@ import {
   SupportIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Switch } from "@/components/ui/Switch";
 import { ROUTES } from "@/config/routes";
 import { logOut } from "@/features/auth/authService";
@@ -67,6 +68,7 @@ const SUPPORT_URL = "https://www.feenicks1solutions.com";
 export function AccountScreen() {
   const router = useRouter();
   const current = useCurrentAccount();
+  const [isConfirmingLogOut, setIsConfirmingLogOut] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Always signed in here (AppLockGuard); this just narrows the type.
@@ -160,15 +162,27 @@ export function AccountScreen() {
         <li>
           <button
             type="button"
-            onClick={handleLogOut}
-            disabled={isLoggingOut}
-            className="flex min-h-14 w-full cursor-pointer items-center gap-3.5 py-3.5 text-[0.9375rem] font-medium text-red-600 disabled:opacity-60 dark:text-red-400 [&_svg]:size-5"
+            // Asks first (ConfirmDialog below).
+            onClick={() => setIsConfirmingLogOut(true)}
+            className="flex min-h-14 w-full cursor-pointer items-center gap-3.5 py-3.5 text-[0.9375rem] font-medium text-red-600 dark:text-red-400 [&_svg]:size-5"
           >
             <LogoutIcon />
-            {isLoggingOut ? "Logging out…" : "Log out"}
+            Log out
           </button>
         </li>
       </RowGroup>
+
+      <ConfirmDialog
+        open={isConfirmingLogOut}
+        tone="danger"
+        icon={<LogoutIcon />}
+        title="Log out?"
+        message="You'll need your email and password to log back in."
+        confirmLabel="Log out"
+        isConfirming={isLoggingOut}
+        onConfirm={handleLogOut}
+        onCancel={() => setIsConfirmingLogOut(false)}
+      />
 
       <AppTabBar />
     </div>

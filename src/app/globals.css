@@ -93,6 +93,8 @@
   --animate-sheet-down: sheet-down 0.25s ease-in both;
   --animate-fade-in: fade-in 0.3s ease-out both;
   --animate-fade-out: fade-out 0.25s ease-in both;
+  /* Confirm dialogs: rise in slightly and settle. */
+  --animate-dialog-in: dialog-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
   /* Confetti that keeps popping out of a badge (milestones). Each piece sets
      its own animation-duration and -delay so the popping never syncs up. */
   --animate-confetti-pop: confetti-pop 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
@@ -313,6 +315,17 @@
       opacity: 0;
       transform: translate(var(--drift-x, 0px), var(--drift-y, 0px)) scale(0.8)
         rotate(calc(var(--rotate, 0deg) + 120deg));
+    }
+  }
+
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
 
