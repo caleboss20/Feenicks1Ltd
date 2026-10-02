@@ -1,22 +1,23 @@
 "use client";
 
 /**
- * Dashboard (Home), after the "EzFunds" reference, in Feenicks1 green on
- * white (with dark-mode styles ready for the Settings toggle).
+ * Dashboard (Home): a green gradient top that fades into white, after the
+ * user's reference (a blue banking home), in Feenicks1 green. Dark-mode
+ * styles are ready for the Settings toggle.
  *
- *   ┌──────── full-width section on green silk ────┐
- *   │ (📷) Good morning,                 (👁) (⇥)  │   ← hide amounts, log out
+ *   ┌─────────── brand green, fading down ─────────┐
+ *   │ (📷) Good morning 👋                (🎧) (⇥) │   ← support, log out
  *   │      Ama                                     │
- *   │               Portfolio value                │
- *   │                GH₵ 0.00                      │   ← big, centred
- *   │          ↗ Profit earned GH₵ 0.00            │
- *   │    (↗)      (↙)        (🧮)        (▦)       │   ← round see-through buttons
- *   │   Invest  Withdraw  Calculator  Packages     │
- *   └──────────────────────────────────────────────┘
- *     ╭──── photo banner (woman on her phone) ──╮
- *     │ Invite a friend · Earn GH₵ 20 …      │
- *     ╰───────────────────────────────────────╯
- *     Recent activity …
+ *   │ Portfolio value                              │
+ *   │ GH₵ 0.00  (👁)                               │   ← eye: hide amounts
+ *   │ Profit earned GH₵ 0.00                       │
+ *   │ [ + Invest ]  [ ↓ Withdraw ]  [■]            │   ← ■ = returns calculator
+ *   │ ╭──── swipeable banners (BannerCarousel) ──╮ │
+ *   ╰─│─ Invite a friend · Your best match · … ──│─╯   ← gradient turns white here
+ *     ╰──────────────────────────────────────────╯
+ *     Recent activity
+ *     (All) (Investments) (Withdrawals)
+ *     🕓 No activity yet …
  *   ──────────────────────────────────────────────
  *    🏠 Home   📊 Analytics   🧾 Transactions   👤 Account   ← AppTabBar
  *
@@ -25,19 +26,19 @@
  * Access and auto-lock: the (app) layout (AppLockGuard).
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   CalculatorIcon,
-  CheckIcon,
   ClockIcon,
   EyeIcon,
   EyeOffIcon,
-  GridIcon,
   LogoutIcon,
+  PlusIcon,
+  SupportIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { ROUTES } from "@/config/routes";
@@ -51,14 +52,11 @@ import {
 import { REFERRAL_REWARD_LABEL, shareReferralLink } from "@/features/referrals/referralService";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import { type Banner, BannerCarousel } from "./BannerCarousel";
+import { DASHBOARD_TOP_GRADIENT } from "./dashboardTheme";
 
-/**
- * Photos. ⚠️ Confirm the licence of both (or replace them) before launch.
- *   - green silk fabric: background of the balance section
- *   - woman on her phone: the "Invite a friend" banner
- */
-const BALANCE_BACKGROUND_IMAGE = "/illustrations/banner-silk-green.jpg";
-const INVITE_BANNER_IMAGE = "/illustrations/invite-friend.jpg";
+/** Company website, for "Support" until in-app support exists. */
+const SUPPORT_URL = "https://www.feenicks1solutions.com";
 
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
@@ -69,6 +67,26 @@ const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
  */
 const PORTFOLIO_VALUE = 0;
 const PROFIT_EARNED = 0;
+
+/** Filters above the activity list. */
+const ACTIVITY_FILTERS = {
+  all: {
+    label: "All",
+    emptyTitle: "No activity yet",
+    emptyText: "Your investments, returns and withdrawals will show here.",
+  },
+  investments: {
+    label: "Investments",
+    emptyTitle: "No investments yet",
+    emptyText: "Choose a package to make your first investment.",
+  },
+  withdrawals: {
+    label: "Withdrawals",
+    emptyTitle: "No withdrawals yet",
+    emptyText: "Money you withdraw from your investments will show here.",
+  },
+} as const;
+type ActivityFilter = keyof typeof ACTIVITY_FILTERS;
 
 /** "Good morning" / "Good afternoon" / "Good evening" by the user's clock. */
 function greetingForNow() {
@@ -92,6 +110,7 @@ export function DashboardScreen() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   // The dashboard only renders in the browser (AppLockGuard), so storage is safe here.
   const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
+  const [activityFilter, setActivityFilter] = useState<ActivityFilter>("all");
 
   const toggleHideAmounts = () => {
     setHideAmounts((hidden) => {
@@ -115,218 +134,221 @@ export function DashboardScreen() {
 
   const { email, firstName, riskLevel, avatarUrl } = current.account;
   const initials = (firstName ?? "F1").slice(0, 2).toUpperCase();
-  const bestMatchId = riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : "mfc";
+  const bestMatch = INVESTMENT_PACKAGES[riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : "mfc"];
+  // The returns calculator lives on each package: open the best match.
+  const calculatorHref = packageDetailsHref(bestMatch.id);
 
-  /** The four round buttons under the balance. */
-  const actions = [
-    { label: "Invest", href: ROUTES.packages, icon: <ArrowRight className="-rotate-45" /> },
-    // Nothing to withdraw yet: shown, but unavailable until there's an investment.
-    { label: "Withdraw", href: null, icon: <ArrowRight className="rotate-[135deg]" /> },
+  /**
+   * Banners in the swipeable carousel, all built from real data (no made-up
+   * offers). Each banner's colour is picked from its photo.
+   * ⚠️ Confirm the licence of each photo (or replace it) before launch.
+   */
+  const banners: Banner[] = [
     {
-      label: "Calculator",
-      // The returns estimate lives on each package: open the best match.
-      href: packageDetailsHref(INVESTMENT_PACKAGES[bestMatchId].id),
-      icon: <CalculatorIcon />,
+      id: "invite",
+      title: "Invite a friend",
+      text: `Earn ${REFERRAL_REWARD_LABEL} for every friend who signs up.`,
+      image: "/illustrations/invite-friend.jpg",
+      // Feenicks1 green.
+      colors: ["#0c6236", "#23a05e"],
+      action: {
+        label: "Invite for free",
+        onClick: async () => ((await shareReferralLink(email)) === "copied" ? "copied" : "done"),
+      },
     },
-    { label: "Packages", href: ROUTES.packages, icon: <GridIcon /> },
+    {
+      id: "best-match",
+      title: riskLevel ? "Your best match" : "Start investing",
+      text: riskLevel
+        ? `${bestMatch.name} suits your investor profile.`
+        : "Pick a package that fits your goals.",
+      image: "/onboarding/start.jpg",
+      imagePosition: "50% 20%",
+      // Indigo violet, from the blue patterned apron and headwrap.
+      colors: ["#3b2a8c", "#5b6bc9"],
+      action: riskLevel
+        ? { label: "View package", href: packageDetailsHref(bestMatch.id) }
+        : { label: "See packages", href: ROUTES.packages },
+    },
+    {
+      id: "calculator",
+      title: "Watch your money grow",
+      text: "Estimate your returns before you invest.",
+      image: "/onboarding/peace-of-mind.jpg",
+      imagePosition: "50% 45%",
+      // Golden mustard, from her trousers.
+      colors: ["#8a5a06", "#d19a1f"],
+      action: { label: "Try the calculator", href: calculatorHref },
+    },
   ];
+
+  const filter = ACTIVITY_FILTERS[activityFilter];
+  const headerIconButton =
+    "grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 [&_svg]:size-[18px]";
+  const whiteButton =
+    "flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-2xl bg-white text-sm font-semibold [&_svg]:size-[18px]";
 
   return (
     <div
-      className={cn("mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background", appTabBarPadding)}
+      className={cn(
+        "relative isolate mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background",
+        appTabBarPadding,
+      )}
     >
-      {/* ── Full-width top section on green silk ───────────────── */}
-      <header className="relative isolate overflow-hidden rounded-b-[2rem] bg-brand-800 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-7 text-white">
-        <Image
-          src={BALANCE_BACKGROUND_IMAGE}
-          alt=""
-          fill
-          preload
-          sizes="(min-width: 448px) 448px, 100vw"
-          // Brightened so the green silk reads light and fresh, not dark.
-          className="-z-10 object-cover brightness-[1.35] saturate-[1.05]"
-        />
-        {/* A very light tint at the top only, behind the greeting and balance. */}
-        <span
-          aria-hidden
-          className="absolute inset-0 -z-10 bg-linear-to-b from-black/15 via-transparent to-transparent"
-        />
+      {/* Green at the top, fading into the page background behind the banners. */}
+      <div
+        aria-hidden
+        style={{ backgroundImage: DASHBOARD_TOP_GRADIENT }}
+        className="absolute inset-x-0 top-0 -z-10 h-[26.5rem]"
+      />
 
-        <div className="flex items-center gap-3">
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt=""
-              width={44}
-              height={44}
-              unoptimized // a small local thumbnail: nothing to optimise
-              className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/30"
-            />
-          ) : (
-            <span
-              aria-hidden
-              className="grid size-11 shrink-0 place-items-center rounded-full bg-white/15 text-sm font-semibold"
-            >
-              {initials}
-            </span>
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="text-[0.8125rem] text-white/75">{greetingForNow()},</p>
-            <h1 className="truncate text-base font-semibold">{firstName ?? "Welcome"}</h1>
-          </div>
-          <button
-            type="button"
-            onClick={toggleHideAmounts}
-            aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
-            aria-pressed={hideAmounts}
-            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-white/90 transition-colors hover:bg-white/10"
+      {/* ── Greeting ─────────────────────────────────────────────── */}
+      <header className="flex items-center gap-3 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] text-white">
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt=""
+            width={44}
+            height={44}
+            unoptimized // a small local thumbnail: nothing to optimise
+            className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/30"
+          />
+        ) : (
+          <span
+            aria-hidden
+            className="grid size-11 shrink-0 place-items-center rounded-full bg-white/20 text-sm font-semibold"
           >
-            {hideAmounts ? <EyeIcon className="size-5" /> : <EyeOffIcon className="size-5" />}
-          </button>
-          <button
-            type="button"
-            onClick={handleLogOut}
-            disabled={isLoggingOut}
-            aria-label="Log out"
-            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-white/90 transition-colors hover:bg-white/10 disabled:opacity-60"
-          >
-            <LogoutIcon className="size-5" />
-          </button>
+            {initials}
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-white/80">
+            {greetingForNow()} <span aria-hidden>👋</span>
+          </p>
+          <h1 className="truncate text-base font-semibold">{firstName ?? "Welcome"}</h1>
         </div>
+        <a
+          href={SUPPORT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Support"
+          className={headerIconButton}
+        >
+          <SupportIcon />
+        </a>
+        <button
+          type="button"
+          onClick={handleLogOut}
+          disabled={isLoggingOut}
+          aria-label="Log out"
+          className={headerIconButton}
+        >
+          <LogoutIcon />
+        </button>
+      </header>
 
-        {/* Balance, centred, with today's profit underneath. */}
-        <div className="mt-8 text-center">
-          <p className="text-[0.8125rem] text-white/80">Portfolio value</p>
-          <p className="mt-2 text-[2.5rem] leading-none font-semibold tracking-tight">
+      {/* ── Balance ──────────────────────────────────────────────── */}
+      <section aria-label="Your portfolio" className="mt-7 px-5 text-white">
+        <p className="text-[0.8125rem] text-white/80">Portfolio value</p>
+        <div className="mt-1 flex items-center gap-1.5">
+          <p className="text-[2.125rem] leading-tight font-semibold tracking-tight">
             {hideAmounts ? (
               <span aria-label="Amount hidden">GH₵ ••••••</span>
             ) : (
               formatCedis(PORTFOLIO_VALUE, { exact: true })
             )}
           </p>
-          <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs text-white/90">
-            <ArrowRight className="size-3.5 -rotate-45" />
-            Profit earned{" "}
-            <span className="font-semibold text-white">
-              {hideAmounts ? "••••" : formatCedis(PROFIT_EARNED, { exact: true })}
-            </span>
-          </p>
+          <button
+            type="button"
+            onClick={toggleHideAmounts}
+            aria-label="Hide amounts"
+            aria-pressed={hideAmounts}
+            className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full text-white/75 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            {hideAmounts ? <EyeOffIcon className="size-[18px]" /> : <EyeIcon className="size-[18px]" />}
+          </button>
         </div>
+        <p className="mt-1 text-xs text-white/80">
+          Profit earned{" "}
+          <span className="font-semibold text-white">
+            {hideAmounts ? "••••" : formatCedis(PROFIT_EARNED, { exact: true })}
+          </span>
+        </p>
+      </section>
 
-        {/* Four round, see-through buttons with labels underneath. */}
-        <ul className="mt-8 grid grid-cols-4">
-          {actions.map((action) => {
-            const circle =
-              "grid size-13 place-items-center rounded-full border border-white/25 bg-white/15 transition-colors [&_svg]:size-5";
-            const content = (
-              <>
-                <span className={circle}>{action.icon}</span>
-                <span className="text-xs font-medium">{action.label}</span>
-              </>
-            );
+      {/* ── Actions: two white buttons and a dark square ─────────── */}
+      <div className="mt-6 flex gap-2.5 px-5">
+        <Link href={ROUTES.packages} className={cn(whiteButton, "text-neutral-900 transition-colors hover:bg-neutral-50")}>
+          <PlusIcon />
+          Invest
+        </Link>
+        {/* Nothing to withdraw yet: shown, but unavailable until there's an investment. */}
+        <span
+          aria-disabled="true"
+          title="Available once you have an investment"
+          className={cn(whiteButton, "cursor-not-allowed text-neutral-400")}
+        >
+          <ArrowRight className="rotate-90" />
+          Withdraw
+        </span>
+        <Link
+          href={calculatorHref}
+          aria-label="Returns calculator"
+          title="Returns calculator"
+          className="grid size-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white transition-colors hover:bg-neutral-800 dark:bg-neutral-950"
+        >
+          <CalculatorIcon className="size-5" />
+        </Link>
+      </div>
+
+      {/* ── Banners, where the green fades into white ───────────── */}
+      <div className="mt-6 px-4">
+        <BannerCarousel label="Offers and tips" banners={banners} />
+      </div>
+
+      {/* ── Recent activity ──────────────────────────────────────── */}
+      <section aria-labelledby="activity-title" className="mt-8 px-4">
+        <h2 id="activity-title" className="text-base font-semibold">
+          Recent activity
+        </h2>
+
+        <div role="group" aria-label="Show" className="mt-3 flex gap-2">
+          {(Object.keys(ACTIVITY_FILTERS) as ActivityFilter[]).map((key) => {
+            const isActive = key === activityFilter;
             return (
-              <li key={action.label}>
-                {action.href ? (
-                  <Link
-                    href={action.href}
-                    className="group flex flex-col items-center gap-2 [&>span:first-child]:group-hover:bg-white/25"
-                  >
-                    {content}
-                  </Link>
-                ) : (
-                  <span
-                    aria-disabled="true"
-                    title="Available once you have an investment"
-                    className="flex flex-col items-center gap-2 opacity-55"
-                  >
-                    {content}
-                  </span>
+              <button
+                key={key}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => setActivityFilter(key)}
+                className={cn(
+                  "h-8 cursor-pointer rounded-full px-3.5 text-xs font-medium transition-colors",
+                  isActive
+                    ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300",
                 )}
-              </li>
+              >
+                {ACTIVITY_FILTERS[key].label}
+              </button>
             );
           })}
-        </ul>
-      </header>
+        </div>
 
-      {/* Content on white, with breathing room under the balance section. */}
-      <div className="mt-5 flex flex-col gap-7 px-4">
-        <InviteBanner email={email} />
-
-        <section aria-labelledby="activity-title">
-          <h2 id="activity-title" className="text-base font-semibold">
-            Recent activity
-          </h2>
-          <div className="mt-4 flex items-center gap-3.5 rounded-3xl bg-neutral-50 p-5 dark:bg-white/5">
-            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-background text-neutral-500 dark:bg-white/10">
-              <ClockIcon className="size-5" />
-            </span>
-            <p className="text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
-              No activity yet. Your deposits, investments and returns will show here.
+        {/* TODO(invest): the list of transactions once investing exists. */}
+        <div className="mt-4 flex items-center gap-3.5 py-1">
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-neutral-100 text-neutral-500 dark:bg-white/10">
+            <ClockIcon className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-medium">{filter.emptyTitle}</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+              {filter.emptyText}
             </p>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
       <AppTabBar />
     </div>
-  );
-}
-
-/**
- * "Invite a friend" banner on a green silk photo. "Invite for free" opens
- * the phone's share sheet (WhatsApp, SMS…) or copies the link on desktop.
- */
-function InviteBanner({ email }: { email: string }) {
-  const [copied, setCopied] = useState(false);
-
-  // Put the button back to "Invite for free" after a moment.
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 2000);
-    return () => clearTimeout(timer);
-  }, [copied]);
-
-  const invite = async () => {
-    const result = await shareReferralLink(email);
-    if (result === "copied") setCopied(true);
-  };
-
-  return (
-    <section
-      aria-labelledby="invite-title"
-      className="relative isolate overflow-hidden rounded-[1.75rem] bg-brand-900 text-white"
-    >
-      {/* The photo fills the right side and fades into deep green on the left. */}
-      <Image
-        src={INVITE_BANNER_IMAGE}
-        alt=""
-        fill
-        sizes="(min-width: 448px) 260px, 60vw"
-        className="-z-10 left-auto! w-[60%]! object-cover object-[50%_25%] [mask-image:linear-gradient(to_right,transparent,black_45%)]"
-      />
-
-      <div className="relative px-5 py-6">
-        <h2 id="invite-title" className="text-lg font-semibold">
-          Invite a friend
-        </h2>
-        <p className="mt-1 max-w-[11rem] text-[0.8125rem] leading-snug text-white/85">
-          Earn {REFERRAL_REWARD_LABEL} for every friend who signs up.
-        </p>
-        <button
-          type="button"
-          onClick={invite}
-          className="mt-4 inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-full bg-white px-5 text-[0.8125rem] font-semibold text-brand-800 transition-colors hover:bg-brand-50"
-        >
-          {copied ? (
-            <>
-              <CheckIcon className="size-4" />
-              Link copied
-            </>
-          ) : (
-            "Invite for free"
-          )}
-        </button>
-      </div>
-    </section>
   );
 }
