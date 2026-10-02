@@ -164,6 +164,75 @@ export function TargetIcon({ className }: IconProps) {
   );
 }
 
+/* ── App navigation & dashboard ─────────────────────────────────────── */
+
+export function HomeIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5H15v-5.5H9v5.5H5.5A1.5 1.5 0 0 1 4 19Z" />
+    </StrokeIcon>
+  );
+}
+
+/** Four squares: a collection (investment packages). */
+export function GridIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <rect x="4" y="4" width="6.5" height="6.5" rx="1.75" />
+      <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.75" />
+      <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.75" />
+      <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.75" />
+    </StrokeIcon>
+  );
+}
+
+export function PlusIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M12 5v14M5 12h14" />
+    </StrokeIcon>
+  );
+}
+
+export function LogoutIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M14 4h3.5A1.5 1.5 0 0 1 19 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14" />
+      <path d="M10 8l-4 4 4 4M6 12h9" />
+    </StrokeIcon>
+  );
+}
+
+export function CalculatorIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <rect x="5" y="3" width="14" height="18" rx="2.5" />
+      <path d="M8.5 7h7M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01" strokeWidth={2.25} />
+    </StrokeIcon>
+  );
+}
+
+/** Headset: help / support. */
+export function SupportIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M4.5 14v-2a7.5 7.5 0 0 1 15 0v2" />
+      <rect x="3.5" y="13" width="4" height="6" rx="1.5" />
+      <rect x="16.5" y="13" width="4" height="6" rx="1.5" />
+      <path d="M18.5 19c0 1.2-1.5 2-3.5 2h-2" />
+    </StrokeIcon>
+  );
+}
+
+export function BellIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15Z" />
+      <path d="M10 20.5a2 2 0 0 0 4 0" />
+    </StrokeIcon>
+  );
+}
+
 /** Briefcase: a managed portfolio (Mutual Fund Capital). */
 export function BriefcaseIcon({ className }: IconProps) {
   return (
