@@ -174,6 +174,27 @@ export function HomeIcon({ className }: IconProps) {
   );
 }
 
+/** Bar chart: analytics. */
+export function ChartBarIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M4 20h16" />
+      <rect x="5.5" y="11" width="3" height="6.5" rx="1" />
+      <rect x="10.5" y="6.5" width="3" height="11" rx="1" />
+      <rect x="15.5" y="13.5" width="3" height="4" rx="1" />
+    </StrokeIcon>
+  );
+}
+
+/** Receipt with lines: transactions. */
+export function ReceiptIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <path d="M6 3.5h12v17l-2.5-1.5-2 1.5-1.5-1.5-1.5 1.5-2-1.5L6 20.5Z" />
+      <path d="M9 8h6M9 11.5h6M9 15h3.5" />
+    </StrokeIcon>
+  );
+}
 /** Four squares: a collection (investment packages). */
 export function GridIcon({ className }: IconProps) {
   return (

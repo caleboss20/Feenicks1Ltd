@@ -40,6 +40,10 @@ export const ROUTES = {
 
   // The app (signed-in, fully registered users)
   dashboard: "/dashboard",
+  // Main tabs (with the dashboard)
+  analytics: "/analytics",
+  transactions: "/transactions",
+  account: "/account",
   /** Once, right after registration: intro to the risk profile and packages. */
   startInvesting: "/start-investing",
   /** Investor risk profile: 3 short steps of questions, then the result. */

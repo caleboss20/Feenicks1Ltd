@@ -4,7 +4,7 @@
  * Dashboard (Home), after the "EzFunds" reference, in Feenicks1 green on
  * white (with dark-mode styles ready for the Settings toggle).
  *
- *   ┌──────── full-width green top section ────────┐
+ *   ┌──────── full-width section on green silk ────┐
  *   │ (📷) Good morning,                 (👁) (⇥)  │   ← hide amounts, log out
  *   │      Ama                                     │
  *   │               Portfolio value                │
@@ -13,12 +13,12 @@
  *   │    (↗)      (↙)        (🧮)        (▦)       │   ← round see-through buttons
  *   │   Invest  Withdraw  Calculator  Packages     │
  *   └──────────────────────────────────────────────┘
- *     ╭──── green silk banner (overlaps) ────╮
+ *     ╭──── photo banner (woman on her phone) ──╮
  *     │ Invite a friend · Earn GH₵ 20 …      │
  *     ╰───────────────────────────────────────╯
  *     Recent activity …
  *   ──────────────────────────────────────────────
- *    🏠 Home   ▦ Packages   🎧 Support   🧭 Profile   ← plain white tab bar
+ *    🏠 Home   📊 Analytics   🧾 Transactions   👤 Account   ← AppTabBar
  *
  * Honest by design: no made-up balances or transactions. Until investing is
  * built (TODO(invest)), amounts are GH₵ 0.00 and activity is empty.
@@ -34,14 +34,12 @@ import {
   CalculatorIcon,
   CheckIcon,
   ClockIcon,
-  CompassIcon,
   EyeIcon,
   EyeOffIcon,
   GridIcon,
-  HomeIcon,
   LogoutIcon,
-  SupportIcon,
 } from "@/components/icons";
+import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { ROUTES } from "@/config/routes";
 import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -54,14 +52,13 @@ import { REFERRAL_REWARD_LABEL, shareReferralLink } from "@/features/referrals/r
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
-/** Company website, for "Support" until in-app support exists. */
-const SUPPORT_URL = "https://www.feenicks1solutions.com";
-
 /**
- * Background of the "Invite a friend" banner.
- * ⚠️ Confirm the licence of this photo (or replace it) before launch.
+ * Photos. ⚠️ Confirm the licence of both (or replace them) before launch.
+ *   - green silk fabric: background of the balance section
+ *   - woman on her phone: the "Invite a friend" banner
  */
-const INVITE_BANNER_IMAGE = "/illustrations/banner-silk-green.jpg";
+const BALANCE_BACKGROUND_IMAGE = "/illustrations/banner-silk-green.jpg";
+const INVITE_BANNER_IMAGE = "/illustrations/invite-friend.jpg";
 
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
@@ -72,13 +69,6 @@ const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
  */
 const PORTFOLIO_VALUE = 0;
 const PROFIT_EARNED = 0;
-
-/**
- * Top section background: deep brand green at the top, softening lower
- * down, like the reference's sky. Built from the brand greens (never neon).
- */
-const TOP_SECTION_BACKGROUND =
-  "bg-[radial-gradient(120%_90%_at_50%_0%,#2fab66_0%,#15803d_55%,#116a33_100%)]";
 
 /** "Good morning" / "Good afternoon" / "Good evening" by the user's clock. */
 function greetingForNow() {
@@ -142,14 +132,22 @@ export function DashboardScreen() {
   ];
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
-      {/* ── Full-width top section ─────────────────────────────── */}
-      <header
-        className={cn(
-          "px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-16 text-white",
-          TOP_SECTION_BACKGROUND,
-        )}
-      >
+    <div
+      className={cn("mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background", appTabBarPadding)}
+    >
+      {/* ── Full-width top section on green silk ───────────────── */}
+      <header className="relative isolate overflow-hidden rounded-b-[2rem] bg-brand-800 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-7 text-white">
+        <Image
+          src={BALANCE_BACKGROUND_IMAGE}
+          alt=""
+          fill
+          preload
+          sizes="(min-width: 448px) 448px, 100vw"
+          className="-z-10 object-cover"
+        />
+        {/* Gentle tint so the white text always reads clearly on the fabric. */}
+        <span aria-hidden className="absolute inset-0 -z-10 bg-black/20" />
+
         <div className="flex items-center gap-3">
           {avatarUrl ? (
             <Image
@@ -246,11 +244,11 @@ export function DashboardScreen() {
         </ul>
       </header>
 
-      {/* Content sits on white, the banner overlapping the green above. */}
-      <div className="-mt-8 flex flex-col gap-4 px-4">
+      {/* Content on white, with breathing room under the balance section. */}
+      <div className="mt-5 flex flex-col gap-7 px-4">
         <InviteBanner email={email} />
 
-        <section aria-labelledby="activity-title" className="pt-2">
+        <section aria-labelledby="activity-title">
           <h2 id="activity-title" className="text-base font-semibold">
             Recent activity
           </h2>
@@ -265,7 +263,7 @@ export function DashboardScreen() {
         </section>
       </div>
 
-      <BottomTabBar />
+      <AppTabBar />
     </div>
   );
 }
@@ -292,26 +290,22 @@ function InviteBanner({ email }: { email: string }) {
   return (
     <section
       aria-labelledby="invite-title"
-      className="relative overflow-hidden rounded-[1.75rem] text-white"
+      className="relative isolate overflow-hidden rounded-[1.75rem] bg-brand-900 text-white"
     >
+      {/* The photo fills the right side and fades into deep green on the left. */}
       <Image
         src={INVITE_BANNER_IMAGE}
         alt=""
         fill
-        sizes="(min-width: 448px) 416px, 100vw"
-        className="object-cover"
-      />
-      {/* Darker on the left so the text always reads clearly. */}
-      <span
-        aria-hidden
-        className="absolute inset-0 bg-linear-to-r from-black/45 via-black/15 to-transparent"
+        sizes="(min-width: 448px) 260px, 60vw"
+        className="-z-10 left-auto! w-[60%]! object-cover object-[50%_25%] [mask-image:linear-gradient(to_right,transparent,black_45%)]"
       />
 
-      <div className="relative px-5 py-5">
+      <div className="relative px-5 py-6">
         <h2 id="invite-title" className="text-lg font-semibold">
           Invite a friend
         </h2>
-        <p className="mt-1 max-w-[13.5rem] text-[0.8125rem] leading-snug text-white/85">
+        <p className="mt-1 max-w-[11rem] text-[0.8125rem] leading-snug text-white/85">
           Earn {REFERRAL_REWARD_LABEL} for every friend who signs up.
         </p>
         <button
@@ -330,46 +324,5 @@ function InviteBanner({ email }: { email: string }) {
         </button>
       </div>
     </section>
-  );
-}
-
-/**
- * Plain white tab bar across the bottom: icon above label; the current tab
- * in brand green, the others grey (as in the reference).
- */
-function BottomTabBar() {
-  const tabs = [
-    { label: "Home", href: ROUTES.dashboard, icon: <HomeIcon />, isActive: true },
-    { label: "Packages", href: ROUTES.packages, icon: <GridIcon /> },
-    { label: "Support", href: SUPPORT_URL, icon: <SupportIcon />, external: true },
-    { label: "Profile", href: ROUTES.riskProfileResult, icon: <CompassIcon /> },
-  ];
-
-  return (
-    <nav
-      aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-100 bg-background pb-[env(safe-area-inset-bottom)] dark:border-white/10"
-    >
-      <ul className="mx-auto grid h-16 max-w-md grid-cols-4">
-        {tabs.map((tab) => (
-          <li key={tab.label}>
-            <Link
-              href={tab.href}
-              aria-current={tab.isActive ? "page" : undefined}
-              {...(tab.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className={cn(
-                "flex h-full flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium transition-colors [&_svg]:size-[22px]",
-                tab.isActive
-                  ? "text-brand-700 dark:text-brand-400"
-                  : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300",
-              )}
-            >
-              {tab.icon}
-              {tab.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
   );
 }
