@@ -1,26 +1,24 @@
 "use client";
 
 /**
- * Dashboard (Home), built after a premium fintech reference, in Feenicks1
- * green on white (with dark-mode styles ready for the Settings toggle).
+ * Dashboard (Home), after the "EzFunds" reference, in Feenicks1 green on
+ * white (with dark-mode styles ready for the Settings toggle).
  *
- *   ╭───────── green gradient card ─────────╮
- *   │ (📷) Good morning 👋          (🎧) (⇥) │   ← support, log out (deeper-tone circles)
- *   │      Ama Mensah                        │
- *   │ Portfolio value                        │
- *   │ GH₵ 0.00                         (👁)  │   ← big amount; eye on the right
- *   │ [ ↗ ]   [ ↙ ]    [ 🧮 ]     [ ▦ ]      │
- *   │ Invest Withdraw Calculator Packages    │   ← tiles one tone deeper than the card
- *   ╰────────────────────────────────────────╯
- *   ╭──── green silk photo ──────────────────╮
- *   │ Invite a friend                         │
- *   │ Earn GH₵ 20 for every friend…           │
- *   │ ( Invite for free )                     │   ← phone share sheet / copy link
- *   ╰────────────────────────────────────────╯
- *   ╭──── Recent activity ───────────────────╮
- *   │ No activity yet …                       │
- *   ╰────────────────────────────────────────╯
- *          ( 🏠 Home ) (▦) (🧭) (🎧)            ← floating capsule tab bar
+ *   ┌──────── full-width green top section ────────┐
+ *   │ (📷) Good morning,                 (👁) (⇥)  │   ← hide amounts, log out
+ *   │      Ama                                     │
+ *   │               Portfolio value                │
+ *   │                GH₵ 0.00                      │   ← big, centred
+ *   │          ↗ Profit earned GH₵ 0.00            │
+ *   │    (↗)      (↙)        (🧮)        (▦)       │   ← round see-through buttons
+ *   │   Invest  Withdraw  Calculator  Packages     │
+ *   └──────────────────────────────────────────────┘
+ *     ╭──── green silk banner (overlaps) ────╮
+ *     │ Invite a friend · Earn GH₵ 20 …      │
+ *     ╰───────────────────────────────────────╯
+ *     Recent activity …
+ *   ──────────────────────────────────────────────
+ *    🏠 Home   ▦ Packages   🎧 Support   🧭 Profile   ← plain white tab bar
  *
  * Honest by design: no made-up balances or transactions. Until investing is
  * built (TODO(invest)), amounts are GH₵ 0.00 and activity is empty.
@@ -73,6 +71,14 @@ const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
  * Zero until then; never fake numbers on a money screen.
  */
 const PORTFOLIO_VALUE = 0;
+const PROFIT_EARNED = 0;
+
+/**
+ * Top section background: deep brand green at the top, softening lower
+ * down, like the reference's sky. Built from the brand greens (never neon).
+ */
+const TOP_SECTION_BACKGROUND =
+  "bg-[radial-gradient(120%_90%_at_50%_0%,#2fab66_0%,#15803d_55%,#116a33_100%)]";
 
 /** "Good morning" / "Good afternoon" / "Good evening" by the user's clock. */
 function greetingForNow() {
@@ -89,14 +95,6 @@ function readHideAmounts(): boolean {
     return false;
   }
 }
-
-/**
- * The balance card's background: a soft, even green gradient, lighter at
- * the top-right and deeper at the bottom-left (like the reference), never
- * neon. Built from the brand greens.
- */
-const BALANCE_CARD_BACKGROUND =
-  "bg-[radial-gradient(130%_115%_at_85%_0%,#86dfab_0%,#2fab66_40%,#15803d_100%)]";
 
 export function DashboardScreen() {
   const router = useRouter();
@@ -129,7 +127,7 @@ export function DashboardScreen() {
   const initials = (firstName ?? "F1").slice(0, 2).toUpperCase();
   const bestMatchId = riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : "mfc";
 
-  /** The four tiles on the green card. */
+  /** The four round buttons under the balance. */
   const actions = [
     { label: "Invest", href: ROUTES.packages, icon: <ArrowRight className="-rotate-45" /> },
     // Nothing to withdraw yet: shown, but unavailable until there's an investment.
@@ -144,102 +142,102 @@ export function DashboardScreen() {
   ];
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-2.5 bg-background px-2 pt-2 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-      {/* ── Balance card (reaches the top of the screen, like the reference) ── */}
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+      {/* ── Full-width top section ─────────────────────────────── */}
       <header
         className={cn(
-          "rounded-[2rem] px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 text-white",
-          BALANCE_CARD_BACKGROUND,
+          "px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-16 text-white",
+          TOP_SECTION_BACKGROUND,
         )}
       >
-        {/* Avatar, greeting and name · two round buttons in a deeper tone. */}
         <div className="flex items-center gap-3">
           {avatarUrl ? (
             <Image
               src={avatarUrl}
               alt=""
-              width={48}
-              height={48}
+              width={44}
+              height={44}
               unoptimized // a small local thumbnail: nothing to optimise
-              className="size-12 shrink-0 rounded-full object-cover"
+              className="size-11 shrink-0 rounded-full object-cover ring-2 ring-white/30"
             />
           ) : (
             <span
               aria-hidden
-              className="grid size-12 shrink-0 place-items-center rounded-full bg-black/15 text-sm font-semibold"
+              className="grid size-11 shrink-0 place-items-center rounded-full bg-white/15 text-sm font-semibold"
             >
               {initials}
             </span>
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-[0.8125rem] text-white/80">{greetingForNow()} 👋</p>
-            <h1 className="mt-0.5 truncate text-[1.0625rem] font-semibold">
-              {firstName ?? "Welcome"}
-            </h1>
-          </div>
-          <a
-            href={SUPPORT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Support"
-            className="grid size-10 shrink-0 place-items-center rounded-full bg-black/15 transition-colors hover:bg-black/25"
-          >
-            <SupportIcon className="size-[18px]" />
-          </a>
-          <button
-            type="button"
-            onClick={handleLogOut}
-            disabled={isLoggingOut}
-            aria-label="Log out"
-            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-black/15 transition-colors hover:bg-black/25 disabled:opacity-60"
-          >
-            <LogoutIcon className="size-[18px]" />
-          </button>
-        </div>
-
-        {/* Label + big amount on the left, the eye (hide/show) on the right. */}
-        <div className="mt-9 flex items-end justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-sm text-white/80">Portfolio value</p>
-            <p className="mt-2 text-[2.375rem] leading-none font-semibold tracking-tight">
-              {hideAmounts ? (
-                <span aria-label="Amount hidden">GH₵ ••••••</span>
-              ) : (
-                formatCedis(PORTFOLIO_VALUE, { exact: true })
-              )}
-            </p>
+            <p className="text-[0.8125rem] text-white/75">{greetingForNow()},</p>
+            <h1 className="truncate text-base font-semibold">{firstName ?? "Welcome"}</h1>
           </div>
           <button
             type="button"
             onClick={toggleHideAmounts}
             aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
             aria-pressed={hideAmounts}
-            className="-mr-1.5 grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-white/90 transition-colors hover:bg-white/10"
+            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-white/90 transition-colors hover:bg-white/10"
           >
             {hideAmounts ? <EyeIcon className="size-5" /> : <EyeOffIcon className="size-5" />}
           </button>
+          <button
+            type="button"
+            onClick={handleLogOut}
+            disabled={isLoggingOut}
+            aria-label="Log out"
+            className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-white/90 transition-colors hover:bg-white/10 disabled:opacity-60"
+          >
+            <LogoutIcon className="size-5" />
+          </button>
         </div>
 
-        {/* Four rounded tiles, one tone deeper than the card. */}
-        <ul className="mt-7 grid grid-cols-4 gap-2">
+        {/* Balance, centred, with today's profit underneath. */}
+        <div className="mt-8 text-center">
+          <p className="text-[0.8125rem] text-white/80">Portfolio value</p>
+          <p className="mt-2 text-[2.5rem] leading-none font-semibold tracking-tight">
+            {hideAmounts ? (
+              <span aria-label="Amount hidden">GH₵ ••••••</span>
+            ) : (
+              formatCedis(PORTFOLIO_VALUE, { exact: true })
+            )}
+          </p>
+          <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs text-white/90">
+            <ArrowRight className="size-3.5 -rotate-45" />
+            Profit earned{" "}
+            <span className="font-semibold text-white">
+              {hideAmounts ? "••••" : formatCedis(PROFIT_EARNED, { exact: true })}
+            </span>
+          </p>
+        </div>
+
+        {/* Four round, see-through buttons with labels underneath. */}
+        <ul className="mt-8 grid grid-cols-4">
           {actions.map((action) => {
-            const tileClass =
-              "flex h-[5.25rem] flex-col items-center justify-center gap-2 rounded-[1.375rem] bg-black/12 text-[0.8125rem] font-medium transition-colors [&_svg]:size-5";
+            const circle =
+              "grid size-13 place-items-center rounded-full border border-white/25 bg-white/15 transition-colors [&_svg]:size-5";
+            const content = (
+              <>
+                <span className={circle}>{action.icon}</span>
+                <span className="text-xs font-medium">{action.label}</span>
+              </>
+            );
             return (
               <li key={action.label}>
                 {action.href ? (
-                  <Link href={action.href} className={cn(tileClass, "hover:bg-black/20")}>
-                    {action.icon}
-                    {action.label}
+                  <Link
+                    href={action.href}
+                    className="group flex flex-col items-center gap-2 [&>span:first-child]:group-hover:bg-white/25"
+                  >
+                    {content}
                   </Link>
                 ) : (
                   <span
                     aria-disabled="true"
                     title="Available once you have an investment"
-                    className={cn(tileClass, "text-white/55")}
+                    className="flex flex-col items-center gap-2 opacity-55"
                   >
-                    {action.icon}
-                    {action.label}
+                    {content}
                   </span>
                 )}
               </li>
@@ -248,27 +246,26 @@ export function DashboardScreen() {
         </ul>
       </header>
 
-      <InviteBanner email={email} />
+      {/* Content sits on white, the banner overlapping the green above. */}
+      <div className="-mt-8 flex flex-col gap-4 px-4">
+        <InviteBanner email={email} />
 
-      {/* ── Recent activity ────────────────────────────────────── */}
-      <section
-        aria-labelledby="activity-title"
-        className="rounded-[2rem] bg-neutral-50 px-5 pt-5 pb-6 dark:bg-white/5"
-      >
-        <h2 id="activity-title" className="text-[0.9375rem] font-semibold">
-          Recent activity
-        </h2>
-        <div className="mt-5 flex items-center gap-3.5">
-          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-background text-neutral-500 dark:bg-white/10">
-            <ClockIcon className="size-5" />
-          </span>
-          <p className="text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
-            No activity yet. Your deposits, investments and returns will show here.
-          </p>
-        </div>
-      </section>
+        <section aria-labelledby="activity-title" className="pt-2">
+          <h2 id="activity-title" className="text-base font-semibold">
+            Recent activity
+          </h2>
+          <div className="mt-4 flex items-center gap-3.5 rounded-3xl bg-neutral-50 p-5 dark:bg-white/5">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-background text-neutral-500 dark:bg-white/10">
+              <ClockIcon className="size-5" />
+            </span>
+            <p className="text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
+              No activity yet. Your deposits, investments and returns will show here.
+            </p>
+          </div>
+        </section>
+      </div>
 
-      <FloatingTabBar />
+      <BottomTabBar />
     </div>
   );
 }
@@ -295,13 +292,13 @@ function InviteBanner({ email }: { email: string }) {
   return (
     <section
       aria-labelledby="invite-title"
-      className="relative overflow-hidden rounded-[2rem] text-white"
+      className="relative overflow-hidden rounded-[1.75rem] text-white"
     >
       <Image
         src={INVITE_BANNER_IMAGE}
         alt=""
         fill
-        sizes="(min-width: 448px) 424px, 100vw"
+        sizes="(min-width: 448px) 416px, 100vw"
         className="object-cover"
       />
       {/* Darker on the left so the text always reads clearly. */}
@@ -337,41 +334,38 @@ function InviteBanner({ email }: { email: string }) {
 }
 
 /**
- * Floating capsule tab bar: the current tab is a white pill with its name;
- * the others are round icons. Dark capsule, so it stands out on white.
+ * Plain white tab bar across the bottom: icon above label; the current tab
+ * in brand green, the others grey (as in the reference).
  */
-function FloatingTabBar() {
-  const otherTabs = [
+function BottomTabBar() {
+  const tabs = [
+    { label: "Home", href: ROUTES.dashboard, icon: <HomeIcon />, isActive: true },
     { label: "Packages", href: ROUTES.packages, icon: <GridIcon /> },
-    { label: "Investor profile", href: ROUTES.riskProfileResult, icon: <CompassIcon /> },
     { label: "Support", href: SUPPORT_URL, icon: <SupportIcon />, external: true },
+    { label: "Profile", href: ROUTES.riskProfileResult, icon: <CompassIcon /> },
   ];
 
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 flex justify-center"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-100 bg-background pb-[env(safe-area-inset-bottom)] dark:border-white/10"
     >
-      <ul className="flex items-center gap-1.5 rounded-full bg-neutral-900 p-1.5 dark:bg-neutral-800">
-        <li>
-          <Link
-            href={ROUTES.dashboard}
-            aria-current="page"
-            className="flex h-12 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-neutral-900"
-          >
-            <HomeIcon className="size-5 text-brand-600" />
-            Home
-          </Link>
-        </li>
-        {otherTabs.map((tab) => (
+      <ul className="mx-auto grid h-16 max-w-md grid-cols-4">
+        {tabs.map((tab) => (
           <li key={tab.label}>
             <Link
               href={tab.href}
-              aria-label={tab.label}
+              aria-current={tab.isActive ? "page" : undefined}
               {...(tab.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className="grid size-12 place-items-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white [&_svg]:size-5"
+              className={cn(
+                "flex h-full flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium transition-colors [&_svg]:size-[22px]",
+                tab.isActive
+                  ? "text-brand-700 dark:text-brand-400"
+                  : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300",
+              )}
             >
               {tab.icon}
+              {tab.label}
             </Link>
           </li>
         ))}
