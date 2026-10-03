@@ -92,7 +92,12 @@ export function hasCompletedInvestment(transactions: Transaction[]): boolean {
 
 /**
  * The value over a range, sampled at evenly spaced times from the start of
- * the range to now. "All" starts at the first transaction (at least a day).
+ * the range to now.
+ *
+ * "All" covers the whole history (at least a day) plus one sample before the
+ * first transaction, so the line starts from zero. The first investment then
+ * counts as activity in the range rather than as the starting value, and the
+ * range's totals (summarize) equal the all-time totals.
  */
 export function buildSeries(
   transactions: Transaction[],
@@ -103,7 +108,10 @@ export function buildSeries(
     (earliest, transaction) => Math.min(earliest, Date.parse(transaction.createdAt)),
     now,
   );
-  const span = range.ms ?? Math.max(now - firstTime, DAY);
+  const history = Math.max(now - firstTime, DAY);
+  // One step = history / (points − 2): the first sample lands a step before
+  // the first transaction, the second sample on it.
+  const span = range.ms ?? (history * (range.points - 1)) / (range.points - 2);
   const start = now - span;
 
   return Array.from({ length: range.points }, (_, index) => {

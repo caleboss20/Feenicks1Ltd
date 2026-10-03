@@ -12,9 +12,14 @@
  *                                                 1Y▾ picks 1 to 25 years
  *   ╭╮  ╭─────╮        ╭──●                    ← PortfolioChart: drag to read any point
  *   ╯╰──╯     ╰────────╯
- *   Past month
- *   [ Invested      ] [ Profit earned   ]
- *   [ Withdrawn     ] [ Referral rewards ]
+ *   Activity · Past month                      ← the range's activity, as a sum
+ *   Invested                    GH₵ 300.00        that comes to the change above
+ *   Profit earned             + GH₵ 141.07
+ *   Referral rewards          + GH₵ 100.00
+ *   Withdrawn                     GH₵ 0.00
+ *   Change over the period    + GH₵ 541.07
+ *   How your portfolio adds up                 ← the same sum, all time: comes to
+ *                                                 the portfolio value
  *
  * Real, not estimated: everything comes from the transaction history
  * (portfolioHistory.ts). Investments, returns and rewards push the line up;
@@ -23,7 +28,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronDownIcon, PlusIcon, TriangleUpIcon } from "@/components/icons";
+import { ArrowLeft, ChevronDownIcon, PlusIcon, TriangleUpIcon } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { ROUTES } from "@/config/routes";
@@ -105,10 +110,15 @@ export function AnalyticsScreen() {
   const last = points?.[points.length - 1].value ?? 0;
   const change = Math.round((last - first) * 100) / 100;
   const percent = first > 0 ? (change / first) * 100 : null;
+  // What happened in the chosen range: these add up to the change above.
   const totals =
     transactions && points
       ? summarize(transactions, points[0].time, points[points.length - 1].time)
       : null;
+  // Everything ever: these add up to the portfolio value.
+  const allTime = transactions
+    ? summarize(transactions, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY)
+    : null;
 
   const [whole, fraction] = formatCedisNumber(last, { exact: true }).split(".");
 
@@ -119,9 +129,17 @@ export function AnalyticsScreen() {
         appTabBarPadding,
       )}
     >
-      <h1 className="px-1 text-[1.75rem] leading-tight font-bold tracking-tight">
-        Analytics
-      </h1>
+      {/* Back (to Home) and title, like the user's references. */}
+      <header className="flex items-center gap-3">
+        <Link
+          href={ROUTES.dashboard}
+          aria-label="Back to home"
+          className="grid size-11 shrink-0 place-items-center rounded-full bg-white transition-colors hover:bg-white/70 dark:bg-white/10 dark:hover:bg-white/15"
+        >
+          <ArrowLeft className="size-5" />
+        </Link>
+        <h1 className="text-xl font-bold tracking-tight">Analytics</h1>
+      </header>
 
       <SampleDataNotice transactions={transactions} />
 
@@ -273,49 +291,112 @@ export function AnalyticsScreen() {
         </div>
       </section>
 
-      {/* What happened in the range */}
+      {/* What happened in the chosen range, as a sum that comes to the change
+          shown at the top. */}
       {totals && (
         <section
           aria-labelledby="period-title"
           className="rounded-3xl bg-white p-5 dark:bg-white/5"
         >
           <h2 id="period-title" className="text-base font-semibold">
-            {range.period}
+            Activity · {range.period}
           </h2>
-          <dl className="mt-3 grid grid-cols-2 gap-3">
-            {[
-              { label: "Invested", value: totals.invested },
-              {
-                label: "Profit earned",
-                value: totals.profit,
-                // Profit is shown after the management fee; say how much that was.
-                note: totals.fees > 0 ? `after ${formatCedis(totals.fees, { exact: true })} fees` : undefined,
-              },
-              { label: "Withdrawn", value: totals.withdrawn },
-              { label: "Referral rewards", value: totals.rewards },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="rounded-2xl bg-neutral-50 p-4 dark:bg-white/5"
-              >
-                <dt className="text-xs text-neutral-500 dark:text-neutral-400">
-                  {item.label}
-                </dt>
-                <dd className="mt-1.5 text-base font-semibold tracking-tight">
-                  {formatCedis(item.value, { exact: true })}
-                  {item.note && (
-                    <span className="mt-0.5 block text-[0.6875rem] font-normal tracking-normal text-neutral-500 dark:text-neutral-400">
-                      {item.note}
-                    </span>
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <SumRows
+            lines={sumLines(totals)}
+            totalLabel="Change over the period"
+            totalValue={`${change > 0 ? "+ " : change < 0 ? "− " : ""}${formatCedis(Math.abs(change), { exact: true })}`}
+            totalClassName={cn(
+              change > 0 && "text-brand-700 dark:text-brand-400",
+              change < 0 && "text-red-600 dark:text-red-400",
+            )}
+          />
+        </section>
+      )}
+
+      {/* All time: how the portfolio value adds up, so the big number is never a mystery. */}
+      {allTime && hasHistory && (
+        <section
+          aria-labelledby="adds-up-title"
+          className="rounded-3xl bg-white p-5 dark:bg-white/5"
+        >
+          <h2 id="adds-up-title" className="text-base font-semibold">
+            How your portfolio adds up
+          </h2>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            All time. Pending and failed transactions aren&apos;t counted.
+          </p>
+          <SumRows
+            lines={sumLines(allTime)}
+            totalLabel="Portfolio value"
+            totalValue={formatCedis(
+              Math.round((allTime.invested + allTime.profit + allTime.rewards - allTime.withdrawn) * 100) / 100,
+              { exact: true },
+            )}
+          />
         </section>
       )}
 
       <AppTabBar />
     </div>
+  );
+}
+
+/** One line of a sum: its label, how it counts (+ or −), and the amount. */
+type SumLine = { label: string; sign: "" | "+ " | "− "; value: number; note?: string };
+
+/** The money that moved, in the order it's added up: in, profit, rewards, out. */
+function sumLines(totals: ReturnType<typeof summarize>): SumLine[] {
+  return [
+    { label: "Invested", sign: "", value: totals.invested },
+    {
+      label: "Profit earned",
+      sign: "+ ",
+      value: totals.profit,
+      // Profit is paid after the management fee: say how much that was.
+      note: totals.fees > 0 ? `after ${formatCedis(totals.fees, { exact: true })} fees` : undefined,
+    },
+    { label: "Referral rewards", sign: "+ ", value: totals.rewards },
+    { label: "Withdrawn", sign: "− ", value: totals.withdrawn },
+  ];
+}
+
+/**
+ * A sum laid out like a receipt: the lines, a rule, and what they come to.
+ * Rows rather than tiles, so amounts of any size stay on one line, even on a
+ * 320px phone (labels wrap instead).
+ */
+function SumRows({
+  lines,
+  totalLabel,
+  totalValue,
+  totalClassName,
+}: {
+  lines: SumLine[];
+  totalLabel: string;
+  totalValue: string;
+  totalClassName?: string;
+}) {
+  return (
+    <dl className="mt-4 flex flex-col gap-3 text-sm">
+      {lines.map((line) => (
+        <div key={line.label} className="flex items-baseline justify-between gap-4">
+          <dt className="text-neutral-600 dark:text-neutral-300">
+            {line.label}
+            {line.note && <span className="ml-1 text-xs text-neutral-400">({line.note})</span>}
+          </dt>
+          <dd className="font-medium whitespace-nowrap tabular-nums">
+            {/* No sign on zero: "GH₵ 0.00", not "− GH₵ 0.00". */}
+            {line.value > 0 && line.sign}
+            {formatCedis(line.value, { exact: true })}
+          </dd>
+        </div>
+      ))}
+      <div className="mt-1 flex items-baseline justify-between gap-4 border-t border-neutral-100 pt-4 dark:border-white/10">
+        <dt className="font-semibold">{totalLabel}</dt>
+        <dd className={cn("text-base font-bold whitespace-nowrap tabular-nums", totalClassName)}>
+          {totalValue}
+        </dd>
+      </div>
+    </dl>
   );
 }

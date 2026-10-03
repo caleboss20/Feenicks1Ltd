@@ -19,9 +19,9 @@
  *   ╰─│─ Invite a friend · Your best match · … ──│─╯   ← gradient turns white here
  *     ╰──────────────────────────────────────────╯
  *
- *     Recent activity
- *     (All) (Investments) (Withdrawals)
- *     🕓 No activity yet …
+ *     Recent activity                         View all
+ *     (↙) Return from InvestWise Capital  + GH₵ 108.00   ← RecentTransactions: the
+ *         Transaction ID: … · 22 Sept, 8:26 am            latest 5 (or "No activity yet")
  *   ──────────────────────────────────────────────
  *    🏠 Home   📊 Analytics   🧾 Transactions   👤 Account   ← AppTabBar
  *
@@ -40,7 +40,6 @@ import {
   ArrowRight,
   BellIcon,
   CalculatorIcon,
-  ClockIcon,
   EyeIcon,
   EyeOffIcon,
   GiftIcon,
@@ -66,6 +65,7 @@ import {
   REFERRAL_REWARD_LABEL,
   shareReferralLink,
 } from "@/features/referrals/referralService";
+import { RecentTransactions } from "@/features/transactions/RecentTransactions";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -78,27 +78,6 @@ const SUPPORT_URL = "https://www.feenicks1solutions.com";
 
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
-
-
-/** Filters above the activity list. */
-const ACTIVITY_FILTERS = {
-  all: {
-    label: "All",
-    emptyTitle: "No activity yet",
-    emptyText: "Your investments, returns and withdrawals will show here.",
-  },
-  investments: {
-    label: "Investments",
-    emptyTitle: "No investments yet",
-    emptyText: "Choose a package to make your first investment.",
-  },
-  withdrawals: {
-    label: "Withdrawals",
-    emptyTitle: "No withdrawals yet",
-    emptyText: "Money you withdraw from your investments will show here.",
-  },
-} as const;
-type ActivityFilter = keyof typeof ACTIVITY_FILTERS;
 
 /** "Good morning" / "Good afternoon" / "Good evening" by the user's clock. */
 function greetingForNow() {
@@ -127,7 +106,6 @@ export function DashboardScreen() {
   const hasInvested = transactions ? hasCompletedInvestment(transactions) : null;
   // The dashboard only renders in the browser (AppLockGuard), so storage is safe here.
   const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
-  const [activityFilter, setActivityFilter] = useState<ActivityFilter>("all");
 
   // Reaching the dashboard ends the start-investing journey: from now on its
   // screens hand over to the in-app versions (Invest, Account › Investor profile).
@@ -223,7 +201,6 @@ export function DashboardScreen() {
     },
   ];
 
-  const filter = ACTIVITY_FILTERS[activityFilter];
   const headerIconButton =
     "grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white/15 min-[360px]:size-11 text-white transition-colors hover:bg-white/25 [&_svg]:size-5";
   const whiteButton =
@@ -359,47 +336,10 @@ export function DashboardScreen() {
         <BannerCarousel label="Offers and tips" banners={banners} />
       </div>
 
-      {/* ── Recent activity ──────────────────────────────────────── */}
-      <section aria-labelledby="activity-title" className="mt-12 px-4">
-        <h2 id="activity-title" className="text-lg font-semibold tracking-tight">
-          Recent activity
-        </h2>
-
-        <div role="group" aria-label="Show" className="mt-4 flex gap-2">
-          {(Object.keys(ACTIVITY_FILTERS) as ActivityFilter[]).map((key) => {
-            const isActive = key === activityFilter;
-            return (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => setActivityFilter(key)}
-                className={cn(
-                  "h-9 cursor-pointer rounded-full px-4 text-[0.8125rem] font-medium transition-colors",
-                  isActive
-                    ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300",
-                )}
-              >
-                {ACTIVITY_FILTERS[key].label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* TODO(invest): the list of transactions once investing exists. */}
-        <div className="mt-6 flex items-center gap-4">
-          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-neutral-100 text-neutral-500 dark:bg-white/10">
-            <ClockIcon className="size-5" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-[0.9375rem] font-medium">{filter.emptyTitle}</p>
-            <p className="mt-1 text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
-              {filter.emptyText}
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* ── Recent activity: the latest transactions (all of them on the Transactions tab) ── */}
+      <div className="mt-12 px-4">
+        <RecentTransactions transactions={transactions} />
+      </div>
 
       <AppTabBar />
 

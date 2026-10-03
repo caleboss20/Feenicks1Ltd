@@ -33,6 +33,7 @@ import { REFERRAL_POINTS, REFERRAL_POINTS_LABEL, REFERRAL_REWARD_LABEL } from "@
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import { formatWhen } from "./transactionFormat";
 import type { Transaction, TransactionType } from "./transactionModel";
 import { SampleDataNotice } from "./SampleData";
 import { useTransactions } from "./useTransactions";
@@ -82,22 +83,6 @@ const FILTERS = [
   },
 ] as const;
 type FilterId = (typeof FILTERS)[number]["id"];
-
-/** "Today, 1:23 pm" · "Yesterday, 9:00 am" · "20 Oct, 2:23 pm" · "20 Oct 2025, 2:23 pm". */
-function formatWhen(iso: string, now = new Date()): string {
-  const date = new Date(iso);
-  const time = date.toLocaleTimeString("en-GH", { hour: "numeric", minute: "2-digit" });
-  const dayStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const daysAgo = Math.round((dayStart(now) - dayStart(date)) / 86_400_000);
-  if (daysAgo === 0) return `Today, ${time}`;
-  if (daysAgo === 1) return `Yesterday, ${time}`;
-  const day = date.toLocaleDateString("en-GH", {
-    day: "numeric",
-    month: "short",
-    ...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
-  });
-  return `${day}, ${time}`;
-}
 
 export function TransactionsScreen() {
   useStatusBarColor(GREY_PAGE_COLORS);
@@ -200,7 +185,8 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
 
   return (
     <li
-      className="flex items-center gap-3.5 py-3.5"
+      // Generous row spacing, so each transaction reads on its own.
+      className="flex items-center gap-4 py-5"
       aria-label={`${title}, ${
         breakdown
           ? `return: ${formatCedis(breakdown.principal, { exact: true })} at ${breakdown.monthlyRatePercent}% a month for ${breakdown.months} ${breakdown.months === 1 ? "month" : "months"} is ${formatCedis(breakdown.grossProfit, { exact: true })}, less a ${breakdown.feePercent}% fee of ${formatCedis(breakdown.fee, { exact: true })}`
@@ -228,7 +214,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
             </span>
           )}
         </p>
-        <p className="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-400">{detail}</p>
+        <p className="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-400">{detail}</p>
       </div>
       <div aria-hidden className="shrink-0 text-right">
         <p
@@ -242,7 +228,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
           {type.direction === "in" ? "+ " : type.direction === "out" ? "− " : ""}
           {amount}
         </p>
-        <p className="mt-0.5 text-xs whitespace-nowrap text-neutral-500 dark:text-neutral-400">{when}</p>
+        <p className="mt-1 text-xs whitespace-nowrap text-neutral-500 dark:text-neutral-400">{when}</p>
       </div>
     </li>
   );
@@ -253,7 +239,7 @@ function LoadingList() {
   return (
     <ul aria-busy="true" aria-label="Loading transactions" className="mt-4 rounded-3xl bg-white px-4 dark:bg-white/5">
       {[0, 1, 2].map((index) => (
-        <li key={index} className="flex animate-pulse items-center gap-3.5 py-4 motion-reduce:animate-none">
+        <li key={index} className="flex animate-pulse items-center gap-4 py-5 motion-reduce:animate-none">
           <span className="size-5 rounded-md bg-neutral-200 dark:bg-white/10" />
           <span className="flex-1">
             <span className="block h-3.5 w-2/5 rounded bg-neutral-200 dark:bg-white/10" />
