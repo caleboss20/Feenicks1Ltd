@@ -38,19 +38,27 @@
  * Estimate (estimateProfit): amount × monthly ROI × months, using the low
  * and high ends of the expected range; then the management fee, a % of the
  * PROFIT, is deducted.
+ *
+ * Two flows, same screen (config/investingFlow.ts): Back and "Invest" stay in
+ * the flow it was opened from: /invest/… in the app, /packages/… during onboarding.
  */
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { Button } from "@/components/ui/Button";
-import { ROUTES } from "@/config/routes";
+import {
+  INVESTING_ROUTES,
+  packageDetailsHref,
+  packageTermsHref,
+  type InvestingFlow,
+} from "@/config/investingFlow";
 import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
+import { useLeaveFinishedOnboarding } from "@/features/investor-profile/useLeaveFinishedOnboarding";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import {
   estimateProfit,
-  packageTermsHref,
   riskLevelsForPackage,
   roiRangeLabel,
   withdrawalLabel,
@@ -81,10 +89,11 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export function PackageDetailsScreen({ pkg }: { pkg: InvestmentPackage }) {
+export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow: InvestingFlow }) {
   const router = useRouter();
   const [amountText, setAmountText] = useState(String(pkg.minimum));
   const [months, setMonths] = useState(DEFAULT_PERIOD);
+  const isLeaving = useLeaveFinishedOnboarding(packageDetailsHref(pkg.id, "app"), flow === "onboarding");
 
   const amount = Number(amountText.replace(/,/g, ""));
   const amountError =
@@ -112,13 +121,16 @@ export function PackageDetailsScreen({ pkg }: { pkg: InvestmentPackage }) {
   const shortRange = ([low, high]: [number, number]) =>
     `${formatCedis(low)} – ${formatCedis(high).replace("GH₵ ", "")}`;
 
+  if (isLeaving) return null;
+
   return (
     <StepScreenLayout
       // Generic title: the package name is shown just below (never twice).
       title="Package details"
       centeredTitle
       stickyHeader
-      backHref={ROUTES.packages}
+      // Back to the packages list of the same flow.
+      backHref={INVESTING_ROUTES[flow].packages}
     >
       <div className="flex flex-1 flex-col sm:flex-none">
         {/* ── About ─────────────────────────────────────────────── */}
@@ -244,7 +256,7 @@ export function PackageDetailsScreen({ pkg }: { pkg: InvestmentPackage }) {
 
         {/* Investing starts with the package's Terms & Conditions. */}
         <div className={cn(stickyActionsClass, "sm:mt-10")}>
-          <Button size="lg" fullWidth onClick={() => router.push(packageTermsHref(pkg.id))}>
+          <Button size="lg" fullWidth onClick={() => router.push(packageTermsHref(pkg.id, flow))}>
             Invest in {pkg.ticker}
           </Button>
         </div>

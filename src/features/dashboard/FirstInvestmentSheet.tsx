@@ -210,7 +210,7 @@ export function FirstInvestmentSheet({ hasInvested, visitId }: FirstInvestmentSh
           >
             Maybe later
           </button>
-          <Link href={ROUTES.packages} className={cn(pill, "bg-brand-600 text-white hover:bg-brand-700")}>
+          <Link href={ROUTES.invest} className={cn(pill, "bg-brand-600 text-white hover:bg-brand-700")}>
             Start investing
           </Link>
         </div>

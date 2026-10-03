@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { RiskProfileQuestionsScreen } from "@/features/investor-profile/RiskProfileQuestionsScreen";
 
 /**
- * Route: `/investor-profile`: the risk profile questions (3 short steps),
- * during start investing (onboarding, once after registration).
- * Inside the app: `/account/investor-profile/questions`.
+ * Route: `/account/investor-profile/questions`: take (or retake) the risk
+ * profile questions inside the app; finishing returns to
+ * `/account/investor-profile`.
  * Private, logged-in users only → hidden from search engines.
  */
 export const metadata: Metadata = {
@@ -12,6 +12,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function RiskProfileQuestionsPage() {
-  return <RiskProfileQuestionsScreen flow="onboarding" />;
+export default function AccountInvestorProfileQuestionsPage() {
+  return <RiskProfileQuestionsScreen flow="app" />;
 }

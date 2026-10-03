@@ -52,12 +52,21 @@ export const ROUTES = {
   withdraw: "/withdraw",
   /** Invite a friend: the user's referral QR code (the dashboard's scan button). */
   refer: "/refer",
-  /** Once, right after registration: intro to the risk profile and packages. */
+  /**
+   * Investing, inside the app (dashboard, Account…): packages matched to the
+   * risk profile; details at /invest/[id], terms at /invest/[id]/terms.
+   */
+  invest: "/invest",
+  /** The investor risk profile inside the app (Account › Investor profile), and retaking it. */
+  investorProfile: "/account/investor-profile",
+  investorProfileQuestions: "/account/investor-profile/questions",
+
+  // Start investing: ONCE, right after registration (see config/investingFlow.ts).
+  // Intro → risk profile questions → result → packages (→ details → terms).
+  // Once the user has reached the dashboard, these send them to the in-app versions above.
   startInvesting: "/start-investing",
-  /** Investor risk profile: 3 short steps of questions, then the result. */
   riskProfileQuestions: "/investor-profile",
   riskProfileResult: "/investor-profile/result",
-  /** Investment packages (matched to the risk profile); details at /packages/[id]. */
   packages: "/packages",
 
   // Forgot-password flow (3 steps, in order)

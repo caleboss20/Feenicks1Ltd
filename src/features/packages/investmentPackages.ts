@@ -133,16 +133,6 @@ export function roiRangeLabel([low, high]: [number, number]): string {
   return `${low}–${high}%`;
 }
 
-/** URL of a package's details page. */
-export function packageDetailsHref(id: PackageId): string {
-  return `/packages/${id}`;
-}
-
-/** URL of a package's Terms & Conditions (the first step of investing). */
-export function packageTermsHref(id: PackageId): string {
-  return `/packages/${id}/terms`;
-}
-
 /**
  * Estimated profit for an amount over a number of months, as a [low, high]
  * range from the expected monthly ROI. The management fee is a percentage

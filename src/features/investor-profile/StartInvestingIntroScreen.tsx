@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { GrowingWalletIllustration } from "./GrowingWalletIllustration";
+import { useLeaveFinishedOnboarding } from "./useLeaveFinishedOnboarding";
 
 /** Where each button leads. */
 const NEXT_SCREEN_GET_STARTED = ROUTES.riskProfileQuestions;
@@ -43,8 +44,12 @@ export function StartInvestingIntroScreen() {
   const router = useRouter();
   const current = useCurrentAccount();
   const [isStarting, setIsStarting] = useState(false);
+  // Shown once, after registration: anyone who has been to the dashboard goes back there.
+  const isLeaving = useLeaveFinishedOnboarding(ROUTES.dashboard);
 
   const firstName = current.status === "signed-in" ? current.account.firstName : null;
+
+  if (isLeaving) return null;
 
   return (
     // Short phones (≤ 700px tall, e.g. 320×640) get a smaller title and picture.

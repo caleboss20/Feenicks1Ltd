@@ -42,3 +42,16 @@ export async function saveRiskProfile(answers: RiskAnswers): Promise<SaveRiskPro
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
 }
+
+/**
+ * Records that the start-investing journey is over: the user has reached the
+ * dashboard (whether they finished it, skipped it, or left part-way). Its
+ * screens then hand over to the in-app versions (config/investingFlow.ts).
+ * Safe to call more than once.
+ */
+export async function markOnboardingFinished(): Promise<void> {
+  // TODO(api): POST /api/me/onboarding-finished (stored per account, so it holds on every device)
+  if (IS_DEMO_MODE) {
+    demo.updateSessionAccount({ onboardingFinishedAt: new Date().toISOString() });
+  }
+}

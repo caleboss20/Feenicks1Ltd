@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { RiskProfileResultScreen } from "@/features/investor-profile/RiskProfileResultScreen";
 
 /**
- * Route: `/investor-profile/result` (the user's risk profile).
+ * Route: `/investor-profile/result`: the user's risk profile, during start
+ * investing (onboarding). Inside the app: `/account/investor-profile`.
  * Private, logged-in users only → hidden from search engines.
  */
 export const metadata: Metadata = {
@@ -11,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function RiskProfileResultPage() {
-  return <RiskProfileResultScreen />;
+  return <RiskProfileResultScreen flow="onboarding" />;
 }

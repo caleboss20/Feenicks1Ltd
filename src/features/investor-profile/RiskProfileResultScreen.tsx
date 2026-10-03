@@ -16,46 +16,51 @@
  *   Growth from         Tangible assets
  *
  *   We'll use this to recommend packages… not financial advice…
- *   (            Continue            )
+ *   (            Continue            )      ← in the app: "See matching packages"
  *          Retake questions
  *
  * Reads the saved profile from the account, so it survives a refresh.
- * Continue → "Packages for you" (/packages).
+ * Two flows, same screen (config/investingFlow.ts):
+ *   - onboarding: Back → the questions; Continue → "Packages for you" (/packages)
+ *   - app (Account › Investor profile): Back → Account; the button opens the
+ *     Invest section (/invest); "Retake questions" comes back here
  */
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { INVESTING_ROUTES, type InvestingFlow } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { cn } from "@/lib/utils";
 import { RISK_LEVEL_ORDER, RISK_LEVELS, type RiskLevel } from "./riskProfileQuestions";
+import { useLeaveFinishedOnboarding } from "./useLeaveFinishedOnboarding";
 
-/** Where "Continue" leads: the packages that match this profile. */
-const NEXT_SCREEN = ROUTES.packages;
-
-export function RiskProfileResultScreen() {
+export function RiskProfileResultScreen({ flow }: { flow: InvestingFlow }) {
   const router = useRouter();
   const current = useCurrentAccount();
   const level = current.status === "signed-in" ? current.account.riskLevel : null;
+  const routes = INVESTING_ROUTES[flow];
+  const isLeaving = useLeaveFinishedOnboarding(ROUTES.investorProfile, flow === "onboarding");
 
   // No profile yet (e.g. opened directly) → the questions.
-  const isMissing = current.status === "signed-in" && !level;
+  const isMissing = current.status === "signed-in" && !level && !isLeaving;
   useEffect(() => {
-    if (isMissing) router.replace(ROUTES.riskProfileQuestions);
-  }, [isMissing, router]);
+    if (isMissing) router.replace(routes.profileQuestions);
+  }, [isMissing, router, routes.profileQuestions]);
 
-  if (!level) return null;
+  if (!level || isLeaving) return null;
   const profile = RISK_LEVELS[level];
+  const isApp = flow === "app";
 
   return (
     <StepScreenLayout
       title="Investor profile"
       centeredTitle
       stickyHeader
-      // Back to the questions (e.g. to change an answer).
-      backHref={ROUTES.riskProfileQuestions}
+      // Onboarding: back to the questions (e.g. to change an answer). App: back to Account.
+      backHref={isApp ? ROUTES.account : routes.profileQuestions}
     >
       <div className="flex flex-1 animate-fade-up flex-col [animation-duration:0.5s] motion-reduce:animate-none sm:flex-none">
         <p className="mt-2 text-xs font-semibold tracking-wider text-neutral-500 uppercase">
@@ -86,11 +91,18 @@ export function RiskProfileResultScreen() {
         </p>
 
         <div className={stickyActionsClass}>
-          <Button size="lg" fullWidth onClick={() => router.replace(NEXT_SCREEN)}>
-            Continue
-          </Button>
+          {isApp ? (
+            <ButtonLink href={routes.packages} size="lg" fullWidth>
+              See matching packages
+            </ButtonLink>
+          ) : (
+            // The next step of the journey (replace: Back shouldn't return here).
+            <Button size="lg" fullWidth onClick={() => router.replace(routes.packages)}>
+              Continue
+            </Button>
+          )}
           <ButtonLink
-            href={ROUTES.riskProfileQuestions}
+            href={routes.profileQuestions}
             variant="ghost"
             size="lg"
             fullWidth

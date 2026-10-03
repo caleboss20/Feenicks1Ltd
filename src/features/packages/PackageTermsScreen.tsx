@@ -25,6 +25,8 @@
  *   - acceptance is saved with the terms version and time (investmentService)
  *
  * Then → the dashboard (TODO(invest): amount → payment → confirm, once built).
+ * Two flows, same screen (config/investingFlow.ts): Back returns to the
+ * package's details in the flow it was opened from.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -34,9 +36,11 @@ import { ArrowLeft } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
+import { packageDetailsHref, packageTermsHref, type InvestingFlow } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
+import { useLeaveFinishedOnboarding } from "@/features/investor-profile/useLeaveFinishedOnboarding";
 import { cn } from "@/lib/utils";
-import { packageDetailsHref, type InvestmentPackage } from "./investmentPackages";
+import type { InvestmentPackage } from "./investmentPackages";
 import { acceptPackageTerms } from "./investmentService";
 import { keyPointsFor, termsFor, TERMS_EFFECTIVE_DATE } from "./termsAndConditions";
 
@@ -46,8 +50,9 @@ const NEXT_SCREEN = ROUTES.dashboard;
 /** Height of the pinned bottom bar: the end only counts as "read" when visible above it. */
 const BOTTOM_BAR_HEIGHT_PX = 150;
 
-export function PackageTermsScreen({ pkg }: { pkg: InvestmentPackage }) {
+export function PackageTermsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow: InvestingFlow }) {
   const router = useRouter();
+  const isLeaving = useLeaveFinishedOnboarding(packageTermsHref(pkg.id, "app"), flow === "onboarding");
   const endRef = useRef<HTMLDivElement>(null);
   const [hasReadToEnd, setHasReadToEnd] = useState(false);
   /** The end of the terms is on screen right now (the arrow then points up). */
@@ -97,12 +102,15 @@ export function PackageTermsScreen({ pkg }: { pkg: InvestmentPackage }) {
     router.replace(NEXT_SCREEN);
   };
 
+  if (isLeaving) return null;
+
   return (
     <StepScreenLayout
       title="Terms & Conditions"
       centeredTitle
       stickyHeader
-      backHref={packageDetailsHref(pkg.id)}
+      // Back to the package's details, in the same flow.
+      backHref={packageDetailsHref(pkg.id, flow)}
     >
       <div className="flex flex-1 flex-col sm:flex-none">
         <p className="text-sm text-neutral-500">

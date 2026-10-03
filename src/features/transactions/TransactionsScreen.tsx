@@ -31,7 +31,7 @@ export function TransactionsScreen() {
           Your deposits, investments, returns and withdrawals will show here.
         </p>
         <Link
-          href={ROUTES.packages}
+          href={ROUTES.invest}
           className="mt-5 inline-flex h-10 items-center rounded-full bg-brand-600 px-5 text-[0.8125rem] font-semibold text-white transition-colors hover:bg-brand-700"
         >
           Make your first investment

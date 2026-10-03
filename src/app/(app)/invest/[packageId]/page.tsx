@@ -4,9 +4,8 @@ import { PackageDetailsScreen } from "@/features/packages/PackageDetailsScreen";
 import { INVESTMENT_PACKAGES, isPackageId } from "@/features/packages/investmentPackages";
 
 /**
- * Route: `/packages/[packageId]`, e.g. `/packages/mfc` (one package's
- * details and returns estimate), during start investing (onboarding).
- * Inside the app: `/invest/[packageId]`. Unknown ids show the 404 page.
+ * Route: `/invest/[packageId]`, e.g. `/invest/abc`: one package's details and
+ * returns estimate, inside the app. Unknown ids show the 404 page.
  * Private, logged-in users only → hidden from search engines.
  */
 
@@ -25,8 +24,8 @@ export function generateStaticParams() {
   return Object.keys(INVESTMENT_PACKAGES).map((packageId) => ({ packageId }));
 }
 
-export default async function PackageDetailsPage({ params }: Props) {
+export default async function InvestPackagePage({ params }: Props) {
   const { packageId } = await params;
   if (!isPackageId(packageId)) notFound();
-  return <PackageDetailsScreen pkg={INVESTMENT_PACKAGES[packageId]} flow="onboarding" />;
+  return <PackageDetailsScreen pkg={INVESTMENT_PACKAGES[packageId]} flow="app" />;
 }

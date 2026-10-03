@@ -17,9 +17,11 @@
  *   …
  *   (              Continue               )   ← enabled once both are answered
  *
- * Back arrow: previous step (or the intro from step 1). Answers are kept
- * while moving back and forth. The last step's button saves the answers
+ * Back arrow: previous step; from step 1, the start-investing intro
+ * (onboarding) or the investor profile / Account (in the app). Answers are
+ * kept while moving back and forth. The last step's button saves the answers
  * and shows the result. Questions and scoring: riskProfileQuestions.ts.
+ * Two flows, same screen: see config/investingFlow.ts.
  */
 
 import { useState } from "react";
@@ -28,15 +30,23 @@ import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepSc
 import { Button } from "@/components/ui/Button";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { StepProgress } from "@/components/ui/StepProgress";
+import { INVESTING_ROUTES, type InvestingFlow } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
+import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { saveRiskProfile } from "./investorProfileService";
 import { RISK_PROFILE_STEPS, RISK_QUESTIONS, type RiskAnswers, type RiskQuestion } from "./riskProfileQuestions";
+import { useLeaveFinishedOnboarding } from "./useLeaveFinishedOnboarding";
 
-/** Where the last step leads. */
-const NEXT_SCREEN = ROUTES.riskProfileResult;
-
-export function RiskProfileQuestionsScreen() {
+export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
   const router = useRouter();
+  const current = useCurrentAccount();
+  const hasProfile = current.status === "signed-in" && current.account.riskLevel !== null;
+  const isLeaving = useLeaveFinishedOnboarding(ROUTES.investorProfileQuestions, flow === "onboarding");
+
+  /** Where the back arrow goes from the first step. */
+  const exitHref =
+    flow === "onboarding" ? ROUTES.startInvesting : hasProfile ? ROUTES.investorProfile : ROUTES.account;
+
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<RiskAnswers>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -63,15 +73,18 @@ export function RiskProfileQuestionsScreen() {
       setError(result.message);
       return;
     }
-    router.replace(NEXT_SCREEN);
+    // The result, in the same flow.
+    router.replace(INVESTING_ROUTES[flow].profileResult);
   };
+
+  if (isLeaving) return null;
 
   return (
     <StepScreenLayout
       title="Investor profile"
       centeredTitle
       stickyHeader
-      backHref={ROUTES.startInvesting}
+      backHref={exitHref}
       onBack={stepIndex > 0 ? () => goToStep(stepIndex - 1) : undefined}
     >
       <div className="flex flex-1 flex-col sm:flex-none">

@@ -38,6 +38,11 @@ export type CurrentAccount = {
   /** Investor risk profile, once the questions are answered. */
   riskLevel: RiskLevel | null;
   step: AccountStep;
+  /**
+   * They've reached the dashboard at least once: the start-investing journey
+   * (shown once after registration) is over; investing happens in the app.
+   */
+  hasFinishedOnboarding: boolean;
   /** True once the PIN has been entered (or created) in this session. */
   isUnlocked: boolean;
   /** When it was unlocked (ms timestamp), or null while locked. Used by auto-lock. */
@@ -51,7 +56,7 @@ export type CurrentAccountState =
 
 /**
  * Everything the screens react to, as one string
- * ("email|unlockedAt|step|biometrics|risk|avatar|username"),
+ * ("email|unlockedAt|step|biometrics|risk|avatar|username|onboarded"),
  * so React can tell cheaply whether anything changed.
  */
 function readSnapshot() {
@@ -67,6 +72,7 @@ function readSnapshot() {
     // Changes when a picture is added (its length is a cheap fingerprint).
     account?.avatarDataUrl?.length ?? 0,
     account?.username ?? "",
+    account?.onboardingFinishedAt ? 1 : 0,
   ].join("|");
 }
 
@@ -95,6 +101,7 @@ export function useCurrentAccount(): CurrentAccountState {
         hasBiometrics: Boolean(account.biometricCredentialId),
         riskLevel: account.riskProfile?.level ?? null,
         step: account.step,
+        hasFinishedOnboarding: Boolean(account.onboardingFinishedAt),
         isUnlocked: unlockedAt !== null,
         unlockedAt,
       },

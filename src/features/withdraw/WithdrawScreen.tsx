@@ -51,7 +51,7 @@ export function WithdrawScreen() {
 
       {/* Pinned to the bottom of the screen: never hidden below the fold. */}
       <div className={stickyActionsClass}>
-        <ButtonLink href={ROUTES.packages} size="lg" fullWidth>
+        <ButtonLink href={ROUTES.invest} size="lg" fullWidth>
           Invest now
         </ButtonLink>
       </div>

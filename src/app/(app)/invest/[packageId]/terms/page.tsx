@@ -4,9 +4,8 @@ import { PackageTermsScreen } from "@/features/packages/PackageTermsScreen";
 import { INVESTMENT_PACKAGES, isPackageId } from "@/features/packages/investmentPackages";
 
 /**
- * Route: `/packages/[packageId]/terms`, e.g. `/packages/abc/terms`
- * (the package's Terms & Conditions: the first step of investing), during
- * start investing (onboarding). Inside the app: `/invest/[packageId]/terms`.
+ * Route: `/invest/[packageId]/terms`, e.g. `/invest/abc/terms`: the package's
+ * Terms & Conditions (the first step of investing), inside the app.
  * Private, logged-in users only → hidden from search engines.
  */
 
@@ -21,8 +20,8 @@ export function generateStaticParams() {
   return Object.keys(INVESTMENT_PACKAGES).map((packageId) => ({ packageId }));
 }
 
-export default async function PackageTermsPage({ params }: Props) {
+export default async function InvestPackageTermsPage({ params }: Props) {
   const { packageId } = await params;
   if (!isPackageId(packageId)) notFound();
-  return <PackageTermsScreen pkg={INVESTMENT_PACKAGES[packageId]} flow="onboarding" />;
+  return <PackageTermsScreen pkg={INVESTMENT_PACKAGES[packageId]} flow="app" />;
 }

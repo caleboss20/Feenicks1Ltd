@@ -29,14 +29,10 @@ import {
   SproutIcon,
   TrendUpIcon,
 } from "@/components/icons";
+import { packageDetailsHref, type InvestingFlow } from "@/config/investingFlow";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
-import {
-  packageDetailsHref,
-  roiRangeLabel,
-  shortWithdrawalLabel,
-  type InvestmentPackage,
-} from "./investmentPackages";
+import { roiRangeLabel, shortWithdrawalLabel, type InvestmentPackage } from "./investmentPackages";
 
 /** Icon + soft background colour per package accent (details page). */
 const ACCENTS: Record<InvestmentPackage["accent"], string> = {
@@ -75,26 +71,49 @@ export function PackageIcon({ pkg, className }: { pkg: InvestmentPackage; classN
  */
 const WAVY_CORNERS = "rounded-[2.25rem_2.75rem_2.25rem_2.75rem/2.75rem_2rem_2.75rem_2rem]";
 
+/** The card's element id, e.g. to scroll the selected package into view. */
+export function packageCardId(packageId: string): string {
+  return `package-${packageId}`;
+}
+
 export function PackageCard({
   pkg,
+  flow,
   isBestMatch,
+  isSelected,
+  onSelect,
 }: {
   pkg: InvestmentPackage;
+  /** Which details page it opens: in the app (/invest/…) or during onboarding (/packages/…). */
+  flow: InvestingFlow;
   /** The top recommendation for the user's profile: green outline + label. */
   isBestMatch?: boolean;
+  /** The package the user picked (tapped, or last opened): highlighted. */
+  isSelected?: boolean;
+  /** Called when the card is tapped, just before its details open. */
+  onSelect?: () => void;
 }) {
   const [lowRoi, highRoi] = pkg.monthlyRoiPercent;
 
   return (
     <Link
-      href={packageDetailsHref(pkg.id)}
-      aria-label={`${pkg.name}${isBestMatch ? ", best match" : ""}. Expected return ${roiRangeLabel(pkg.monthlyRoiPercent)} a month, from ${formatCedis(pkg.minimum)}.`}
+      id={packageCardId(pkg.id)}
+      href={packageDetailsHref(pkg.id, flow)}
+      onClick={onSelect}
+      aria-label={`${pkg.name}${isBestMatch ? ", best match" : ""}${isSelected ? ", selected" : ""}. Expected return ${roiRangeLabel(pkg.monthlyRoiPercent)} a month, from ${formatCedis(pkg.minimum)}.`}
       className={cn(
-        "group block p-6 transition-transform active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400",
+        "group block p-6 transition-[transform,background-color,box-shadow] duration-200 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400",
         WAVY_CORNERS,
-        "bg-neutral-100 text-foreground dark:bg-white/5",
-        // Best match: thin green outline (inset, so the card keeps its size).
-        isBestMatch && "ring-[1.5px] ring-brand-600 ring-inset dark:ring-brand-500",
+        "text-foreground",
+        // Selected: light green fill and a firmer green outline. Otherwise grey,
+        // with a thin green outline on the best match. (Outlines are inset, so
+        // the card keeps its size.)
+        isSelected
+          ? "bg-brand-50 ring-2 ring-brand-600 ring-inset dark:bg-brand-500/10 dark:ring-brand-500"
+          : cn(
+              "bg-neutral-100 dark:bg-white/5",
+              isBestMatch && "ring-[1.5px] ring-brand-600 ring-inset dark:ring-brand-500",
+            ),
       )}
     >
       <div className="flex items-start justify-between gap-4">

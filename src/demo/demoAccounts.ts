@@ -49,6 +49,8 @@ export type DemoAccount = {
   riskProfile?: { level: RiskLevel; score: number; answeredAt: string };
   /** Every Terms & Conditions acceptance: which package, which version, when. */
   termsAcceptances?: { packageId: string; version: string; acceptedAt: string }[];
+  /** When they first reached the dashboard: the start-investing journey is over. */
+  onboardingFinishedAt?: string;
   createdAt: string;
 };
 
@@ -172,6 +174,7 @@ export function updateAccount(
       | "totpSecret"
       | "riskProfile"
       | "termsAcceptances"
+      | "onboardingFinishedAt"
     >
   >,
 ) {

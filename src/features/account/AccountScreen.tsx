@@ -150,9 +150,10 @@ export function AccountScreen() {
           icon={<CompassIcon />}
           label="Investor profile"
           value={riskLevel ? RISK_LEVELS[riskLevel].name : "Not set"}
-          href={riskLevel ? ROUTES.riskProfileResult : ROUTES.riskProfileQuestions}
+          // In-app versions (never the sign-up screens); without a profile it opens the questions.
+          href={ROUTES.investorProfile}
         />
-        <LinkRow icon={<GridIcon />} label="Investment packages" href={ROUTES.packages} />
+        <LinkRow icon={<GridIcon />} label="Investment packages" href={ROUTES.invest} />
         <LinkRow icon={<ArrowRight className="rotate-90" />} label="Withdraw" href={ROUTES.withdraw} />
       </RowGroup>
 

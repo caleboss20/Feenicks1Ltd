@@ -33,7 +33,7 @@
  * Access and auto-lock: the (app) layout (AppLockGuard).
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -51,13 +51,11 @@ import {
   TriangleUpIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
+import { packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
-import {
-  INVESTMENT_PACKAGES,
-  PACKAGES_FOR_RISK_LEVEL,
-  packageDetailsHref,
-} from "@/features/packages/investmentPackages";
+import { markOnboardingFinished } from "@/features/investor-profile/investorProfileService";
+import { INVESTMENT_PACKAGES, PACKAGES_FOR_RISK_LEVEL } from "@/features/packages/investmentPackages";
 import {
   REFERRAL_POINTS_LABEL,
   REFERRAL_REWARD_LABEL,
@@ -124,6 +122,14 @@ export function DashboardScreen() {
   // The dashboard only renders in the browser (AppLockGuard), so storage is safe here.
   const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
   const [activityFilter, setActivityFilter] = useState<ActivityFilter>("all");
+
+  // Reaching the dashboard ends the start-investing journey: from now on its
+  // screens hand over to the in-app versions (Invest, Account › Investor profile).
+  const needsOnboardingFinished =
+    current.status === "signed-in" && !current.account.hasFinishedOnboarding;
+  useEffect(() => {
+    if (needsOnboardingFinished) void markOnboardingFinished();
+  }, [needsOnboardingFinished]);
 
   const toggleHideAmounts = () => {
     setHideAmounts((hidden) => {
@@ -195,7 +201,7 @@ export function DashboardScreen() {
               package.
             </>
           ),
-          action: { label: "Get matched", href: ROUTES.startInvesting },
+          action: { label: "Get matched", href: ROUTES.investorProfileQuestions },
         },
     {
       id: "calculator",
@@ -323,7 +329,7 @@ export function DashboardScreen() {
 
       {/* ── Actions: two white buttons and a dark square ─────────── */}
       <div className="mt-10 flex gap-2.5 px-5 min-[360px]:gap-3">
-        <Link href={ROUTES.packages} className={whiteButton}>
+        <Link href={ROUTES.invest} className={whiteButton}>
           <PlusIcon />
           Invest
         </Link>
