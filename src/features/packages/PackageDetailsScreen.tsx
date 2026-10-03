@@ -103,13 +103,19 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow: InvestingFlow }) {
   const router = useRouter();
-  const [amountText, setAmountText] = useState(String(pkg.minimum));
   const [months, setMonths] = useState(DEFAULT_PERIOD);
   const isLeaving = useLeaveFinishedOnboarding(packageDetailsHref(pkg.id, "app"), flow === "onboarding");
   // Can they put money in here (package rules)? null while their history loads.
   const transactions = useTransactions();
   const option = transactions ? investOptionFor(transactions, pkg.id) : null;
   const blockedReason = option ? investBlockedReason(option, pkg.id) : null;
+
+  // The amount to estimate: what they typed, or a sensible start. On their
+  // own package, what they've invested (what their money could earn; a
+  // top-up can only take it up to the maximum); otherwise the minimum.
+  const [typedAmount, setTypedAmount] = useState<string | null>(null);
+  const ownInvested = option?.kind === "top-up" || option?.kind === "at-maximum" ? option.invested : null;
+  const amountText = typedAmount ?? String(ownInvested ?? pkg.minimum);
 
   const amount = Number(amountText.replace(/,/g, ""));
   const amountError =
@@ -195,7 +201,7 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
             <input
               id="estimate-amount"
               value={amountText}
-              onChange={(event) => setAmountText(event.target.value.replace(/[^\d.]/g, ""))}
+              onChange={(event) => setTypedAmount(event.target.value.replace(/[^\d.]/g, ""))}
               inputMode="decimal"
               aria-invalid={amountError ? true : undefined}
               aria-describedby={amountError ? "estimate-amount-error" : "estimate-amount-hint"}
