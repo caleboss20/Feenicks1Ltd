@@ -54,6 +54,11 @@ import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
+import {
+  currentValue,
+  hasCompletedInvestment,
+  totalProfit,
+} from "@/features/analytics/portfolioHistory";
 import { markOnboardingFinished } from "@/features/investor-profile/investorProfileService";
 import { INVESTMENT_PACKAGES, PACKAGES_FOR_RISK_LEVEL } from "@/features/packages/investmentPackages";
 import {
@@ -61,6 +66,7 @@ import {
   REFERRAL_REWARD_LABEL,
   shareReferralLink,
 } from "@/features/referrals/referralService";
+import { useTransactions } from "@/features/transactions/useTransactions";
 import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { type Banner, BannerCarousel } from "./BannerCarousel";
@@ -73,13 +79,6 @@ const SUPPORT_URL = "https://www.feenicks1solutions.com";
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
 
-/**
- * TODO(invest): real figures from the server once investing is built.
- * Zero until then; never fake numbers on a money screen.
- */
-const PORTFOLIO_VALUE = 0;
-const PROFIT_EARNED = 0;
-const ACTIVE_INVESTMENTS = 0;
 
 /** Filters above the activity list. */
 const ACTIVITY_FILTERS = {
@@ -119,6 +118,13 @@ function readHideAmounts(): boolean {
 
 export function DashboardScreen() {
   const current = useCurrentAccount();
+  // Value and profit come from the transaction history (same maths as
+  // Analytics): GH₵ 0.00 until there's real activity; never made-up numbers.
+  const transactions = useTransactions();
+  const portfolioValue = transactions ? currentValue(transactions) : 0;
+  const profitEarned = transactions ? totalProfit(transactions) : 0;
+  /** null while loading (so the first-investment sheet waits until we know). */
+  const hasInvested = transactions ? hasCompletedInvestment(transactions) : null;
   // The dashboard only renders in the browser (AppLockGuard), so storage is safe here.
   const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
   const [activityFilter, setActivityFilter] = useState<ActivityFilter>("all");
@@ -153,7 +159,7 @@ export function DashboardScreen() {
   const calculatorHref = packageDetailsHref(bestMatch.id);
 
   // The balance, split so the pesewas can be drawn smaller: "1,250" + "50".
-  const [balanceWhole, balanceFraction] = formatCedisNumber(PORTFOLIO_VALUE, { exact: true }).split(".");
+  const [balanceWhole, balanceFraction] = formatCedisNumber(portfolioValue, { exact: true }).split(".");
 
   /** Cards in the swipeable carousel, all built from real data (no made-up offers). */
   const banners: Banner[] = [
@@ -316,13 +322,13 @@ export function DashboardScreen() {
             <TriangleUpIcon
               className={cn(
                 "size-3",
-                PROFIT_EARNED < 0 ? "rotate-180 text-red-600" : "text-brand-600",
+                profitEarned < 0 ? "rotate-180 text-red-600" : "text-brand-600",
               )}
             />
           </span>
           Profit earned
           <span className="font-semibold text-white">
-            {hideAmounts ? "••••" : formatCedis(PROFIT_EARNED, { exact: true })}
+            {hideAmounts ? "••••" : formatCedis(profitEarned, { exact: true })}
           </span>
         </p>
       </section>
@@ -398,7 +404,7 @@ export function DashboardScreen() {
       <AppTabBar />
 
       {/* Not invested yet: a milestone sheet nudging the first investment. */}
-      <FirstInvestmentSheet hasInvested={ACTIVE_INVESTMENTS > 0} visitId={unlockedAt} />
+      <FirstInvestmentSheet hasInvested={hasInvested ?? true} visitId={unlockedAt} />
     </div>
   );
 }

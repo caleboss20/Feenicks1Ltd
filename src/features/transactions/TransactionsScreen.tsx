@@ -22,7 +22,7 @@
  * Data: transactionsService (empty until investing and payments exist).
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, BriefcaseIcon, GiftIcon, PlusIcon, TrendUpIcon } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
@@ -34,7 +34,8 @@ import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import type { Transaction, TransactionType } from "./transactionModel";
-import { getTransactions } from "./transactionsService";
+import { SampleDataNotice } from "./SampleData";
+import { useTransactions } from "./useTransactions";
 
 /** How each kind of transaction is shown. */
 const TYPES: Record<
@@ -101,18 +102,8 @@ function formatWhen(iso: string, now = new Date()): string {
 export function TransactionsScreen() {
   useStatusBarColor(GREY_PAGE_COLORS);
   /** null while loading. */
-  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
+  const transactions = useTransactions();
   const [filterId, setFilterId] = useState<FilterId>("all");
-
-  useEffect(() => {
-    let cancelled = false;
-    void getTransactions().then((list) => {
-      if (!cancelled) setTransactions(list);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const filter = FILTERS.find((item) => item.id === filterId) ?? FILTERS[0];
   const shown =
@@ -126,6 +117,10 @@ export function TransactionsScreen() {
       )}
     >
       <h1 className="px-1 text-[1.75rem] leading-tight font-bold tracking-tight">Transactions</h1>
+
+      <div className="mt-3 empty:hidden">
+        <SampleDataNotice transactions={transactions} />
+      </div>
 
       {/* Filters: one row that scrolls sideways on narrow phones. */}
       <div

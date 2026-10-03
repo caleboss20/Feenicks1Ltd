@@ -178,6 +178,7 @@ export function updateAccount(
       | "riskProfile"
       | "termsAcceptances"
       | "onboardingFinishedAt"
+      | "transactions"
     >
   >,
 ) {
