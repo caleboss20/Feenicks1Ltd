@@ -219,12 +219,12 @@ export function DashboardScreen() {
       )}
     >
       {/* Green at the top, fading into the page background behind the cards;
-          for investors, green a little further (behind the chart's white
-          title), fading behind the chart itself. */}
+          for investors, solid behind the chart's white title, then a quicker
+          fade behind the top of the chart. */}
       <div
         aria-hidden
         style={{ backgroundImage: hasInvested ? DASHBOARD_TOP_GRADIENT_WITH_CHART : DASHBOARD_TOP_GRADIENT }}
-        className={cn("absolute inset-x-0 top-0 -z-10", hasInvested ? "h-[34.5rem]" : "h-[31rem]")}
+        className="absolute inset-x-0 top-0 -z-10 h-[31rem]"
       />
 
       {/* ── Greeting ─────────────────────────────────────────────── */}
@@ -340,7 +340,8 @@ export function DashboardScreen() {
 
       {/* ── Cards, where the green fades into white: how the portfolio is
              doing once they've invested; offers and tips until then ─── */}
-      <div className="mt-10 px-4">
+      {/* Investors: the chart's title sits closer, inside the solid green. */}
+      <div className={cn("px-4", hasInvested ? "mt-7" : "mt-10")}>
         {transactions === null ? (
           // Loading (a moment): empty space, so neither flashes up.
           <div aria-hidden className="h-48" />
