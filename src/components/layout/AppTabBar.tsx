@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * AppTabBar: the app's main navigation, a plain white bar across the bottom
- * (icon above label). The tab for the current page is brand green; the
- * others are grey.
+ * AppTabBar: the app's main navigation, a plain bar across the bottom (icon
+ * above label). The tab for the current page is in the user's dashboard
+ * colour (Account › Dashboard colour; green by default), the others grey.
  *
  *   🏠 Home   📊 Analytics   🧾 Transactions   👤 Account
  *
@@ -15,7 +15,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChartBarIcon, HomeIcon, ReceiptIcon, UserIcon } from "@/components/icons";
 import { ROUTES } from "@/config/routes";
+import { chosenDashboardColor } from "@/features/dashboard/dashboardTheme";
 import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/stores/useThemeStore";
 
 const TABS = [
   { label: "Home", href: ROUTES.dashboard, icon: <HomeIcon /> },
@@ -29,10 +31,23 @@ export const appTabBarPadding = "pb-[calc(5.5rem+env(safe-area-inset-bottom))]";
 
 export function AppTabBar() {
   const pathname = usePathname();
+  // The current tab takes the dashboard colour: its deep shade on white (the
+  // default green's is the brand green used before), a light tint on black
+  // so even Black or Graphite stand out from the grey tabs.
+  const color = chosenDashboardColor(
+    useThemeStore((state) => state.dashboardColor),
+    useThemeStore((state) => state.customDashboardColor),
+  );
 
   return (
     <nav
       aria-label="Main"
+      style={
+        {
+          "--tab-active": color.top,
+          "--tab-active-dark": `color-mix(in srgb, ${color.main} 40%, white)`,
+        } as React.CSSProperties
+      }
       className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-100 bg-background pb-[env(safe-area-inset-bottom)] dark:border-white/10"
     >
       <ul className="mx-auto grid h-16 max-w-md grid-cols-4">
@@ -46,8 +61,8 @@ export function AppTabBar() {
                 className={cn(
                   "flex h-full flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium transition-colors [&_svg]:size-[22px]",
                   isActive
-                    ? "text-brand-700 dark:text-brand-400"
-                    : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300",
+                    ? "font-semibold text-(--tab-active) dark:text-(--tab-active-dark)"
+                    : "text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300",
                 )}
               >
                 {tab.icon}
