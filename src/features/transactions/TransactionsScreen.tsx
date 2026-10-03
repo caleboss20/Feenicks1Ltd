@@ -182,6 +182,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
 
   // Investments and returns are titled by their package; the rest by what they are.
   const title = pkg ? pkg.name : type.label;
+  const breakdown = transaction.breakdown;
   const detail =
     transaction.type === "withdrawal"
       ? transaction.channel
@@ -189,7 +190,10 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
         : "To your account"
       : transaction.type === "referral"
         ? `${REFERRAL_POINTS} points`
-        : type.label;
+        : breakdown
+          ? // How a return was worked out: rate × months, less the fee.
+            `${breakdown.monthlyRatePercent}% × ${breakdown.months} mo − ${breakdown.feePercent}% fee`
+          : type.label;
 
   const amount = formatCedis(transaction.amount, { exact: true });
   const isFailed = transaction.status === "failed";
@@ -197,7 +201,11 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
   return (
     <li
       className="flex items-center gap-3.5 py-3.5"
-      aria-label={`${title}, ${detail}, ${amount}, ${when}${transaction.status === "completed" ? "" : `, ${transaction.status}`}. Reference ${transaction.id}.`}
+      aria-label={`${title}, ${
+        breakdown
+          ? `return: ${formatCedis(breakdown.principal, { exact: true })} at ${breakdown.monthlyRatePercent}% a month for ${breakdown.months} ${breakdown.months === 1 ? "month" : "months"} is ${formatCedis(breakdown.grossProfit, { exact: true })}, less a ${breakdown.feePercent}% fee of ${formatCedis(breakdown.fee, { exact: true })}`
+          : detail
+      }, ${amount}, ${when}${transaction.status === "completed" ? "" : `, ${transaction.status}`}. Reference ${transaction.id}.`}
     >
       <span aria-hidden className="shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-5">
         {type.icon}

@@ -8,7 +8,8 @@
  *   Portfolio value
  *   GH₵ 3,240.00
  *   ▲ GH₵ 340.00 (+11.7%) · Past month        ← green up / red down
- *   ( 1D )( 1W )(●1M )( 1Y )( All )            ← time range (scopes everything below)
+ *   ( 1D )( 1W )(●1M )( 1Y▾)( All )            ← time range (scopes everything below);
+ *                                                 1Y▾ picks 1 to 25 years
  *   ╭╮  ╭─────╮        ╭──●                    ← PortfolioChart: drag to read any point
  *   ╯╰──╯     ╰────────╯
  *   Past month
@@ -22,7 +23,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PlusIcon, TriangleUpIcon } from "@/components/icons";
+import { ChevronDownIcon, PlusIcon, TriangleUpIcon } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { ROUTES } from "@/config/routes";
@@ -37,36 +38,38 @@ import { cn } from "@/lib/utils";
 import { PortfolioChart } from "./PortfolioChart";
 import {
   buildSeries,
-  RANGES,
+  FIXED_RANGES,
+  MAX_YEARS,
   summarize,
-  type RangeId,
+  yearsRange,
+  type ChartRange,
 } from "./portfolioHistory";
 
 /** Tooltip time for each range: "2:00 pm" · "1 Oct, 2:00 pm" · "1 Oct 2026". */
-function tooltipTime(rangeId: RangeId) {
+function tooltipTime(range: ChartRange) {
   return (time: number) => {
     const date = new Date(time);
     const clock = date.toLocaleTimeString("en-GH", {
       hour: "numeric",
       minute: "2-digit",
     });
-    if (rangeId === "1D") return clock;
+    if (range.kind === "day") return clock;
     const day = date.toLocaleDateString("en-GH", {
       day: "numeric",
       month: "short",
-      ...(rangeId === "1Y" || rangeId === "ALL" ? { year: "numeric" } : {}),
+      ...(range.kind === "years" || range.kind === "all" ? { year: "numeric" } : {}),
     });
-    return rangeId === "1W" || rangeId === "1M" ? `${day}, ${clock}` : day;
+    return range.kind === "week" || range.kind === "month" ? `${day}, ${clock}` : day;
   };
 }
 
 /** Date under the chart: "2 pm" · "1 Oct" · "Oct 2026". */
-function axisTime(rangeId: RangeId) {
+function axisTime(range: ChartRange) {
   return (time: number) => {
     const date = new Date(time);
-    if (rangeId === "1D")
+    if (range.kind === "day")
       return date.toLocaleTimeString("en-GH", { hour: "numeric" });
-    if (rangeId === "1W" || rangeId === "1M") {
+    if (range.kind === "week" || range.kind === "month") {
       return date.toLocaleDateString("en-GH", {
         day: "numeric",
         month: "short",
@@ -82,12 +85,17 @@ function axisTime(rangeId: RangeId) {
 export function AnalyticsScreen() {
   useStatusBarColor(GREY_PAGE_COLORS);
   const transactions = useTransactions();
-  const [rangeId, setRangeId] = useState<RangeId>("1M");
-  const range = RANGES.find((item) => item.id === rangeId) ?? RANGES[2];
+  // A short range, "All", or a number of years (1–25, chosen on the year chip).
+  const [rangeKey, setRangeKey] = useState<keyof typeof FIXED_RANGES | "YEARS">("1M");
+  const [years, setYears] = useState(1);
+  const range = useMemo<ChartRange>(
+    () => (rangeKey === "YEARS" ? yearsRange(years) : FIXED_RANGES[rangeKey]),
+    [rangeKey, years],
+  );
 
   const points = useMemo(
-    () => (transactions ? buildSeries(transactions, rangeId) : null),
-    [transactions, rangeId],
+    () => (transactions ? buildSeries(transactions, range) : null),
+    [transactions, range],
   );
 
   const hasHistory = Boolean(
@@ -167,28 +175,60 @@ export function AnalyticsScreen() {
           </p>
         )}
 
-        {/* Time range, spread evenly across the full width: scopes the chart and the totals below. */}
+        {/* Time range, spread evenly across the full width: scopes the chart and
+            the totals below. 1D · 1W · 1M · years (1–25, a picker) · All. */}
         <div
           role="group"
           aria-label="Time range"
           className="mt-5 grid grid-cols-5 gap-1.5"
         >
-          {RANGES.map((item) => {
-            const isActive = item.id === rangeId;
+          {(["1D", "1W", "1M", "YEARS", "ALL"] as const).map((key) => {
+            const isActive = key === rangeKey;
+            const chip = cn(
+              "h-9 w-full cursor-pointer rounded-full text-[0.8125rem] font-semibold transition-colors",
+              isActive
+                ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                : "text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-white/10",
+            );
+
+            if (key === "YEARS") {
+              // The phone's own picker, over the chip: tap → choose 1 to 25 years.
+              return (
+                <label
+                  key={key}
+                  className={cn(chip, "relative inline-flex items-center justify-center gap-0.5")}
+                >
+                  <span aria-hidden>{years}Y</span>
+                  <ChevronDownIcon aria-hidden className="size-3" />
+                  <select
+                    aria-label="Years to show"
+                    value={years}
+                    onClick={() => setRangeKey("YEARS")}
+                    onChange={(event) => {
+                      setYears(Number(event.target.value));
+                      setRangeKey("YEARS");
+                    }}
+                    className="absolute inset-0 size-full cursor-pointer appearance-none opacity-0"
+                  >
+                    {Array.from({ length: MAX_YEARS }, (_, index) => index + 1).map((count) => (
+                      <option key={count} value={count}>
+                        {count === 1 ? "1 year" : `${count} years`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              );
+            }
+
             return (
               <button
-                key={item.id}
+                key={key}
                 type="button"
                 aria-pressed={isActive}
-                onClick={() => setRangeId(item.id)}
-                className={cn(
-                  "h-9 w-full cursor-pointer rounded-full text-[0.8125rem] font-semibold transition-colors",
-                  isActive
-                    ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                    : "text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-white/10",
-                )}
+                onClick={() => setRangeKey(key)}
+                className={chip}
               >
-                {item.label}
+                {FIXED_RANGES[key].label}
               </button>
             );
           })}
@@ -197,11 +237,11 @@ export function AnalyticsScreen() {
         <div className="mt-6">
           {points ? (
             <PortfolioChart
-              key={rangeId}
+              key={range.id}
               points={points}
               label={`Portfolio value, ${range.period.toLowerCase()}: from ${formatCedis(first, { exact: true })} to ${formatCedis(last, { exact: true })}.`}
-              formatTime={tooltipTime(rangeId)}
-              formatAxisTime={axisTime(rangeId)}
+              formatTime={tooltipTime(range)}
+              formatAxisTime={axisTime(range)}
               emptyMessage={
                 hasHistory ? undefined : (
                   <>
@@ -245,7 +285,12 @@ export function AnalyticsScreen() {
           <dl className="mt-3 grid grid-cols-2 gap-3">
             {[
               { label: "Invested", value: totals.invested },
-              { label: "Profit earned", value: totals.profit },
+              {
+                label: "Profit earned",
+                value: totals.profit,
+                // Profit is shown after the management fee; say how much that was.
+                note: totals.fees > 0 ? `after ${formatCedis(totals.fees, { exact: true })} fees` : undefined,
+              },
               { label: "Withdrawn", value: totals.withdrawn },
               { label: "Referral rewards", value: totals.rewards },
             ].map((item) => (
@@ -258,6 +303,11 @@ export function AnalyticsScreen() {
                 </dt>
                 <dd className="mt-1.5 text-base font-semibold tracking-tight">
                   {formatCedis(item.value, { exact: true })}
+                  {item.note && (
+                    <span className="mt-0.5 block text-[0.6875rem] font-normal tracking-normal text-neutral-500 dark:text-neutral-400">
+                      {item.note}
+                    </span>
+                  )}
                 </dd>
               </div>
             ))}

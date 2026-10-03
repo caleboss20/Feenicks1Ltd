@@ -5,13 +5,15 @@
  * year" (demo mode), clearly labelled, and removable. Never shown otherwise.
  *
  * Follows the real package rules (config in investmentPackages.ts): amounts
- * within each package's limits, returns at its expected monthly rate (after
- * its management fee), paid on its withdrawal schedule. Deterministic: the
- * same pattern every time, anchored to "now".
+ * within each package's limits, returns paid on its payout schedule at the
+ * MIDDLE of its expected monthly range (e.g. 5–10% → 7.5%), before its
+ * management fee, which then comes off the profit. Each return records that
+ * calculation (ReturnBreakdown), so it can be checked by hand.
+ * Deterministic: the same pattern every time, anchored to "now".
  */
 
 import { INVESTMENT_PACKAGES, type PackageId } from "@/features/packages/investmentPackages";
-import type { Transaction } from "@/features/transactions/transactionModel";
+import type { ReturnBreakdown, Transaction } from "@/features/transactions/transactionModel";
 
 /** Sample transactions' ids start with this, so they can be told apart and removed. */
 export const SAMPLE_ID_PREFIX = "SMP";
@@ -20,25 +22,32 @@ const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 const MONTH = 30.4 * DAY;
 
-/** Deterministic "random-looking" number in [0, 1) for step i. */
-const pseudoRandom = (i: number) => {
-  const x = Math.sin(i * 12.9898 + 4.1414) * 43758.5453;
-  return x - Math.floor(x);
-};
-
 const round2 = (value: number) => Math.round(value * 100) / 100;
+
+/**
+ * One payout: amount invested × monthly rate × months = gross profit; the
+ * management fee (a % of that profit) comes off; the rest is paid.
+ */
+export function returnFor(packageId: PackageId, principal: number, months: number): ReturnBreakdown & { paid: number } {
+  const pkg = INVESTMENT_PACKAGES[packageId];
+  const [low, high] = pkg.monthlyRoiPercent;
+  const monthlyRatePercent = (low + high) / 2;
+  const grossProfit = round2(principal * (monthlyRatePercent / 100) * months);
+  const fee = round2(grossProfit * (pkg.managementFeePercent / 100));
+  return {
+    principal,
+    monthlyRatePercent,
+    months,
+    grossProfit,
+    fee,
+    feePercent: pkg.managementFeePercent,
+    paid: round2(grossProfit - fee),
+  };
+}
 
 export function sampleYearOfActivity(now = Date.now()): Transaction[] {
   const list: Omit<Transaction, "id">[] = [];
   const at = (msAgo: number) => new Date(now - msAgo).toISOString();
-
-  /** Profit for `months` of a package, at a rate within its range, after its fee. */
-  const profitFor = (packageId: PackageId, principal: number, months: number, step: number) => {
-    const pkg = INVESTMENT_PACKAGES[packageId];
-    const [low, high] = pkg.monthlyRoiPercent;
-    const rate = low + (high - low) * (0.25 + 0.5 * pseudoRandom(step)); // mid-range, varying
-    return round2(principal * (rate / 100) * months * (1 - pkg.managementFeePercent / 100));
-  };
 
   const invest = (packageId: PackageId, amount: number, msAgo: number, channel = "MTN MoMo") =>
     list.push({ type: "investment", amount, packageId, channel, status: "completed", createdAt: at(msAgo) });
@@ -54,17 +63,19 @@ export function sampleYearOfActivity(now = Date.now()): Transaction[] {
   // A top-up today, so "1D" moves too.
   invest("mfc", 300, 3 * HOUR, "Vodafone Cash");
 
-  // Returns, on each package's schedule (monthly, or every 3 months for ABC).
-  let step = 1;
+  // Returns, on each package's schedule (monthly, or every 3 months for ABC),
+  // each with its calculation.
   holdings.forEach((holding) => {
     const every = INVESTMENT_PACKAGES[holding.packageId].withdrawalEveryMonths;
     for (let monthsIn = every; holding.since - monthsIn * MONTH > 0; monthsIn += every) {
+      const { paid, ...breakdown } = returnFor(holding.packageId, holding.amount, every);
       list.push({
         type: "return",
-        amount: profitFor(holding.packageId, holding.amount, every, step++),
+        amount: paid,
         packageId: holding.packageId,
         status: "completed",
         createdAt: at(holding.since - monthsIn * MONTH + 9 * HOUR),
+        breakdown,
       });
     }
   });
