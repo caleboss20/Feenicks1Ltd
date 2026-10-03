@@ -1,5 +1,7 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import { ROUTES } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
+import { notify } from "@/demo/demoNotifications";
 
 /**
  * Support service: messages to the Feenicks1 team. In DEMO MODE they're kept
@@ -65,6 +67,12 @@ export async function sendSupportMessage(input: {
     };
     const previous = demo.findAccount(email)?.supportRequests ?? [];
     demo.updateAccount(email, { supportRequests: [...previous, request] });
+    notify(email, {
+      kind: "support",
+      title: "We received your message",
+      body: `Reference ${request.id}. Our team will get back to you.`,
+      href: ROUTES.support,
+    });
     return { ok: true, request };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };

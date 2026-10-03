@@ -1,5 +1,7 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import { ROUTES } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
+import { notify } from "@/demo/demoNotifications";
 import type { ResetMethod } from "./passwordResetValidation";
 
 /**
@@ -69,7 +71,15 @@ export async function saveNewPassword(
     await wait(DEMO_DELAY_MS);
     const contact = resetToken.replace(DEMO_TOKEN_PREFIX, "");
     const account = demo.findAccount(contact) ?? demo.findAccountByPhone(contact);
-    if (account) await demo.changePassword(account.email, newPassword);
+    if (account) {
+      await demo.changePassword(account.email, newPassword);
+      notify(account.email, {
+        kind: "security",
+        title: "Password changed",
+        body: "Your password was changed. If you didn't do this, contact us straight away.",
+        href: ROUTES.support,
+      });
+    }
     return { ok: true, data: undefined };
   }
   return { ok: false, message: NOT_CONNECTED_MESSAGE };

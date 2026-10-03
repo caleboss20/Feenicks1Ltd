@@ -11,7 +11,8 @@
  *   [👤 Full name (as on your ID)   ]
  *   [📅 Date of birth                ]   ← 18+ only
  *   [   Male    ] [   Female    ]       ← as on the ID
- *   [✉  Email                        ]
+ *   [✉  ama@example.com           🔒]   ← the email they signed up with: locked
+ *       This is the email you signed up with.
  *   [🇬🇭 +233 │ 24 123 4567            ]
  *   [📍 GhanaPost GPS address        ]
  *       Find it in the GhanaPost GPS app
@@ -26,13 +27,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon, MailIcon, MapPinIcon, UserIcon } from "@/components/icons";
+import { CalendarIcon, LockIcon, MailIcon, MapPinIcon, UserIcon } from "@/components/icons";
 import { StepScreenLayout, stepActionsClass, stepFormClass } from "@/components/layout/StepScreenLayout";
 import { Button } from "@/components/ui/Button";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/config/routes";
+import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { saveProfile } from "./kycService";
 import { ProfilePhotoPicker } from "./ProfilePhotoPicker";
 import { useKycStore } from "./useKycStore";
@@ -53,6 +55,9 @@ export function FillProfileScreen() {
   const [photo, setPhoto] = useState<{ file: File; url: string } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  // The email they signed up (and verified) with: shown, but locked.
+  const current = useCurrentAccount();
+  const registeredEmail = current.status === "signed-in" ? current.account.email : "";
 
   // Free the previous photo preview when it's replaced or the screen closes.
   useEffect(() => {
@@ -68,7 +73,7 @@ export function FillProfileScreen() {
   } = useForm<ProfileInput, unknown, ProfileValues>({
     resolver: zodResolver(profileSchema),
     mode: "onTouched",
-    defaultValues: { fullName: "", dateOfBirth: "", email: "", phone: "", digitalAddress: "" },
+    defaultValues: { fullName: "", dateOfBirth: "", phone: "", digitalAddress: "" },
   });
 
   const onSubmit = async (values: ProfileValues) => {
@@ -150,16 +155,23 @@ export function FillProfileScreen() {
             )}
           </fieldset>
 
-          <TextField
-            fieldSize="sm"
-            label="Email"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            icon={<MailIcon />}
-            error={errors.email?.message}
-            {...register("email")}
-          />
+          {/* The registered email, locked: it's their log-in, verified at sign-up,
+              so it can't be changed here. Shown as text in a field-like box
+              (not an input, so it never looks editable or takes focus). Not
+              part of the form: the server uses the account's own email. */}
+          <div>
+            <p className="flex h-13 items-center gap-2.5 rounded-xl bg-neutral-100 px-4 dark:bg-white/5">
+              <MailIcon className="text-neutral-400" />
+              <span className="min-w-0 flex-1 truncate text-base font-medium text-neutral-500 dark:text-neutral-400">
+                <span className="sr-only">Email (can&apos;t be changed): </span>
+                {registeredEmail}
+              </span>
+              <LockIcon className="size-4 shrink-0 text-neutral-400" />
+            </p>
+            <p className="mt-1.5 px-1 text-[0.8125rem] text-neutral-500">
+              This is the email you signed up with. It can&apos;t be changed.
+            </p>
+          </div>
 
           <TextField
             fieldSize="sm"

@@ -1,5 +1,6 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { notifySessionAccount } from "@/demo/demoNotifications";
 import { makeSquareThumbnail } from "@/lib/imageThumbnail";
 import type { CountryCode, DocumentSide, IdentityDocumentId } from "./identityDocuments";
 import type { InvestmentGoalId } from "./investmentGoals";
@@ -113,6 +114,11 @@ export async function verifySelfieMatch(
     await wait(DEMO_FACE_MATCH_MS);
     // ID and selfie accepted: next time, carry on from the profile.
     demo.advanceSessionStep("kyc-profile");
+    notifySessionAccount({
+      kind: "account",
+      title: "ID check complete",
+      body: "Your selfie matched your ID. Thank you for verifying.",
+    });
     return { ok: true };
   }
   return SOMETHING_WENT_WRONG;

@@ -48,7 +48,8 @@ export const profileSchema = z.object({
     .refine((value) => value <= latestBirthDate(), `You must be at least ${MINIMUM_AGE} to invest`)
     .refine((value) => value >= "1900-01-01", "Enter a valid date of birth"),
   gender: z.enum(["male", "female"], { message: "Select your gender" }),
-  email: z.string().trim().toLowerCase().pipe(z.email("Enter a valid email address")),
+  // No email here: it's the one they signed up and verified with, shown on
+  // the screen but locked (it can't be changed in this form).
   phone: z
     .string()
     .transform(normaliseGhanaPhone)

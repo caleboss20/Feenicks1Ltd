@@ -62,6 +62,7 @@ import { ROUTES } from "@/config/routes";
 import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
+import { useUnreadNotificationCount } from "@/features/notifications/useNotifications";
 import { InviteCarousel } from "@/features/referrals/InviteCarousel";
 import { disableBiometricUnlock, enableBiometricUnlock } from "@/features/security/securityService";
 import { useBiometricSupport } from "@/features/security/useBiometricSupport";
@@ -78,6 +79,7 @@ export function AccountScreen() {
   const [isConfirmingLogOut, setIsConfirmingLogOut] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   useStatusBarColor(GREY_PAGE_COLORS);
+  const unreadNotifications = useUnreadNotificationCount();
 
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
@@ -105,8 +107,18 @@ export function AccountScreen() {
           <ArrowLeft className="size-5" />
         </Link>
         <h1 className="text-center text-[1.0625rem] font-semibold">Account</h1>
-        <Link href={ROUTES.notifications} aria-label="Notifications" className={circleButton}>
+        <Link
+          href={ROUTES.notifications}
+          aria-label={unreadNotifications > 0 ? `Notifications, ${unreadNotifications} new` : "Notifications"}
+          className={cn(circleButton, "relative")}
+        >
           <BellIcon className="size-5" />
+          {unreadNotifications > 0 && (
+            <span
+              aria-hidden
+              className="absolute top-2 right-2 size-2.5 rounded-full bg-red-500 ring-2 ring-neutral-100 dark:ring-background"
+            />
+          )}
         </Link>
       </header>
 
@@ -160,7 +172,12 @@ export function AccountScreen() {
       <RowGroup>
         <BiometricUnlockRow isOn={hasBiometrics} />
         <LinkRow icon={<KeyIcon />} label="Reset PIN" href={ROUTES.forgotPin} />
-        <LinkRow icon={<BellIcon />} label="Notifications" href={ROUTES.notifications} />
+        <LinkRow
+          icon={<BellIcon />}
+          label="Notifications"
+          value={unreadNotifications > 0 ? `${unreadNotifications} new` : undefined}
+          href={ROUTES.notifications}
+        />
       </RowGroup>
 
       <RowGroup>

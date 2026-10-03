@@ -1,5 +1,7 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { notify } from "@/demo/demoNotifications";
+import { describeThisDevice } from "@/lib/device";
 import { maskGhanaPhone } from "@/lib/maskContactDetails";
 import { verifyTotp } from "@/lib/totp";
 import type { AccountStep } from "./accountProgress";
@@ -95,6 +97,18 @@ const DEMO_CHALLENGE_PREFIX = "demo-login:";
 /** One message for every failed log-in (see the security note in logIn). */
 const WRONG_CREDENTIALS = "Incorrect email or password. Check them and try again.";
 
+/**
+ * Demo backend: every successful log-in is recorded as a notification, so
+ * the user can spot one that wasn't them. (The server will also email it.)
+ */
+function notifyNewLogIn(email: string) {
+  notify(email, {
+    kind: "security",
+    title: "New log-in",
+    body: `You logged in on ${describeThisDevice()}. If this wasn't you, change your password straight away.`,
+  });
+}
+
 export async function logIn(values: LoginValues): Promise<LogInResult> {
   // TODO(api): POST /api/auth/login → the server sets a secure httpOnly session
   //   cookie and returns the account's `nextStep`.
@@ -125,6 +139,7 @@ export async function logIn(values: LoginValues): Promise<LogInResult> {
     }
 
     demo.startSession(account.email, values.remember);
+    notifyNewLogIn(account.email);
     return { ok: true, status: "signed-in", email: account.email, nextStep: account.step };
   }
   return NOT_AVAILABLE;
@@ -171,6 +186,7 @@ export async function verifyLoginCode(
 
     if (rememberDevice) demo.rememberThisDevice(account.email, REMEMBER_DEVICE_DAYS);
     demo.startSession(account.email, challenge.rememberSession);
+    notifyNewLogIn(account.email);
     return { ok: true, nextStep: account.step };
   }
   return NOT_AVAILABLE;

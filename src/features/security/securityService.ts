@@ -1,7 +1,9 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import { ROUTES } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
+import { notify, notifySessionAccount } from "@/demo/demoNotifications";
 import { buildOtpAuthUri, generateTotpSecret, verifyTotp } from "@/lib/totp";
-import { confirmWithDevice, createDeviceCredential, randomChallenge } from "@/lib/webAuthn";
+import { confirmWithDevice, createDeviceCredential, guessBiometricKind, randomChallenge } from "@/lib/webAuthn";
 
 /**
  * Account-security service (PIN, later biometrics and 2-step verification):
@@ -12,6 +14,31 @@ import { confirmWithDevice, createDeviceCredential, randomChallenge } from "@/li
  */
 
 export type SecurityResult = { ok: true } | { ok: false; message: string };
+
+/* ── Demo backend helpers ────────────────────────────────────────────── */
+
+/** "Fingerprint" or "Face ID", as this phone calls it (for notifications). */
+const biometricName = () => (guessBiometricKind() === "face" ? "Face ID" : "Fingerprint");
+
+/**
+ * Registration is finished (two-step verification set up, or skipped). The
+ * first time only, the account gets its welcome notification.
+ */
+function finishSetup() {
+  const email = demo.getSessionEmail();
+  const wasComplete = email ? demo.findAccount(email)?.step === "complete" : true;
+  demo.advanceSessionStep("complete");
+  // Just verified (or chose to skip): counts as fresh activity for auto-lock.
+  demo.markUnlocked();
+  if (email && !wasComplete) {
+    notify(email, {
+      kind: "account",
+      title: "Welcome to Feenicks1",
+      body: "Your account is set up. Take a look at the packages when you're ready to invest.",
+      href: ROUTES.invest,
+    });
+  }
+}
 
 /**
  * Sets the user's security PIN.
@@ -79,9 +106,13 @@ export async function registerBiometric(): Promise<SecurityResult> {
 
   if (IS_DEMO_MODE) {
     demo.updateSessionAccount({ biometricCredentialId: result.credentialId, twoFactorMethod: "biometric" });
-    demo.advanceSessionStep("complete");
+    notifySessionAccount({
+      kind: "security",
+      title: `${biometricName()} is on`,
+      body: `You'll confirm it's you with ${biometricName() === "Face ID" ? "Face ID" : "your fingerprint"} on this phone.`,
+    });
     // They just confirmed with fingerprint / face: don't ask again right away.
-    demo.markUnlocked();
+    finishSetup();
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
@@ -137,6 +168,11 @@ export async function enableBiometricUnlock(): Promise<SecurityResult> {
 
   if (IS_DEMO_MODE) {
     demo.updateSessionAccount({ biometricCredentialId: result.credentialId });
+    notifySessionAccount({
+      kind: "security",
+      title: `${biometricName()} unlock is on`,
+      body: `You can open the app with ${biometricName() === "Face ID" ? "Face ID" : "your fingerprint"} on this phone.`,
+    });
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
@@ -150,6 +186,11 @@ export async function disableBiometricUnlock(): Promise<SecurityResult> {
   // TODO(api): DELETE /api/security/biometric (the server forgets the public key)
   if (IS_DEMO_MODE) {
     demo.updateSessionAccount({ biometricCredentialId: undefined });
+    notifySessionAccount({
+      kind: "security",
+      title: `${biometricName()} unlock is off`,
+      body: "The app now opens with your PIN only.",
+    });
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
@@ -184,9 +225,7 @@ export async function verifyPin(pin: string): Promise<SecurityResult> {
 export async function completeAccountSetup(): Promise<SecurityResult> {
   // TODO(api): POST /api/account/setup-complete
   if (IS_DEMO_MODE) {
-    demo.advanceSessionStep("complete");
-    // Just verified with a 2FA method: counts as fresh activity for auto-lock.
-    demo.markUnlocked();
+    finishSetup();
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
@@ -210,9 +249,12 @@ export async function confirmTwoFactorSmsCode(code: string): Promise<SecurityRes
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
     demo.updateSessionAccount({ twoFactorMethod: "sms" });
-    demo.advanceSessionStep("complete");
-    // Just verified with a 2FA method: counts as fresh activity for auto-lock.
-    demo.markUnlocked();
+    notifySessionAccount({
+      kind: "security",
+      title: "Two-step verification is on",
+      body: "When you log in on a new device, we'll text a code to your phone.",
+    });
+    finishSetup();
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
@@ -275,7 +317,15 @@ export async function resetPin(resetToken: string, newPin: string): Promise<Secu
     if (email && (await demo.checkPin(email, newPin))) {
       return { ok: false, message: "That's your current PIN. Choose a different one." };
     }
-    if (email) await demo.setPin(email, newPin);
+    if (email) {
+      await demo.setPin(email, newPin);
+      notify(email, {
+        kind: "security",
+        title: "PIN changed",
+        body: "Your app PIN was changed. If you didn't do this, contact us straight away.",
+        href: ROUTES.support,
+      });
+    }
     demo.markUnlocked();
     return { ok: true };
   }
@@ -319,9 +369,12 @@ export async function confirmAuthenticatorSetup(secret: string, code: string): P
       };
     }
     demo.updateSessionAccount({ totpSecret: secret, twoFactorMethod: "authenticator-app" });
-    demo.advanceSessionStep("complete");
-    // Just verified with a 2FA method: counts as fresh activity for auto-lock.
-    demo.markUnlocked();
+    notifySessionAccount({
+      kind: "security",
+      title: "Two-step verification is on",
+      body: "When you log in on a new device, we'll ask for a code from your authenticator app.",
+    });
+    finishSetup();
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };

@@ -1,6 +1,9 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import { ROUTES } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
+import { notifySessionAccount } from "@/demo/demoNotifications";
 import {
+  RISK_LEVELS,
   RISK_QUESTIONS,
   riskLevelForScore,
   scoreAnswers,
@@ -37,6 +40,12 @@ export async function saveRiskProfile(answers: RiskAnswers): Promise<SaveRiskPro
     await wait(DEMO_DELAY_MS);
     demo.updateSessionAccount({
       riskProfile: { level, score, answeredAt: new Date().toISOString() },
+    });
+    notifySessionAccount({
+      kind: "investing",
+      title: `Your investor profile: ${RISK_LEVELS[level].name}`,
+      body: "The packages that suit you are marked Best match.",
+      href: ROUTES.investorProfile,
     });
     return { ok: true, level, score };
   }

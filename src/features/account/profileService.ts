@@ -1,5 +1,6 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { notify } from "@/demo/demoNotifications";
 
 /**
  * Edit profile: saves what the user can change themselves, their username
@@ -40,6 +41,18 @@ export async function updateProfile(changes: {
       ...(changes.username ? { username: changes.username } : {}),
       ...(changes.avatarDataUrl ? { avatarDataUrl: changes.avatarDataUrl } : {}),
     });
+    if (changes.username || changes.avatarDataUrl) {
+      notify(email, {
+        kind: "account",
+        title: "Profile updated",
+        body:
+          changes.username && changes.avatarDataUrl
+            ? `Your username is now @${changes.username}, and your photo was changed.`
+            : changes.username
+              ? `Your username is now @${changes.username}.`
+              : "Your profile photo was changed.",
+      });
+    }
     return { ok: true };
   }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };

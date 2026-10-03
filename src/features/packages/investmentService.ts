@@ -1,8 +1,10 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
+import { packageDetailsHref } from "@/config/investingFlow";
 import * as demo from "@/demo/demoAccounts";
-import type { PackageId } from "./investmentPackages";
+import { notify } from "@/demo/demoNotifications";
+import { INVESTMENT_PACKAGES, type PackageId } from "./investmentPackages";
 import { investBlockedReason, investOptionFor } from "./packagePolicy";
-import { TERMS_VERSION } from "./termsAndConditions";
+import { TERMS_EFFECTIVE_DATE, TERMS_VERSION } from "./termsAndConditions";
 
 /**
  * Investment service: the single place the investing screens talk to the
@@ -42,6 +44,13 @@ export async function acceptPackageTerms(packageId: PackageId): Promise<Investme
           ...previous,
           { packageId, version: TERMS_VERSION, acceptedAt: new Date().toISOString() },
         ],
+      });
+      const { name } = INVESTMENT_PACKAGES[packageId];
+      notify(email, {
+        kind: "investing",
+        title: `Terms accepted: ${name}`,
+        body: `You agreed to the ${name} terms (effective ${TERMS_EFFECTIVE_DATE}).`,
+        href: packageDetailsHref(packageId),
       });
     }
     return { ok: true };

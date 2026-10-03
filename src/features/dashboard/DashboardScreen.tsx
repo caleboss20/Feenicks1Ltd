@@ -69,6 +69,7 @@ import {
   REFERRAL_REWARD_LABEL,
   shareReferralLink,
 } from "@/features/referrals/referralService";
+import { useUnreadNotificationCount } from "@/features/notifications/useNotifications";
 import { RecentTransactions } from "@/features/transactions/RecentTransactions";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
@@ -125,6 +126,8 @@ export function DashboardScreen() {
     useThemeStore((state) => state.customDashboardColor),
   );
   useStatusBarColor({ light: color.top, dark: color.top });
+  // A dot on the bell when something new happened (real events only).
+  const unreadNotifications = useUnreadNotificationCount();
 
   // Reaching the dashboard ends the start-investing journey: from now on its
   // screens hand over to the in-app versions (Invest, Account › Investor profile).
@@ -288,8 +291,20 @@ export function DashboardScreen() {
         <Link href={ROUTES.support} aria-label="Help & support" className={headerIconButton}>
           <SupportIcon />
         </Link>
-        <Link href={ROUTES.notifications} aria-label="Notifications" className={headerIconButton}>
+        <Link
+          href={ROUTES.notifications}
+          aria-label={unreadNotifications > 0 ? `Notifications, ${unreadNotifications} new` : "Notifications"}
+          className={cn(headerIconButton, "relative")}
+        >
           <BellIcon />
+          {/* Something new happened on the account: a red dot, ringed in the top colour. */}
+          {unreadNotifications > 0 && (
+            <span
+              aria-hidden
+              className="absolute top-2 right-2 size-2.5 rounded-full bg-red-500"
+              style={{ boxShadow: `0 0 0 2px ${color.top}` }}
+            />
+          )}
         </Link>
       </header>
 

@@ -16,6 +16,7 @@
 
 import { isStepAfter, type AccountStep } from "@/features/auth/accountProgress";
 import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
+import type { AppNotification } from "@/features/notifications/notificationModel";
 import type { SupportRequest } from "@/features/support/supportService";
 import type { Transaction } from "@/features/transactions/transactionModel";
 
@@ -57,8 +58,10 @@ export type DemoAccount = {
   transactions?: Transaction[];
   /** Which version of the demo's sample year is in `transactions`, if any (see SAMPLE_VERSION). */
   sampleActivityVersion?: number;
-  /** Messages sent to support (Help & support › Send us a message). */
+  /** Messages sent to support (Help & support › Send a message). */
   supportRequests?: SupportRequest[];
+  /** Real events on the account, newest first (demo/demoNotifications.ts). */
+  notifications?: AppNotification[];
   createdAt: string;
 };
 
@@ -186,6 +189,7 @@ export function updateAccount(
       | "transactions"
       | "sampleActivityVersion"
       | "supportRequests"
+      | "notifications"
     >
   >,
 ) {
