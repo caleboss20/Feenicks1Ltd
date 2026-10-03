@@ -22,13 +22,18 @@
  *          ╭───────────────────●
  *   ───────╯ ░░░░░░░░░░░░░░░░░░┊░░
  *
+ * Long ranges can be wider than the screen (`widthFactor`, chartWidthFactor):
+ * the chart then scrolls sideways, opening at the right end (now). Swipe to
+ * go back in time; tap to read a moment. Dates run along the bottom so you
+ * know where you are; Analytics' value ticks stay pinned on the right.
+ *
  * Plotted in a fixed 1000×300 box stretched to the container (lines keep a
  * 2px stroke); dots, tooltip and labels are HTML on top, placed in %.
  * Accessible: a summary label, arrow-key scrubbing with a live readout, and a
  * hidden table of every point (the chart's table view).
  */
 
-import { useId, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import type { SeriesPoint } from "./portfolioHistory";
@@ -139,6 +144,11 @@ type PortfolioChartProps = {
    * --chart-bubble-dark): the dashboard's chosen colour. Otherwise brand green.
    */
   themed?: boolean;
+  /**
+   * How many screens wide the chart is (1 = fits). Above 1 it scrolls
+   * sideways, starting at the right end. See chartWidthFactor.
+   */
+  widthFactor?: number;
 };
 
 export function PortfolioChart({
@@ -150,10 +160,40 @@ export function PortfolioChart({
   variant = "full",
   hideAmounts = false,
   themed = false,
+  widthFactor = 1,
 }: PortfolioChartProps) {
   const gradientId = useId();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const isCompact = variant === "compact";
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const isScrollable = widthFactor > 1 && !emptyMessage;
+
+  // A wide chart opens at its right end: now. (Parents remount the chart per
+  // range, so this runs for each range.)
+  useLayoutEffect(() => {
+    const scroller = scrollerRef.current;
+    if (scroller && isScrollable) scroller.scrollLeft = scroller.scrollWidth;
+  }, [isScrollable]);
+
+  // …and stays at "now" when the screen changes size (e.g. the phone turns),
+  // unless the user has swiped back in time: then their place is kept.
+  const isAtEndRef = useRef(true);
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || !isScrollable) return;
+    const onScroll = () => {
+      isAtEndRef.current = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 4;
+    };
+    const observer = new ResizeObserver(() => {
+      if (isAtEndRef.current) scroller.scrollLeft = scroller.scrollWidth;
+    });
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    observer.observe(scroller);
+    return () => {
+      scroller.removeEventListener("scroll", onScroll);
+      observer.disconnect();
+    };
+  }, [isScrollable]);
 
   const values = points.map((point) => point.value);
   const ticks = niceTicks(Math.min(...values), Math.max(...values));
@@ -190,10 +230,45 @@ export function PortfolioChart({
     return Math.round(ratio * lastIndex);
   };
 
+  /** Read a point from the keyboard, scrolling a wide chart to keep it in view. */
+  const readAt = (index: number) => {
+    setActiveIndex(index);
+    const scroller = scrollerRef.current;
+    if (!scroller || !isScrollable) return;
+    const at = (percentX(index) / 100) * scroller.scrollWidth;
+    if (at < scroller.scrollLeft + 32 || at > scroller.scrollLeft + scroller.clientWidth - 32) {
+      scroller.scrollLeft = at - scroller.clientWidth / 2;
+    }
+  };
+
+  /**
+   * Dates along the bottom: start, middle and now when it fits; on a wide
+   * chart, about three per screen, so you know where you are while swiping.
+   * (Compact shows them only when wide, and skips the two ends, which would
+   * sit on the screen's edges.)
+   */
+  const dateCount = isScrollable ? Math.round(widthFactor * 3) + 1 : 3;
+  const dateIndexes = Array.from({ length: dateCount }, (_, k) => Math.round((k * lastIndex) / (dateCount - 1))).filter(
+    (_, k) => !isCompact || (k > 0 && k < dateCount - 1),
+  );
+  const showDates = Boolean(formatAxisTime) && (isCompact ? isScrollable : true);
+
   return (
-    // Compact: room above the plot for the bubble over a high point.
-    <div className={cn(isCompact && "pt-11")}>
-      <div className="flex">
+    <div className="relative">
+      {/* Sideways scroller (a wide chart only); no visible scrollbar. */}
+      <div
+        ref={scrollerRef}
+        className={cn(
+          isScrollable &&
+            "overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        )}
+      >
+        <div
+          // Room above the plot for the reading over a high point (it can't
+          // spill out of a scroller): the compact bubble, the full tooltip.
+          className={cn(isCompact ? "pt-11" : "pt-12")}
+          style={isScrollable ? { width: `${widthFactor * 100}%` } : undefined}
+        >
         {/* Plot */}
         <div
           role="group"
@@ -207,18 +282,16 @@ export function PortfolioChart({
             const moves: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 };
             if (event.key in moves) {
               event.preventDefault();
-              setActiveIndex((current) =>
-                Math.min(Math.max((current ?? lastIndex) + moves[event.key], 0), lastIndex),
-              );
+              readAt(Math.min(Math.max((activeIndex ?? lastIndex) + moves[event.key], 0), lastIndex));
             } else if (event.key === "Home" || event.key === "End") {
               event.preventDefault();
-              setActiveIndex(event.key === "Home" ? 0 : lastIndex);
+              readAt(event.key === "Home" ? 0 : lastIndex);
             } else if (event.key === "Escape") {
               setActiveIndex(null);
             }
           }}
           className={cn(
-            "relative flex-1 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60",
+            "relative rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60",
             themed ? "text-(--chart-line) dark:text-(--chart-line-dark)" : "text-brand-600 dark:text-brand-400",
             isCompact ? "h-40" : "h-56",
           )}
@@ -350,11 +423,16 @@ export function PortfolioChart({
             </>
           )}
 
-          {/* Pointer layer: scrub sideways (vertical swipes still scroll the page). */}
+          {/* Pointer layer. Fits on screen: drag sideways to read along the line
+              (vertical swipes still scroll the page). Wide: swipes scroll the
+              chart, and a tap reads the moment under the finger. */}
           {!isEmpty && (
             <div
               aria-hidden
-              className="absolute inset-0 cursor-crosshair touch-pan-y"
+              className={cn(
+                "absolute inset-0 cursor-crosshair",
+                isScrollable ? "touch-manipulation" : "touch-pan-y",
+              )}
               onPointerDown={(event) => setActiveIndex(indexAt(event))}
               onPointerMove={(event) => {
                 if (event.pointerType === "mouse" || event.buttons > 0) setActiveIndex(indexAt(event));
@@ -369,36 +447,52 @@ export function PortfolioChart({
             />
           )}
 
-          {/* Value ticks (clean numbers), sitting on their gridlines at the right
-              edge, inside the plot, so the line spans the full width, centred.
-              Full only. */}
-          {!isCompact &&
-            !isEmpty &&
-            ticks.map((tick) => (
-              <span
-                key={tick}
-                aria-hidden
-                className="pointer-events-none absolute right-0 -translate-y-full rounded bg-background/85 px-1 pb-0.5 text-[0.625rem] leading-none text-neutral-400 tabular-nums"
-                style={{ top: `${(y(tick) / HEIGHT) * 100}%` }}
-              >
-                {compactValue(tick)}
-              </span>
-            ))}
-
           {isEmpty && (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-foreground">
               {emptyMessage}
             </div>
           )}
         </div>
+
+        {/* Dates along the bottom (they scroll with a wide chart). */}
+        {showDates && formatAxisTime && (
+          <div aria-hidden className="relative mt-2.5 h-4 text-[0.6875rem] text-neutral-400">
+            {dateIndexes.map((index, k) => (
+              <span
+                key={index}
+                className={cn(
+                  "absolute top-0 whitespace-nowrap",
+                  // The ends line up with the chart's edges; the rest are centred.
+                  !isCompact && k === 0
+                    ? "translate-x-0"
+                    : !isCompact && k === dateIndexes.length - 1
+                      ? "-translate-x-full"
+                      : "-translate-x-1/2",
+                )}
+                style={{ left: `${percentX(index)}%` }}
+              >
+                {formatAxisTime(points[index].time)}
+              </span>
+            ))}
+          </div>
+        )}
+        </div>
       </div>
 
-      {/* Dates: start, middle, now, across the full width (full only). */}
-      {!isCompact && formatAxisTime && (
-        <div aria-hidden className="mt-2.5 flex justify-between text-[0.6875rem] text-neutral-400">
-          <span>{formatAxisTime(points[0].time)}</span>
-          <span>{formatAxisTime(points[Math.floor(lastIndex / 2)].time)}</span>
-          <span>{formatAxisTime(points[lastIndex].time)}</span>
+      {/* Value ticks (clean numbers), full only: pinned at the right over the
+          plot (they stay put while a wide chart scrolls), sitting on their
+          gridlines, so the line spans the full width. pt-12 = the plot's top. */}
+      {!isCompact && !isEmpty && (
+        <div aria-hidden className="pointer-events-none absolute top-12 right-0 h-56">
+          {ticks.map((tick) => (
+            <span
+              key={tick}
+              className="absolute right-0 -translate-y-full rounded bg-background/85 px-1 pb-0.5 text-[0.625rem] leading-none text-neutral-400 tabular-nums"
+              style={{ top: `${(y(tick) / HEIGHT) * 100}%` }}
+            >
+              {compactValue(tick)}
+            </span>
+          ))}
         </div>
       )}
 

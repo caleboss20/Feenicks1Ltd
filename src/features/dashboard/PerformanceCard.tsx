@@ -31,9 +31,15 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, TriangleUpIcon } from "@/components/icons";
 import { ROUTES } from "@/config/routes";
-import { tooltipTime } from "@/features/analytics/chartTime";
+import { axisTime, tooltipTime } from "@/features/analytics/chartTime";
 import { PortfolioChart } from "@/features/analytics/PortfolioChart";
-import { buildSeries, FIXED_RANGES, yearsRange, type ChartRange } from "@/features/analytics/portfolioHistory";
+import {
+  buildSeries,
+  chartWidthFactor,
+  FIXED_RANGES,
+  yearsRange,
+  type ChartRange,
+} from "@/features/analytics/portfolioHistory";
 import type { Transaction } from "@/features/transactions/transactionModel";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -111,6 +117,9 @@ export function PerformanceCard({
               : `Portfolio value, ${range.period.toLowerCase()}: from ${formatCedis(first, { exact: true })} to ${formatCedis(last, { exact: true })}.`
           }
           formatTime={tooltipTime(range)}
+          formatAxisTime={axisTime(range)}
+          // 1M and longer: wider than the screen, swipe to go back in time.
+          widthFactor={chartWidthFactor(range, points)}
         />
       </div>
 

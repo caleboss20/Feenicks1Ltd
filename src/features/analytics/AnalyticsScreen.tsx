@@ -44,6 +44,7 @@ import { axisTime, tooltipTime } from "./chartTime";
 import { PortfolioChart } from "./PortfolioChart";
 import {
   buildSeries,
+  chartWidthFactor,
   FIXED_RANGES,
   MAX_YEARS,
   summarize,
@@ -216,7 +217,8 @@ export function AnalyticsScreen() {
           })}
         </div>
 
-        <div className="mt-6">
+        {/* (The chart keeps room above itself for its reading.) */}
+        <div className="mt-1">
           {points ? (
             <PortfolioChart
               key={range.id}
@@ -224,6 +226,8 @@ export function AnalyticsScreen() {
               label={`Portfolio value, ${range.period.toLowerCase()}: from ${formatCedis(first, { exact: true })} to ${formatCedis(last, { exact: true })}.`}
               formatTime={tooltipTime(range)}
               formatAxisTime={axisTime(range)}
+              // 1M and longer: wider than the screen, swipe to go back in time.
+              widthFactor={chartWidthFactor(range, points)}
               emptyMessage={
                 hasHistory ? undefined : (
                   <>

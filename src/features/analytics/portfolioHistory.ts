@@ -55,6 +55,28 @@ export function yearsRange(years: number): ChartRange {
 
 export type SeriesPoint = { time: number; value: number };
 
+/**
+ * How many screens wide the chart is for a range, so long ranges can be
+ * swiped through instead of squeezed onto one screen: a day or a week fits;
+ * a month is two screens; a year three, plus one per extra year (up to ten);
+ * "All", about one screen per four months of history (up to ten).
+ */
+export function chartWidthFactor(range: ChartRange, points: SeriesPoint[]): number {
+  switch (range.kind) {
+    case "day":
+    case "week":
+      return 1;
+    case "month":
+      return 2;
+    case "years":
+      return Math.min(2 + Math.round((range.ms ?? 0) / (365 * DAY)), 10);
+    case "all": {
+      const span = points.length > 1 ? points[points.length - 1].time - points[0].time : 0;
+      return Math.min(Math.max(Math.round(span / (120 * DAY)), 1), 10);
+    }
+  }
+}
+
 /** How a transaction changes the portfolio value (0 unless completed). */
 export function valueEffect(transaction: Transaction): number {
   if (transaction.status !== "completed") return 0;
