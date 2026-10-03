@@ -16,6 +16,7 @@
 
 import { isStepAfter, type AccountStep } from "@/features/auth/accountProgress";
 import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
+import type { Transaction } from "@/features/transactions/transactionModel";
 
 const ACCOUNTS_KEY = "feenicks1-demo-accounts";
 /** Who is logged in: localStorage if "Remember me" was ticked, else sessionStorage. */
@@ -51,6 +52,8 @@ export type DemoAccount = {
   termsAcceptances?: { packageId: string; version: string; acceptedAt: string }[];
   /** When they first reached the dashboard: the start-investing journey is over. */
   onboardingFinishedAt?: string;
+  /** Investments, returns, withdrawals and referral rewards (none until payments exist). */
+  transactions?: Transaction[];
   createdAt: string;
 };
 

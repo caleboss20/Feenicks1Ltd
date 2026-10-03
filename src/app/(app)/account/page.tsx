@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { ACCOUNT_PAGE_COLORS } from "@/features/account/accountTheme";
+import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { AccountScreen } from "@/features/account/AccountScreen";
 
 /**
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
  * (the screen switches it to dark in dark mode: useStatusBarColor).
  */
 export const viewport: Viewport = {
-  themeColor: ACCOUNT_PAGE_COLORS.light,
+  themeColor: GREY_PAGE_COLORS.light,
 };
 
 export default function AccountPage() {

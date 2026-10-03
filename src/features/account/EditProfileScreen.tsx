@@ -34,7 +34,7 @@ import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { makeSquareThumbnail } from "@/lib/imageThumbnail";
 import { formatGhanaPhone } from "@/lib/phoneNumber";
 import { cn } from "@/lib/utils";
-import { ACCOUNT_PAGE_COLORS } from "./accountTheme";
+import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { updateProfile } from "./profileService";
 import { USERNAME_MAX_LENGTH, usernameSchema } from "./profileValidation";
 
@@ -43,7 +43,7 @@ const MAX_PHOTO_BYTES = 20 * 1024 * 1024;
 
 export function EditProfileScreen() {
   const current = useCurrentAccount();
-  useStatusBarColor(ACCOUNT_PAGE_COLORS);
+  useStatusBarColor(GREY_PAGE_COLORS);
   // Wait for the account before showing the form, so it starts with their details.
   if (current.status !== "signed-in") return null;
   return <EditProfileForm account={current.account} />;

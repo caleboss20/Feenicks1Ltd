@@ -1,42 +1,289 @@
 "use client";
 
 /**
- * Transactions tab: every deposit, investment, profit payment and withdrawal.
+ * Transactions tab: the history of the user's money, after the user's
+ * "Account History" reference. Light-grey page, white list; dark-mode ready.
  *
  *   Transactions
- *   ┌ 🧾 No transactions yet ─────────────┐
- *   │ Your deposits, investments, returns  │
- *   │ and withdrawals will show here.       │
- *   │ ( Make your first investment )        │
- *   └───────────────────────────────────────┘
+ *   (All) (Investments) (Returns) (Withdrawals) (Referrals)   ← filters, scroll sideways
+ *   ╭─────────────────────────────────────────────╮
+ *   │ 🗂  Agribusiness Capital          GH₵ 3,000.00 │  ← investment: plain amount
+ *   │     Investment                Today, 1:23 pm │     (when: under the amount)
+ *   │ ↗  Agribusiness Capital        + GH₵ 240.00  │  ← return: green +
+ *   │     Return paid           Yesterday, 9:00 am │
+ *   │ ↓  Withdrawal (Pending)        − GH₵ 200.00  │  ← withdrawal: red −;
+ *   │     To MTN MoMo              20 Oct, 2:23 pm │     status badge if not completed
+ *   │ 🎁 Referral reward             + GH₵ 100.00  │
+ *   │     100 points                18 Oct, 7:00 am │
+ *   ╰─────────────────────────────────────────────╯
  *
- * TODO(invest): the list (icon, title, transaction ID, date, amount,
- * status), grouped by date, with filters, once investing exists.
+ * Empty (per filter): a white card, "No transactions yet", and a button to
+ * start investing (or to invite a friend, under Referrals).
+ * Data: transactionsService (empty until investing and payments exist).
  */
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ReceiptIcon } from "@/components/icons";
-import { AppTabScreenLayout } from "@/components/layout/AppTabScreenLayout";
+import { ArrowRight, BriefcaseIcon, GiftIcon, PlusIcon, TrendUpIcon } from "@/components/icons";
+import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
+import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { ROUTES } from "@/config/routes";
+import { INVESTMENT_PACKAGES } from "@/features/packages/investmentPackages";
+import { REFERRAL_POINTS, REFERRAL_POINTS_LABEL, REFERRAL_REWARD_LABEL } from "@/features/referrals/referralService";
+import { useStatusBarColor } from "@/hooks/useStatusBarColor";
+import { formatCedis } from "@/lib/money";
+import { cn } from "@/lib/utils";
+import type { Transaction, TransactionType } from "./transactionModel";
+import { getTransactions } from "./transactionsService";
+
+/** How each kind of transaction is shown. */
+const TYPES: Record<
+  TransactionType,
+  { label: string; icon: React.ReactNode; direction: "in" | "out" | "into-package" }
+> = {
+  investment: { label: "Investment", icon: <BriefcaseIcon />, direction: "into-package" },
+  return: { label: "Return paid", icon: <TrendUpIcon />, direction: "in" },
+  withdrawal: { label: "Withdrawal", icon: <ArrowRight className="rotate-90" />, direction: "out" },
+  referral: { label: "Referral reward", icon: <GiftIcon />, direction: "in" },
+};
+
+/** The filters, and what each shows when it has nothing. */
+const FILTERS = [
+  {
+    id: "all",
+    label: "All",
+    emptyTitle: "No transactions yet",
+    emptyText: "Your investments, returns and withdrawals will show here.",
+  },
+  {
+    id: "investment",
+    label: "Investments",
+    emptyTitle: "No investments yet",
+    emptyText: "Choose a package to make your first investment.",
+  },
+  {
+    id: "return",
+    label: "Returns",
+    emptyTitle: "No returns yet",
+    emptyText: "Profit paid on your investments will show here.",
+  },
+  {
+    id: "withdrawal",
+    label: "Withdrawals",
+    emptyTitle: "No withdrawals yet",
+    emptyText: "Money you withdraw to Mobile Money or your bank will show here.",
+  },
+  {
+    id: "referral",
+    label: "Referrals",
+    emptyTitle: "No referral rewards yet",
+    emptyText: `Earn ${REFERRAL_POINTS_LABEL} (${REFERRAL_REWARD_LABEL}) for every friend who signs up.`,
+  },
+] as const;
+type FilterId = (typeof FILTERS)[number]["id"];
+
+/** "Today, 1:23 pm" · "Yesterday, 9:00 am" · "20 Oct, 2:23 pm" · "20 Oct 2025, 2:23 pm". */
+function formatWhen(iso: string, now = new Date()): string {
+  const date = new Date(iso);
+  const time = date.toLocaleTimeString("en-GH", { hour: "numeric", minute: "2-digit" });
+  const dayStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const daysAgo = Math.round((dayStart(now) - dayStart(date)) / 86_400_000);
+  if (daysAgo === 0) return `Today, ${time}`;
+  if (daysAgo === 1) return `Yesterday, ${time}`;
+  const day = date.toLocaleDateString("en-GH", {
+    day: "numeric",
+    month: "short",
+    ...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
+  });
+  return `${day}, ${time}`;
+}
 
 export function TransactionsScreen() {
+  useStatusBarColor(GREY_PAGE_COLORS);
+  /** null while loading. */
+  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
+  const [filterId, setFilterId] = useState<FilterId>("all");
+
+  useEffect(() => {
+    let cancelled = false;
+    void getTransactions().then((list) => {
+      if (!cancelled) setTransactions(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filter = FILTERS.find((item) => item.id === filterId) ?? FILTERS[0];
+  const shown =
+    transactions?.filter((transaction) => filterId === "all" || transaction.type === filterId) ?? [];
+
   return (
-    <AppTabScreenLayout title="Transactions" subtitle="Your deposits, investments and returns.">
-      <section className="flex flex-col items-center rounded-3xl border border-neutral-100 px-6 py-12 text-center dark:border-white/10">
-        <span className="grid size-14 place-items-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-500/10">
-          <ReceiptIcon className="size-6" />
-        </span>
-        <h2 className="mt-4 text-base font-semibold">No transactions yet</h2>
-        <p className="mt-1.5 max-w-64 text-[0.8125rem] leading-relaxed text-neutral-500">
-          Your deposits, investments, returns and withdrawals will show here.
+    <div
+      className={cn(
+        "mx-auto flex min-h-dvh w-full max-w-md flex-col bg-neutral-100 px-4 pt-[max(1.5rem,env(safe-area-inset-top))] dark:bg-background",
+        appTabBarPadding,
+      )}
+    >
+      <h1 className="px-1 text-[1.75rem] leading-tight font-bold tracking-tight">Transactions</h1>
+
+      {/* Filters: one row that scrolls sideways on narrow phones. */}
+      <div
+        role="group"
+        aria-label="Show"
+        className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {FILTERS.map((item) => {
+          const isActive = item.id === filterId;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => setFilterId(item.id)}
+              className={cn(
+                "h-9 shrink-0 cursor-pointer rounded-full px-4 text-[0.8125rem] font-medium transition-colors",
+                isActive
+                  ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                  : "bg-white text-neutral-700 hover:bg-neutral-50 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/15",
+              )}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {transactions === null ? (
+        <LoadingList />
+      ) : shown.length > 0 ? (
+        <ul className="mt-4 divide-y divide-neutral-100 rounded-3xl bg-white px-4 dark:divide-white/10 dark:bg-white/5">
+          {shown.map((transaction) => (
+            <TransactionRow key={transaction.id} transaction={transaction} />
+          ))}
+        </ul>
+      ) : (
+        <EmptyState
+          title={filter.emptyTitle}
+          text={filter.emptyText}
+          action={
+            filterId === "referral"
+              ? { label: "Invite a friend", href: ROUTES.refer, icon: <GiftIcon /> }
+              : { label: "Start investing", href: ROUTES.invest, icon: <PlusIcon /> }
+          }
+        />
+      )}
+
+      <AppTabBar />
+    </div>
+  );
+}
+
+/** One transaction: icon, what happened (and the package), when, and the amount. */
+function TransactionRow({ transaction }: { transaction: Transaction }) {
+  const type = TYPES[transaction.type];
+  const pkg = transaction.packageId ? INVESTMENT_PACKAGES[transaction.packageId] : null;
+  const when = formatWhen(transaction.createdAt);
+
+  // Investments and returns are titled by their package; the rest by what they are.
+  const title = pkg ? pkg.name : type.label;
+  const detail =
+    transaction.type === "withdrawal"
+      ? transaction.channel
+        ? `To ${transaction.channel}`
+        : "To your account"
+      : transaction.type === "referral"
+        ? `${REFERRAL_POINTS} points`
+        : type.label;
+
+  const amount = formatCedis(transaction.amount, { exact: true });
+  const isFailed = transaction.status === "failed";
+
+  return (
+    <li
+      className="flex items-center gap-3.5 py-3.5"
+      aria-label={`${title}, ${detail}, ${amount}, ${when}${transaction.status === "completed" ? "" : `, ${transaction.status}`}. Reference ${transaction.id}.`}
+    >
+      <span aria-hidden className="shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-5">
+        {type.icon}
+      </span>
+      {/* Left: what and which package. Right: how much and when (amounts are wide,
+          so the time sits under the amount rather than getting cut off). */}
+      <div aria-hidden className="min-w-0 flex-1">
+        <p className="flex items-center gap-1.5">
+          <span className="truncate text-[0.9375rem] font-semibold">{title}</span>
+          {transaction.status !== "completed" && (
+            <span
+              className={cn(
+                "shrink-0 rounded-full px-1.5 py-0.5 text-[0.625rem] leading-none font-semibold",
+                transaction.status === "pending"
+                  ? "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
+                  : "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300",
+              )}
+            >
+              {transaction.status === "pending" ? "Pending" : "Failed"}
+            </span>
+          )}
         </p>
-        <Link
-          href={ROUTES.invest}
-          className="mt-5 inline-flex h-10 items-center rounded-full bg-brand-600 px-5 text-[0.8125rem] font-semibold text-white transition-colors hover:bg-brand-700"
+        <p className="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-400">{detail}</p>
+      </div>
+      <div aria-hidden className="shrink-0 text-right">
+        <p
+          className={cn(
+            "text-[0.9375rem] font-semibold whitespace-nowrap tabular-nums",
+            isFailed && "text-neutral-400 line-through",
+            !isFailed && type.direction === "in" && "text-brand-600 dark:text-brand-400",
+            !isFailed && type.direction === "out" && "text-red-600 dark:text-red-400",
+          )}
         >
-          Make your first investment
-        </Link>
-      </section>
-    </AppTabScreenLayout>
+          {type.direction === "in" ? "+ " : type.direction === "out" ? "− " : ""}
+          {amount}
+        </p>
+        <p className="mt-0.5 text-xs whitespace-nowrap text-neutral-500 dark:text-neutral-400">{when}</p>
+      </div>
+    </li>
+  );
+}
+
+/** Placeholder rows while the list loads. */
+function LoadingList() {
+  return (
+    <ul aria-busy="true" aria-label="Loading transactions" className="mt-4 rounded-3xl bg-white px-4 dark:bg-white/5">
+      {[0, 1, 2].map((index) => (
+        <li key={index} className="flex animate-pulse items-center gap-3.5 py-4 motion-reduce:animate-none">
+          <span className="size-5 rounded-md bg-neutral-200 dark:bg-white/10" />
+          <span className="flex-1">
+            <span className="block h-3.5 w-2/5 rounded bg-neutral-200 dark:bg-white/10" />
+            <span className="mt-2 block h-3 w-3/5 rounded bg-neutral-100 dark:bg-white/5" />
+          </span>
+          <span className="h-3.5 w-16 rounded bg-neutral-200 dark:bg-white/10" />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Nothing to show (for this filter): a white card filling the space, with a next step. */
+function EmptyState({
+  title,
+  text,
+  action,
+}: {
+  title: string;
+  text: string;
+  action: { label: string; href: string; icon: React.ReactNode };
+}) {
+  return (
+    <section className="mt-4 mb-4 flex flex-1 flex-col items-center justify-center rounded-3xl bg-white px-6 py-14 text-center dark:bg-white/5">
+      <h2 className="text-xl font-bold tracking-tight">{title}</h2>
+      <p className="mt-2 max-w-72 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{text}</p>
+      <Link
+        href={action.href}
+        className="mt-6 inline-flex h-12 w-full max-w-xs items-center justify-center gap-2 rounded-full bg-neutral-900 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 [&_svg]:size-[18px]"
+      >
+        {action.icon}
+        {action.label}
+      </Link>
+    </section>
   );
 }

@@ -67,7 +67,7 @@ import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { guessBiometricKind } from "@/lib/webAuthn";
 import { cn } from "@/lib/utils";
 import { useThemeStore } from "@/stores/useThemeStore";
-import { ACCOUNT_PAGE_COLORS } from "./accountTheme";
+import { GREY_PAGE_COLORS } from "@/config/pageColors";
 
 /** Company website, for "Help & support" until in-app support exists. */
 const SUPPORT_URL = "https://www.feenicks1solutions.com";
@@ -77,7 +77,7 @@ export function AccountScreen() {
   const current = useCurrentAccount();
   const [isConfirmingLogOut, setIsConfirmingLogOut] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  useStatusBarColor(ACCOUNT_PAGE_COLORS);
+  useStatusBarColor(GREY_PAGE_COLORS);
 
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
