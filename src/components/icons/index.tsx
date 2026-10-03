@@ -193,6 +193,16 @@ export function MoonIcon({ className }: IconProps) {
   );
 }
 
+/** Magnifying glass: search. */
+export function SearchIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon className={className}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </StrokeIcon>
+  );
+}
+
 /** Painter's palette: the dashboard colour. */
 export function PaletteIcon({ className }: IconProps) {
   return (

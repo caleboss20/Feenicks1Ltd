@@ -72,9 +72,6 @@ import { useThemeStore } from "@/stores/useThemeStore";
 import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { chosenDashboardColor, swatchGradient } from "@/features/dashboard/dashboardTheme";
 
-/** Company website, for "Help & support" until in-app support exists. */
-const SUPPORT_URL = "https://www.feenicks1solutions.com";
-
 export function AccountScreen() {
   const router = useRouter();
   const current = useCurrentAccount();
@@ -172,7 +169,7 @@ export function AccountScreen() {
       </RowGroup>
 
       <RowGroup>
-        <LinkRow icon={<SupportIcon />} label="Help & support" href={SUPPORT_URL} external />
+        <LinkRow icon={<SupportIcon />} label="Help & support" href={ROUTES.support} />
       </RowGroup>
 
       <RowGroup>

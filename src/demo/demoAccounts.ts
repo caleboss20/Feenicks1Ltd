@@ -16,6 +16,7 @@
 
 import { isStepAfter, type AccountStep } from "@/features/auth/accountProgress";
 import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
+import type { SupportRequest } from "@/features/support/supportService";
 import type { Transaction } from "@/features/transactions/transactionModel";
 
 const ACCOUNTS_KEY = "feenicks1-demo-accounts";
@@ -56,6 +57,8 @@ export type DemoAccount = {
   transactions?: Transaction[];
   /** Which version of the demo's sample year is in `transactions`, if any (see SAMPLE_VERSION). */
   sampleActivityVersion?: number;
+  /** Messages sent to support (Help & support › Send us a message). */
+  supportRequests?: SupportRequest[];
   createdAt: string;
 };
 
@@ -182,6 +185,7 @@ export function updateAccount(
       | "onboardingFinishedAt"
       | "transactions"
       | "sampleActivityVersion"
+      | "supportRequests"
     >
   >,
 ) {

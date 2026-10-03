@@ -48,6 +48,10 @@ export const ROUTES = {
   editProfile: "/account/profile",
   /** Choose the colour behind the balance on Home (Account › Dashboard colour). */
   dashboardColor: "/account/dashboard-color",
+  /** Help & support: the dashboard's headset, and Account › Help & support. */
+  support: "/support",
+  /** Help & support › Send a message. */
+  supportMessage: "/support/message",
   /** From the dashboard's header bell. */
   notifications: "/notifications",
   /** From the dashboard's Withdraw button. */

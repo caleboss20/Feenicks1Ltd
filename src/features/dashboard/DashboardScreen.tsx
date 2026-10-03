@@ -80,9 +80,6 @@ import { chosenDashboardColor, dashboardGradient } from "./dashboardTheme";
 import { FirstInvestmentSheet } from "./FirstInvestmentSheet";
 import { PerformanceCard } from "./PerformanceCard";
 
-/** Company website, for "Support" until in-app support exists. */
-const SUPPORT_URL = "https://www.feenicks1solutions.com";
-
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
 
@@ -288,15 +285,9 @@ export function DashboardScreen() {
             {firstName ?? "Welcome"}
           </h1>
         </div>
-        <a
-          href={SUPPORT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Support"
-          className={headerIconButton}
-        >
+        <Link href={ROUTES.support} aria-label="Help & support" className={headerIconButton}>
           <SupportIcon />
-        </a>
+        </Link>
         <Link href={ROUTES.notifications} aria-label="Notifications" className={headerIconButton}>
           <BellIcon />
         </Link>

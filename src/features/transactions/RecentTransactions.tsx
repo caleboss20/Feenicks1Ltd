@@ -21,26 +21,10 @@
 import Link from "next/link";
 import { ArrowRight, ClockIcon } from "@/components/icons";
 import { ROUTES } from "@/config/routes";
-import { INVESTMENT_PACKAGES } from "@/features/packages/investmentPackages";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
-import { formatWhen } from "./transactionFormat";
+import { formatWhen, transactionTitle } from "./transactionFormat";
 import type { Transaction } from "./transactionModel";
-
-/** What happened, in words: "Return from InvestWise Capital", "Withdrawal to MTN MoMo"… */
-function titleFor(transaction: Transaction): string {
-  const pkg = transaction.packageId ? INVESTMENT_PACKAGES[transaction.packageId] : null;
-  switch (transaction.type) {
-    case "investment":
-      return pkg ? `Invested in ${pkg.name}` : "Investment";
-    case "return":
-      return pkg ? `Return from ${pkg.name}` : "Return paid";
-    case "withdrawal":
-      return transaction.channel ? `Withdrawal to ${transaction.channel}` : "Withdrawal";
-    case "referral":
-      return "Referral reward";
-  }
-}
 
 export function RecentTransactions({
   transactions,
@@ -108,7 +92,7 @@ export function RecentTransactions({
 }
 
 function RecentRow({ transaction, hideAmount }: { transaction: Transaction; hideAmount: boolean }) {
-  const title = titleFor(transaction);
+  const title = transactionTitle(transaction);
   const when = formatWhen(transaction.createdAt);
   const amount = formatCedis(transaction.amount, { exact: true });
   const isOut = transaction.type === "withdrawal";
