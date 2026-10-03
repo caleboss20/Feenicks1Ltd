@@ -193,6 +193,17 @@ export function MoonIcon({ className }: IconProps) {
   );
 }
 
+/** Three dots, one above the other (⋮): "more options" for a row. */
+export function MoreVerticalIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={iconClasses(className)}>
+      <circle cx="12" cy="5" r="1.9" />
+      <circle cx="12" cy="12" r="1.9" />
+      <circle cx="12" cy="19" r="1.9" />
+    </svg>
+  );
+}
+
 /** Magnifying glass: search. */
 export function SearchIcon({ className }: IconProps) {
   return (

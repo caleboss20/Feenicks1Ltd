@@ -24,24 +24,30 @@ export function subscribeToNotifications(listener: () => void): () => void {
   return IS_DEMO_MODE ? demo.subscribeToSession(listener) : () => {};
 }
 
-/**
- * Marks every notification as seen (on opening Notifications). Returns the
- * ids that were unread, so the screen can still show them as new this time.
- */
-export async function markAllNotificationsRead(): Promise<string[]> {
-  // TODO(api): POST /api/notifications/read-all → { wereUnread: string[] }
+/** Demo: changes the logged-in account's notifications with `change`. */
+function updateDemoNotifications(change: (notifications: AppNotification[]) => AppNotification[]) {
+  const email = demo.getSessionEmail();
+  if (!email) return;
+  demo.updateAccount(email, { notifications: change(demo.findAccount(email)?.notifications ?? []) });
+}
+
+/** Marks one notification as read (tapped, or "Mark as read" in its menu). */
+export async function markNotificationRead(id: string): Promise<void> {
+  // TODO(api): POST /api/notifications/:id/read
   if (IS_DEMO_MODE) {
-    const email = demo.getSessionEmail();
-    const notifications = (email && demo.findAccount(email)?.notifications) || [];
-    const unreadIds = notifications.filter((notification) => !notification.readAt).map((notification) => notification.id);
-    if (!email || unreadIds.length === 0) return [];
     const now = new Date().toISOString();
-    demo.updateAccount(email, {
-      notifications: notifications.map((notification) =>
-        notification.readAt ? notification : { ...notification, readAt: now },
+    updateDemoNotifications((notifications) =>
+      notifications.map((notification) =>
+        notification.id === id && !notification.readAt ? { ...notification, readAt: now } : notification,
       ),
-    });
-    return unreadIds;
+    );
   }
-  return [];
+}
+
+/** Removes one notification ("Delete" in its menu). */
+export async function deleteNotification(id: string): Promise<void> {
+  // TODO(api): DELETE /api/notifications/:id
+  if (IS_DEMO_MODE) {
+    updateDemoNotifications((notifications) => notifications.filter((notification) => notification.id !== id));
+  }
 }
