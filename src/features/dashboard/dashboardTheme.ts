@@ -28,3 +28,19 @@ export const DASHBOARD_TOP_GRADIENT = `linear-gradient(to bottom,
   color-mix(in srgb, ${BRAND_GREEN} 35%, var(--background)) 82%,
   color-mix(in srgb, ${BRAND_GREEN} 8%, var(--background)) 93%,
   var(--background) 100%)`;
+
+/**
+ * For investors, whose dashboard shows the performance chart there instead
+ * of the cards: the green carries on (solid) behind the chart's title, so it
+ * can be white like the balance, then fades to the page from where the chart
+ * begins, so the chart's own green wash melts into it. Used on a taller area
+ * (34.5rem, vs 31rem): the solid part ends below the title's period line
+ * (~82% ≈ 452px on a phone) and the fade runs behind the top of the chart.
+ */
+export const DASHBOARD_TOP_GRADIENT_WITH_CHART = `linear-gradient(to bottom,
+  ${DASHBOARD_TOP_COLOR} 0%,
+  ${BRAND_GREEN} 50%,
+  ${BRAND_GREEN} 82%,
+  color-mix(in srgb, ${BRAND_GREEN} 55%, var(--background)) 89%,
+  color-mix(in srgb, ${BRAND_GREEN} 15%, var(--background)) 95%,
+  var(--background) 100%)`;

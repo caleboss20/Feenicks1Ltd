@@ -10,6 +10,18 @@
  *      ╰╯          ╰───────╯  3K
  *   3 Sept      17 Sept      Today   ← dates below
  *
+ * Two variants:
+ *   - full (Analytics, above): value ticks, gridlines and dates; the reading
+ *     shows the value at the point
+ *   - compact (the dashboard's performance card, after the user's coin-chart
+ *     reference): just the line and a richer fill, hugging the data so small
+ *     moves show; a dashed drop line and a bubble mark "now" (or the point
+ *     being read) with the CHANGE since the range began
+ *
+ *                 ( + GH₵ 541.07 )
+ *          ╭───────────────────●
+ *   ───────╯ ░░░░░░░░░░░░░░░░░░┊░░
+ *
  * Plotted in a fixed 1000×300 box stretched to the container (lines keep a
  * 2px stroke); dots, tooltip and labels are HTML on top, placed in %.
  * Accessible: a summary label, arrow-key scrubbing with a live readout, and a
@@ -44,6 +56,18 @@ function niceTicks(min: number, max: number): number[] {
     ticks.push(Math.round(value * 100) / 100);
   }
   return ticks;
+}
+
+/**
+ * The compact chart's vertical range: the data's own low and high, with a
+ * little room around them, so a GH₵ 50 move on GH₵ 3,000 is still visible.
+ * A flat line sits in the middle.
+ */
+function paddedRange(values: number[]): [number, number] {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const pad = max > min ? (max - min) * 0.1 : Math.max(Math.abs(max) * 0.1, 1);
+  return [min - pad, max + pad];
 }
 
 /** Axis label: "0", "750", "3.2K", "12K". */
@@ -101,32 +125,69 @@ type PortfolioChartProps = {
   label: string;
   /** Time in the tooltip, e.g. "1 Oct, 2:00 pm". */
   formatTime: (time: number) => string;
-  /** Time under the chart, e.g. "1 Oct". */
-  formatAxisTime: (time: number) => string;
+  /** Time under the chart, e.g. "1 Oct" (full variant only). */
+  formatAxisTime?: (time: number) => string;
   /** Shown over a flat chart when there's no history yet. */
   emptyMessage?: React.ReactNode;
+  /** "full" (Analytics, the default) or "compact" (dashboard). See above. */
+  variant?: "full" | "compact";
+  /** Hide amounts in the reading and the table (the dashboard's eye toggle). */
+  hideAmounts?: boolean;
 };
 
-export function PortfolioChart({ points, label, formatTime, formatAxisTime, emptyMessage }: PortfolioChartProps) {
+export function PortfolioChart({
+  points,
+  label,
+  formatTime,
+  formatAxisTime,
+  emptyMessage,
+  variant = "full",
+  hideAmounts = false,
+}: PortfolioChartProps) {
   const gradientId = useId();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const isCompact = variant === "compact";
 
   const values = points.map((point) => point.value);
   const ticks = niceTicks(Math.min(...values), Math.max(...values));
-  const low = ticks[0];
-  const high = ticks[ticks.length - 1];
+  // Full: between clean ticks. Compact: hugging the data.
+  const [low, high] = isCompact ? paddedRange(values) : [ticks[0], ticks[ticks.length - 1]];
 
-  const x = (index: number) => (points.length > 1 ? (index / (points.length - 1)) * WIDTH : WIDTH / 2);
+  // Compact: the line stops just short of the right edge, leaving room for
+  // the "now" dot and its drop line.
+  const right = isCompact ? WIDTH * 0.96 : WIDTH;
+  const x = (index: number) => (points.length > 1 ? (index / (points.length - 1)) * right : right / 2);
   const y = (value: number) => HEIGHT - ((value - low) / (high - low)) * HEIGHT;
   const plotted = points.map((point, index) => ({ x: x(index), y: y(point.value) }));
   const line = smoothPath(plotted);
-  const area = `${line} L${WIDTH},${HEIGHT} L0,${HEIGHT} Z`;
+  const area = `${line} L${plotted[plotted.length - 1].x},${HEIGHT} L${plotted[0].x},${HEIGHT} Z`;
 
   const isEmpty = Boolean(emptyMessage);
   const active = activeIndex === null || isEmpty ? null : points[activeIndex];
   const lastIndex = points.length - 1;
   const percentX = (index: number) => (plotted[index].x / WIDTH) * 100;
   const percentY = (index: number) => (plotted[index].y / HEIGHT) * 100;
+  /** Compact: the marked point, "now" until someone reads another one. */
+  const markedIndex = isCompact && !isEmpty ? (activeIndex ?? lastIndex) : null;
+  /** Compact: how much the value changed from the start of the range to `index`. */
+  const changeTo = (index: number) => Math.round((points[index].value - points[0].value) * 100) / 100;
+  const amount = (value: number) => (hideAmounts ? "••••" : formatCedis(value, { exact: true }));
+  /** Keep a reading on screen near the edges. */
+  const edgeAlign = (index: number) =>
+    percentX(index) < 18 ? "translate-x-0" : percentX(index) > 82 ? "-translate-x-full" : "-translate-x-1/2";
+  /**
+   * Where money moved: the value only changes when a transaction completes
+   * (portfolioHistory.valueAt), so every point that differs from the one
+   * before is a transaction (or several close together). Each gets a dot,
+   * green up, red down, so every step visibly matches the history.
+   */
+  const moves = isEmpty
+    ? []
+    : points.flatMap((point, index) =>
+        index > 0 && point.value !== points[index - 1].value
+          ? [{ index, isUp: point.value > points[index - 1].value }]
+          : [],
+      );
 
   /** The point nearest the pointer's position across the chart. */
   const indexAt = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -136,7 +197,8 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
   };
 
   return (
-    <div>
+    // Compact: room above the plot for the bubble over a high point.
+    <div className={cn(isCompact && "pt-11")}>
       <div className="flex">
         {/* Plot */}
         <div
@@ -161,7 +223,10 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
               setActiveIndex(null);
             }
           }}
-          className="relative h-56 flex-1 rounded-lg text-brand-600 outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 dark:text-brand-400"
+          className={cn(
+            "relative flex-1 rounded-lg text-brand-600 outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 dark:text-brand-400",
+            isCompact ? "h-40" : "h-56",
+          )}
         >
           <svg
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -171,23 +236,25 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
           >
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="currentColor" stopOpacity={isEmpty ? 0 : 0.2} />
+                {/* Compact: a richer wash, like the reference. */}
+                <stop offset="0%" stopColor="currentColor" stopOpacity={isEmpty ? 0 : isCompact ? 0.3 : 0.2} />
                 <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
               </linearGradient>
             </defs>
-            {/* Recessive solid hairlines at the value ticks. */}
-            {ticks.map((tick) => (
-              <line
-                key={tick}
-                x1={0}
-                x2={WIDTH}
-                y1={y(tick)}
-                y2={y(tick)}
-                vectorEffect="non-scaling-stroke"
-                className="stroke-neutral-100 dark:stroke-white/10"
-                strokeWidth={1}
-              />
-            ))}
+            {/* Recessive solid hairlines at the value ticks (full only). */}
+            {!isCompact &&
+              ticks.map((tick) => (
+                <line
+                  key={tick}
+                  x1={0}
+                  x2={WIDTH}
+                  y1={y(tick)}
+                  y2={y(tick)}
+                  vectorEffect="non-scaling-stroke"
+                  className="stroke-neutral-100 dark:stroke-white/10"
+                  strokeWidth={1}
+                />
+              ))}
             <path d={area} fill={`url(#${gradientId})`} />
             <path
               d={line}
@@ -199,8 +266,8 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
               vectorEffect="non-scaling-stroke"
               className={cn(isEmpty && "text-neutral-300 dark:text-white/20")}
             />
-            {/* Crosshair: a hairline at the point being read. */}
-            {active && activeIndex !== null && (
+            {/* Full: a hairline across the whole height at the point being read. */}
+            {!isCompact && active && activeIndex !== null && (
               <line
                 x1={plotted[activeIndex].x}
                 x2={plotted[activeIndex].x}
@@ -211,10 +278,66 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
                 strokeWidth={1}
               />
             )}
+            {/* Compact: a dashed line dropping from the marked point. */}
+            {markedIndex !== null && (
+              <line
+                x1={plotted[markedIndex].x}
+                x2={plotted[markedIndex].x}
+                y1={plotted[markedIndex].y}
+                y2={HEIGHT}
+                vectorEffect="non-scaling-stroke"
+                stroke="currentColor"
+                strokeOpacity={0.45}
+                strokeWidth={1.5}
+                strokeDasharray="3 4"
+              />
+            )}
           </svg>
 
-          {/* End dot (now), with a ring in the page colour. */}
-          {!isEmpty && !active && (
+          {/* A dot at each transaction: green in, red out. */}
+          {moves.map((move) => (
+            <span
+              key={move.index}
+              aria-hidden
+              className={cn(
+                "pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-background",
+                move.isUp ? "bg-current" : "bg-red-500",
+              )}
+              style={{ left: `${percentX(move.index)}%`, top: `${percentY(move.index)}%` }}
+            />
+          ))}
+
+          {/* Compact: the marked point, and a bubble with the change since the
+              range began (and, while reading a past point, when it was). */}
+          {markedIndex !== null && (
+            <>
+              <span
+                aria-hidden
+                className="absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-current ring-[3px] ring-background"
+                style={{ left: `${percentX(markedIndex)}%`, top: `${percentY(markedIndex)}%` }}
+              />
+              <div
+                aria-hidden
+                className={cn(
+                  "pointer-events-none absolute z-10 -translate-y-[calc(100%+0.75rem)] rounded-xl bg-brand-800 px-2.5 py-1.5 text-center whitespace-nowrap text-white dark:bg-brand-600",
+                  edgeAlign(markedIndex),
+                )}
+                style={{ left: `${percentX(markedIndex)}%`, top: `${percentY(markedIndex)}%` }}
+              >
+                <p className="text-xs font-semibold tabular-nums">
+                  {changeTo(markedIndex) === 0
+                    ? "No change"
+                    : `${changeTo(markedIndex) > 0 ? "+ " : "− "}${amount(Math.abs(changeTo(markedIndex)))}`}
+                </p>
+                {activeIndex !== null && (
+                  <p className="text-[0.625rem] text-white/75">{formatTime(points[markedIndex].time)}</p>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Full: end dot (now), with a ring in the page colour. */}
+          {!isCompact && !isEmpty && !active && (
             <span
               aria-hidden
               className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-current ring-2 ring-background"
@@ -222,8 +345,8 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
             />
           )}
 
-          {/* The point being read, and its value. */}
-          {active && activeIndex !== null && (
+          {/* Full: the point being read, and its value. */}
+          {!isCompact && active && activeIndex !== null && (
             <>
               <span
                 aria-hidden
@@ -234,12 +357,7 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
                 aria-hidden
                 className={cn(
                   "pointer-events-none absolute -top-2 z-10 -translate-y-full rounded-lg bg-neutral-900 px-2.5 py-1.5 whitespace-nowrap text-white dark:bg-white dark:text-neutral-900",
-                  // Keep it on screen near the edges.
-                  percentX(activeIndex) < 18
-                    ? "translate-x-0"
-                    : percentX(activeIndex) > 82
-                      ? "-translate-x-full"
-                      : "-translate-x-1/2",
+                  edgeAlign(activeIndex),
                 )}
                 style={{ left: `${percentX(activeIndex)}%` }}
               >
@@ -262,12 +380,17 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
                 // Mouse: hide on leaving. Touch: keep the last reading on screen.
                 if (event.pointerType === "mouse") setActiveIndex(null);
               }}
+              // The browser took the touch over to scroll the page: that wasn't
+              // a reading, so don't leave one behind.
+              onPointerCancel={() => setActiveIndex(null)}
             />
           )}
 
           {/* Value ticks (clean numbers), sitting on their gridlines at the right
-              edge, inside the plot, so the line spans the full width, centred. */}
-          {!isEmpty &&
+              edge, inside the plot, so the line spans the full width, centred.
+              Full only. */}
+          {!isCompact &&
+            !isEmpty &&
             ticks.map((tick) => (
               <span
                 key={tick}
@@ -287,22 +410,40 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
         </div>
       </div>
 
-      {/* Dates: start, middle, now, across the full width. */}
-      <div aria-hidden className="mt-2.5 flex justify-between text-[0.6875rem] text-neutral-400">
-        <span>{formatAxisTime(points[0].time)}</span>
-        <span>{formatAxisTime(points[Math.floor(lastIndex / 2)].time)}</span>
-        <span>{formatAxisTime(points[lastIndex].time)}</span>
-      </div>
+      {/* Dates: start, middle, now, across the full width (full only). */}
+      {!isCompact && formatAxisTime && (
+        <div aria-hidden className="mt-2.5 flex justify-between text-[0.6875rem] text-neutral-400">
+          <span>{formatAxisTime(points[0].time)}</span>
+          <span>{formatAxisTime(points[Math.floor(lastIndex / 2)].time)}</span>
+          <span>{formatAxisTime(points[lastIndex].time)}</span>
+        </div>
+      )}
+
+      {/* What the dots mean (full only; the dashboard keeps it minimal). */}
+      {!isCompact && moves.length > 0 && (
+        <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.6875rem] text-neutral-500 dark:text-neutral-400">
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="size-2 rounded-full bg-brand-600 dark:bg-brand-400" />
+            Money in
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="size-2 rounded-full bg-red-500" />
+            Money out
+          </span>
+          <span>Each dot is a transaction.</span>
+        </p>
+      )}
 
       {/* Live readout for keyboard scrubbing. */}
       <p aria-live="polite" className="sr-only">
-        {active ? `${formatCedis(active.value, { exact: true })}, ${formatTime(active.time)}` : ""}
+        {active ? `${hideAmounts ? "Amount hidden" : formatCedis(active.value, { exact: true })}, ${formatTime(active.time)}` : ""}
       </p>
 
-      {/* The chart as a table, for screen readers. Wrapped in a hidden block:
-          `sr-only` on the <table> itself doesn't clip (tables grow to fit their
-          rows), which would stretch the page and push the tab bar away. */}
-      <div className="sr-only">
+      {/* The chart as a table, for screen readers (not while amounts are
+          hidden). Wrapped in a hidden block: `sr-only` on the <table> itself
+          doesn't clip (tables grow to fit their rows), which would stretch the
+          page and push the tab bar away. */}
+      <div className={cn("sr-only", hideAmounts && "hidden")}>
         <table>
           <caption>{label}</caption>
           <thead>

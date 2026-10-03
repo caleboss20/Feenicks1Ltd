@@ -40,6 +40,7 @@ import { useTransactions } from "@/features/transactions/useTransactions";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import { axisTime, tooltipTime } from "./chartTime";
 import { PortfolioChart } from "./PortfolioChart";
 import {
   buildSeries,
@@ -49,43 +50,6 @@ import {
   yearsRange,
   type ChartRange,
 } from "./portfolioHistory";
-
-/** Tooltip time for each range: "2:00 pm" · "1 Oct, 2:00 pm" · "1 Oct 2026". */
-function tooltipTime(range: ChartRange) {
-  return (time: number) => {
-    const date = new Date(time);
-    const clock = date.toLocaleTimeString("en-GH", {
-      hour: "numeric",
-      minute: "2-digit",
-    });
-    if (range.kind === "day") return clock;
-    const day = date.toLocaleDateString("en-GH", {
-      day: "numeric",
-      month: "short",
-      ...(range.kind === "years" || range.kind === "all" ? { year: "numeric" } : {}),
-    });
-    return range.kind === "week" || range.kind === "month" ? `${day}, ${clock}` : day;
-  };
-}
-
-/** Date under the chart: "2 pm" · "1 Oct" · "Oct 2026". */
-function axisTime(range: ChartRange) {
-  return (time: number) => {
-    const date = new Date(time);
-    if (range.kind === "day")
-      return date.toLocaleTimeString("en-GH", { hour: "numeric" });
-    if (range.kind === "week" || range.kind === "month") {
-      return date.toLocaleDateString("en-GH", {
-        day: "numeric",
-        month: "short",
-      });
-    }
-    return date.toLocaleDateString("en-GH", {
-      month: "short",
-      year: "numeric",
-    });
-  };
-}
 
 export function AnalyticsScreen() {
   useStatusBarColor(GREY_PAGE_COLORS);

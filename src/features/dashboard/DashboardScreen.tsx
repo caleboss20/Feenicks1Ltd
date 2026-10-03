@@ -18,6 +18,10 @@
  *   │ ╭── swipeable white cards (BannerCarousel) ─╮ │
  *   ╰─│─ Invite a friend · Your best match · … ──│─╯   ← gradient turns white here
  *     ╰──────────────────────────────────────────╯
+ *     Once they've invested, the carousel gives way to PerformanceCard: the
+ *     portfolio's line over 1D–All, with the change (same maths as Analytics).
+ *     (Its best-match and calculator offers would also point to a second
+ *     package, which the one-package rule doesn't allow: packagePolicy.ts.)
  *
  *     Recent activity                         View all
  *     (↙) Return from InvestWise Capital  + GH₵ 108.00   ← RecentTransactions: the
@@ -70,8 +74,9 @@ import { useTransactions } from "@/features/transactions/useTransactions";
 import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { type Banner, BannerCarousel } from "./BannerCarousel";
-import { DASHBOARD_TOP_GRADIENT } from "./dashboardTheme";
+import { DASHBOARD_TOP_GRADIENT, DASHBOARD_TOP_GRADIENT_WITH_CHART } from "./dashboardTheme";
 import { FirstInvestmentSheet } from "./FirstInvestmentSheet";
+import { PerformanceCard } from "./PerformanceCard";
 
 /** Company website, for "Support" until in-app support exists. */
 const SUPPORT_URL = "https://www.feenicks1solutions.com";
@@ -213,11 +218,13 @@ export function DashboardScreen() {
         appTabBarPadding,
       )}
     >
-      {/* Green at the top, fading into the page background behind the cards. */}
+      {/* Green at the top, fading into the page background behind the cards;
+          for investors, green a little further (behind the chart's white
+          title), fading behind the chart itself. */}
       <div
         aria-hidden
-        style={{ backgroundImage: DASHBOARD_TOP_GRADIENT }}
-        className="absolute inset-x-0 top-0 -z-10 h-[31rem]"
+        style={{ backgroundImage: hasInvested ? DASHBOARD_TOP_GRADIENT_WITH_CHART : DASHBOARD_TOP_GRADIENT }}
+        className={cn("absolute inset-x-0 top-0 -z-10", hasInvested ? "h-[34.5rem]" : "h-[31rem]")}
       />
 
       {/* ── Greeting ─────────────────────────────────────────────── */}
@@ -331,9 +338,17 @@ export function DashboardScreen() {
         </Link>
       </div>
 
-      {/* ── Cards, where the green fades into white ─────────────── */}
+      {/* ── Cards, where the green fades into white: how the portfolio is
+             doing once they've invested; offers and tips until then ─── */}
       <div className="mt-10 px-4">
-        <BannerCarousel label="Offers and tips" banners={banners} />
+        {transactions === null ? (
+          // Loading (a moment): empty space, so neither flashes up.
+          <div aria-hidden className="h-48" />
+        ) : hasInvested ? (
+          <PerformanceCard transactions={transactions} hideAmounts={hideAmounts} />
+        ) : (
+          <BannerCarousel label="Offers and tips" banners={banners} />
+        )}
       </div>
 
       {/* ── Recent activity: the latest transactions (all of them on the Transactions tab) ── */}
