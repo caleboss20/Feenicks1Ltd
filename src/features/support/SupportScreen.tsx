@@ -31,7 +31,7 @@ import { chosenDashboardColor } from "@/features/dashboard/dashboardTheme";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { cn } from "@/lib/utils";
 import { useThemeStore } from "@/stores/useThemeStore";
-import { FAQS, matchesSearch, type Faq } from "./faqs";
+import { searchFaqs, wordMatch, wordsOf, type Faq } from "./faqs";
 
 /** White page in light mode, black in dark (the phone's status bar matches). */
 const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
@@ -48,7 +48,8 @@ export function SupportScreen() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const search = query.trim();
-  const shown = search ? FAQS.filter((faq) => matchesSearch(faq, search)) : FAQS;
+  // Best matches first; typos forgiven ("feeen" finds Feenicks1).
+  const shown = searchFaqs(search);
 
   /** Back where they came from (Home or Account); Home if they landed here directly. */
   const goBack = () => (window.history.length > 1 ? router.back() : router.push(ROUTES.dashboard));
@@ -98,6 +99,7 @@ export function SupportScreen() {
             <FaqRow
               key={faq.id}
               faq={faq}
+              search={search}
               isOpen={openId === faq.id}
               onToggle={() => setOpenId(openId === faq.id ? null : faq.id)}
             />
@@ -124,8 +126,42 @@ export function SupportScreen() {
   );
 }
 
+/**
+ * The question, with the words that matched the search in bold (typos
+ * included, so "feeen" shows why "What is Feenicks1?" came up).
+ */
+function MatchedWords({ text, search }: { text: string; search: string }) {
+  const typed = wordsOf(search);
+  if (typed.length === 0) return <>{text}</>;
+  // Odd parts are words, even parts what's between them (spaces, "?", "'"…).
+  const parts = text.split(/([A-Za-z0-9]+)/);
+  return (
+    <>
+      {parts.map((part, index) =>
+        index % 2 === 1 && typed.some((word) => wordMatch(word, part.toLowerCase()) > 0) ? (
+          <strong key={index} className="font-semibold text-foreground">
+            {part}
+          </strong>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
 /** One question: tap to open its answer underneath (+ turns into ×). */
-function FaqRow({ faq, isOpen, onToggle }: { faq: Faq; isOpen: boolean; onToggle: () => void }) {
+function FaqRow({
+  faq,
+  search,
+  isOpen,
+  onToggle,
+}: {
+  faq: Faq;
+  search: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
   const answerId = `faq-${faq.id}-answer`;
   return (
     <li className="border-b border-neutral-100 px-5 dark:border-white/10">
@@ -143,7 +179,7 @@ function FaqRow({ faq, isOpen, onToggle }: { faq: Faq; isOpen: boolean; onToggle
               isOpen ? "font-medium text-foreground" : "text-neutral-600 dark:text-neutral-300",
             )}
           >
-            {faq.question}
+            <MatchedWords text={faq.question} search={search} />
           </span>
           <PlusIcon
             className={cn(

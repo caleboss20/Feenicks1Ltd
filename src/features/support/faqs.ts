@@ -47,7 +47,7 @@ export const FAQS: Faq[] = [
     category: "start",
     question: "How do I make my first investment?",
     answer: [
-      "Tap Invest on Home and choose a package (your best match is marked if you've answered the investor profile). Read its terms, agree, and pay in from your Mobile Money wallet or bank account.",
+      "Tap Invest on Home and choose a package (your best match is marked if you've answered the investor profile). Read its terms, agree, and pay in from your Mobile Money (MoMo) wallet or bank account.",
       "Each package has its own minimum and maximum amount: see “Which packages can I invest in?”.",
     ],
   },
@@ -117,7 +117,7 @@ export const FAQS: Faq[] = [
     category: "withdrawals",
     question: "How long does a withdrawal take?",
     answer: [
-      "Withdrawals are paid to the Mobile Money wallet or bank account registered in your name, normally within a few business days of your request.",
+      "Withdrawals are paid to the Mobile Money (MoMo) wallet or bank account registered in your name, normally within a few business days of your request.",
     ],
   },
   {
@@ -135,7 +135,7 @@ export const FAQS: Faq[] = [
     question: "My withdrawal failed. What now?",
     answer: [
       "No money leaves your portfolio when a withdrawal fails.",
-      "Check that your Mobile Money or bank details are correct, then try again. If it fails again, send us a message and choose the transaction, so we can look into it straight away.",
+      "Check that your Mobile Money (MoMo) or bank details are correct, then try again. If it fails again, send us a message and choose the transaction, so we can look into it straight away.",
     ],
   },
 
@@ -178,21 +178,77 @@ export const FAQS: Faq[] = [
   },
 ];
 
-/** The whole answer as plain text (for searching). */
-export function faqText(faq: Faq): string {
-  return [faq.question, ...faq.answer.flat()].join(" ");
+/* ── Search: forgiving, so typos on a phone still find the answer ─────── */
+
+/** The lowercase words of a text: "Feenicks1's fee: 4%" → feenicks1, s, fee, 4. */
+export function wordsOf(text: string): string[] {
+  return text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+}
+
+/** How many letters must be added, removed or changed to turn `a` into `b` (Levenshtein). */
+function editDistance(a: string, b: string): number {
+  const row = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const above = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, diagonal + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diagonal = above;
+    }
+  }
+  return row[b.length];
 }
 
 /**
- * Does the answer match a search? Every word typed must appear (in any
- * order). The company's name is left out, since it's in many answers and
- * "fee" would otherwise match "Feenicks1".
+ * How well a typed word matches a word in the text:
+ *   3  the same word                         "fee" → fee
+ *   2  the start of it (still typing)        "fee" → fees, feenicks1
+ *   1  a typo: one letter off (two in long   "feeen" → feenicks1 (start)
+ *      words), whole or while still typing   "feeenicks1" → feenicks1
+ *   0  no match
+ * Words under 4 letters must match exactly or by their start: one letter off
+ * a short word would match far too much.
  */
-export function matchesSearch(faq: Faq, search: string): boolean {
-  const text = faqText(faq).toLowerCase().replace(/feenicks1/g, " ");
-  return search
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .every((word) => text.includes(word));
+export function wordMatch(typed: string, word: string): number {
+  if (word === typed) return 3;
+  if (word.startsWith(typed)) return 2;
+  if (typed.length < 4) return 0;
+  const allowed = typed.length >= 8 ? 2 : 1;
+  // Compare with the whole word, and with its start at about the typed length.
+  const lengths = [word.length, typed.length - 1, typed.length, typed.length + 1];
+  return lengths.some((length) => length <= word.length && editDistance(typed, word.slice(0, length)) <= allowed)
+    ? 1
+    : 0;
+}
+
+/**
+ * How well an answer matches a search; 0 = leave it out. Every typed word must
+ * match somewhere; matches in the question count double, so the most relevant
+ * answers come first ("fee" lists the fee answers before "What is Feenicks1?").
+ */
+export function searchScore(faq: Faq, search: string): number {
+  const typed = wordsOf(search);
+  if (typed.length === 0) return 0;
+  const questionWords = wordsOf(faq.question);
+  const answerWords = wordsOf(faq.answer.flat().join(" "));
+  let total = 0;
+  for (const word of typed) {
+    const best = Math.max(
+      ...questionWords.map((candidate) => wordMatch(word, candidate) * 2),
+      ...answerWords.map((candidate) => wordMatch(word, candidate)),
+    );
+    if (best === 0) return 0;
+    total += best;
+  }
+  return total;
+}
+
+/** The answers for a search, best first (all of them, in order, when there's no search). */
+export function searchFaqs(search: string): Faq[] {
+  if (wordsOf(search).length === 0) return FAQS;
+  return FAQS.map((faq) => ({ faq, score: searchScore(faq, search) }))
+    .filter((result) => result.score > 0)
+    .sort((a, b) => b.score - a.score) // stable: ties keep the list's order
+    .map((result) => result.faq);
 }
