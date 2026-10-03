@@ -82,3 +82,13 @@ export const ROUTES = {
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
+
+/** One transaction's details (receipt), e.g. `/transactions/SMP1182137`: from Transactions and Recent activity. */
+export function transactionDetailsHref(id: string): string {
+  return `${ROUTES.transactions}/${encodeURIComponent(id)}`;
+}
+
+/** Help & support › Send a message, with a transaction already picked ("Need help with this?"). */
+export function supportMessageAboutHref(transactionId: string): string {
+  return `${ROUTES.supportMessage}?transaction=${encodeURIComponent(transactionId)}`;
+}

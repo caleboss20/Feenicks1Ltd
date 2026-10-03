@@ -20,7 +20,7 @@
 
 import Link from "next/link";
 import { ArrowRight, ClockIcon } from "@/components/icons";
-import { ROUTES } from "@/config/routes";
+import { ROUTES, transactionDetailsHref } from "@/config/routes";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { formatWhen, transactionTitle } from "./transactionFormat";
@@ -102,8 +102,13 @@ function RecentRow({ transaction, hideAmount }: { transaction: Transaction; hide
 
   // The visible text reads in a sensible order (title, ID, time, amount,
   // status), so screen readers get it as is. Only the arrow is decorative.
+  // Tapping opens the transaction's details.
   return (
-    <li className="flex items-start gap-4">
+    <li>
+      <Link
+        href={transactionDetailsHref(transaction.id)}
+        className="-m-2 flex items-start gap-4 rounded-2xl p-2 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5"
+      >
       {/* Round icon: ↙ in (green), ↗ out (red). The title already says which. */}
       <span
         aria-hidden
@@ -159,6 +164,7 @@ function RecentRow({ transaction, hideAmount }: { transaction: Transaction; hide
           </p>
         )}
       </div>
+      </Link>
     </li>
   );
 }

@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { SupportMessageScreen } from "@/features/support/SupportMessageScreen";
 
 /**
- * Route: `/support/message` (Help & support › Send a message).
+ * Route: `/support/message` (Help & support › Send a message), optionally
+ * `?transaction=SMP1182137` from a transaction's "Need help with this?".
  * Private, logged-in users only → hidden from search engines.
  */
 export const metadata: Metadata = {
@@ -16,5 +18,11 @@ export const viewport: Viewport = {
 };
 
 export default function SupportMessagePage() {
-  return <SupportMessageScreen />;
+  return (
+    // The screen reads `?transaction=` (useSearchParams), which is only known
+    // in the browser: Suspense lets the rest of the page be built ahead.
+    <Suspense>
+      <SupportMessageScreen />
+    </Suspense>
+  );
 }

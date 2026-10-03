@@ -19,13 +19,14 @@
  */
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ChevronDownIcon } from "@/components/icons";
 import { AnimatedCheck } from "@/components/ui/AnimatedCheck";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { ROUTES } from "@/config/routes";
 import { chosenDashboardColor } from "@/features/dashboard/dashboardTheme";
 import { formatWhen, transactionTitle } from "@/features/transactions/transactionFormat";
+import type { Transaction } from "@/features/transactions/transactionModel";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { formatCedis } from "@/lib/money";
@@ -43,6 +44,14 @@ import {
 const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
 const LABEL = "text-xs font-semibold tracking-wider text-neutral-400 uppercase";
 
+/** The topic that fits a transaction, so a message about one starts on the right topic. */
+const TOPIC_FOR_TYPE: Record<Transaction["type"], SupportTopic> = {
+  investment: "investing",
+  return: "investing",
+  withdrawal: "withdrawals",
+  referral: "referrals",
+};
+
 export function SupportMessageScreen() {
   useStatusBarColor(PAGE_COLORS);
   const router = useRouter();
@@ -52,9 +61,20 @@ export function SupportMessageScreen() {
     useThemeStore((state) => state.customDashboardColor),
   );
 
-  const [topic, setTopic] = useState<SupportTopic | null>(null);
-  const [transactionId, setTransactionId] = useState("");
+  const searchParams = useSearchParams();
+  const [chosenTopic, setTopic] = useState<SupportTopic | null>(null);
+  // Picked already when they came from a transaction's "Need help with this?"
+  // (`?transaction=…`), until they choose another (or None).
+  const [chosenTransactionId, setTransactionId] = useState<string | null>(null);
+  const transactionId = chosenTransactionId ?? searchParams.get("transaction") ?? "";
   const [message, setMessage] = useState("");
+
+  const picked = transactions?.find((transaction) => transaction.id === transactionId) ?? null;
+  // Until they choose a topic, a picked transaction suggests one.
+  const topic = chosenTopic ?? (picked ? TOPIC_FOR_TYPE[picked.type] : null);
+  // The latest 20 to choose from, plus the picked one if it's older.
+  const options = (transactions ?? []).slice(0, 20);
+  if (picked && !options.includes(picked)) options.push(picked);
   const [error, setError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [sent, setSent] = useState<SupportRequest | null>(null);
@@ -156,7 +176,7 @@ export function SupportMessageScreen() {
             className="h-12 w-full cursor-pointer appearance-none truncate rounded-xl border border-neutral-200 bg-background pr-10 pl-4 text-base outline-none focus:border-neutral-400 dark:border-white/10"
           >
             <option value="">None</option>
-            {(transactions ?? []).slice(0, 20).map((transaction) => (
+            {options.map((transaction) => (
               <option key={transaction.id} value={transaction.id}>
                 {transactionTitle(transaction)} · {formatCedis(transaction.amount, { exact: true })} ·{" "}
                 {formatWhen(transaction.createdAt)}

@@ -27,7 +27,7 @@ import Link from "next/link";
 import { ArrowRight, BriefcaseIcon, GiftIcon, PlusIcon, TrendUpIcon } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { GREY_PAGE_COLORS } from "@/config/pageColors";
-import { ROUTES } from "@/config/routes";
+import { ROUTES, transactionDetailsHref } from "@/config/routes";
 import { INVESTMENT_PACKAGES } from "@/features/packages/investmentPackages";
 import { REFERRAL_POINTS, REFERRAL_POINTS_LABEL, REFERRAL_REWARD_LABEL } from "@/features/referrals/referralService";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
@@ -137,7 +137,7 @@ export function TransactionsScreen() {
       {transactions === null ? (
         <LoadingList />
       ) : shown.length > 0 ? (
-        <ul className="mt-4 divide-y divide-neutral-100 rounded-3xl bg-white px-4 dark:divide-white/10 dark:bg-white/5">
+        <ul className="mt-4 divide-y divide-neutral-100 overflow-hidden rounded-3xl bg-white px-4 dark:divide-white/10 dark:bg-white/5">
           {shown.map((transaction) => (
             <TransactionRow key={transaction.id} transaction={transaction} />
           ))}
@@ -184,9 +184,12 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
   const isFailed = transaction.status === "failed";
 
   return (
-    <li
-      // Generous row spacing, so each transaction reads on its own.
-      className="flex items-center gap-4 py-5"
+    // Tapping opens the transaction's details. Generous row spacing, so each
+    // transaction reads on its own.
+    <li>
+      <Link
+        href={transactionDetailsHref(transaction.id)}
+        className="-mx-4 flex items-center gap-4 px-4 py-5 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5"
       aria-label={`${title}, ${
         breakdown
           ? `return: ${formatCedis(breakdown.principal, { exact: true })} at ${breakdown.monthlyRatePercent}% a month for ${breakdown.months} ${breakdown.months === 1 ? "month" : "months"} is ${formatCedis(breakdown.grossProfit, { exact: true })}, less a ${breakdown.feePercent}% fee of ${formatCedis(breakdown.fee, { exact: true })}`
@@ -230,6 +233,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
         </p>
         <p className="mt-1 text-xs whitespace-nowrap text-neutral-500 dark:text-neutral-400">{when}</p>
       </div>
+      </Link>
     </li>
   );
 }
