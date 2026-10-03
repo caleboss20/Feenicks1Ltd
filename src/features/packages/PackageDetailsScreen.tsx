@@ -35,6 +35,15 @@
  *
  *   (          Invest in ABC          )         ← pinned; opens the Terms
  *
+ * The button follows the package rules (packagePolicy.ts: for now, one
+ * investor, one package):
+ *   - not investing yet          → "Invest in ABC"
+ *   - their own package          → "Add money to ABC", with how much more fits
+ *   - their package, at its max  → a note, and the button is off
+ *   - another package            → a note ("You're invested in …") and
+ *                                  "View your package" instead
+ * Everything else (figures, calculator) stays readable for every package.
+ *
  * Estimate (estimateProfit): amount × monthly ROI × months, using the low
  * and high ends of the expected range; then the management fee, a % of the
  * PROFIT, is deducted.
@@ -55,6 +64,7 @@ import {
 } from "@/config/investingFlow";
 import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
 import { useLeaveFinishedOnboarding } from "@/features/investor-profile/useLeaveFinishedOnboarding";
+import { useTransactions } from "@/features/transactions/useTransactions";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import {
@@ -65,6 +75,8 @@ import {
   type InvestmentPackage,
 } from "./investmentPackages";
 import { PackageIcon } from "./PackageCard";
+import { canInvest, investBlockedReason, investOptionFor } from "./packagePolicy";
+import { PackageRuleNotice } from "./PackageRuleNotice";
 
 /** Periods offered in the estimate, in months. */
 const PERIODS = [1, 3, 6, 12];
@@ -94,6 +106,10 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
   const [amountText, setAmountText] = useState(String(pkg.minimum));
   const [months, setMonths] = useState(DEFAULT_PERIOD);
   const isLeaving = useLeaveFinishedOnboarding(packageDetailsHref(pkg.id, "app"), flow === "onboarding");
+  // Can they put money in here (package rules)? null while their history loads.
+  const transactions = useTransactions();
+  const option = transactions ? investOptionFor(transactions, pkg.id) : null;
+  const blockedReason = option ? investBlockedReason(option, pkg.id) : null;
 
   const amount = Number(amountText.replace(/,/g, ""));
   const amountError =
@@ -254,11 +270,41 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
           </p>
         </section>
 
-        {/* Investing starts with the package's Terms & Conditions. */}
+        {/* Investing (or adding money) starts with the package's Terms &
+            Conditions, when the package rules allow it. */}
         <div className={cn(stickyActionsClass, "sm:mt-10")}>
-          <Button size="lg" fullWidth onClick={() => router.push(packageTermsHref(pkg.id, flow))}>
-            Invest in {pkg.ticker}
-          </Button>
+          {option?.kind === "top-up" && (
+            <p className="mb-3 text-center text-[0.8125rem] leading-relaxed text-neutral-600 dark:text-neutral-400">
+              You&apos;ve invested{" "}
+              <span className="font-semibold text-foreground">
+                {formatCedis(option.invested, { exact: true })}
+              </span>{" "}
+              here. You can add up to {formatCedis(option.roomLeft, { exact: true })} more.
+            </p>
+          )}
+          {blockedReason && (
+            <div className="mb-3">
+              <PackageRuleNotice>{blockedReason}</PackageRuleNotice>
+            </div>
+          )}
+
+          {option?.kind === "limit-reached" ? (
+            // Can't invest here: point them to the package they're in.
+            <Button size="lg" fullWidth onClick={() => router.push(packageDetailsHref(option.held[0], flow))}>
+              View your package
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              fullWidth
+              disabled={!option || !canInvest(option)}
+              onClick={() => router.push(packageTermsHref(pkg.id, flow))}
+            >
+              {option?.kind === "top-up" || option?.kind === "at-maximum"
+                ? `Add money to ${pkg.ticker}`
+                : `Invest in ${pkg.ticker}`}
+            </Button>
+          )}
         </div>
       </div>
     </StepScreenLayout>

@@ -1,6 +1,6 @@
 import { IS_DEMO_MODE } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
-import { SAMPLE_ID_PREFIX, sampleYearOfActivity } from "@/demo/sampleActivity";
+import { SAMPLE_ID_PREFIX, SAMPLE_VERSION, sampleYearOfActivity } from "@/demo/sampleActivity";
 import type { Transaction } from "./transactionModel";
 
 /**
@@ -15,7 +15,18 @@ export async function getTransactions(): Promise<Transaction[]> {
   // TODO(api): GET /api/transactions (newest first, paginated; the server is the record)
   if (IS_DEMO_MODE) {
     const email = demo.getSessionEmail();
-    const saved = (email && demo.findAccount(email)?.transactions) || [];
+    const account = email ? demo.findAccount(email) : null;
+    let saved = account?.transactions ?? [];
+
+    // A sample year made by an older version of the app (e.g. three packages,
+    // from before the one-package rule) is swapped for the current one, so the
+    // preview always follows today's rules. Real transactions are kept as
+    // they are. Saving notifies listeners, which reload and find it current.
+    if (account && account.sampleActivityVersion !== SAMPLE_VERSION && saved.some(isSampleTransaction)) {
+      saved = [...saved.filter((item) => !isSampleTransaction(item)), ...sampleYearOfActivity()];
+      demo.updateAccount(account.email, { transactions: saved, sampleActivityVersion: SAMPLE_VERSION });
+    }
+
     return [...saved].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
   return [];
@@ -43,6 +54,7 @@ export async function loadSampleActivity(): Promise<void> {
   const saved = (email && demo.findAccount(email)?.transactions) || [];
   demo.updateSessionAccount({
     transactions: [...saved.filter((item) => !isSampleTransaction(item)), ...sampleYearOfActivity()],
+    sampleActivityVersion: SAMPLE_VERSION,
   });
 }
 
@@ -51,5 +63,8 @@ export async function clearSampleActivity(): Promise<void> {
   if (!IS_DEMO_MODE) return;
   const email = demo.getSessionEmail();
   const saved = (email && demo.findAccount(email)?.transactions) || [];
-  demo.updateSessionAccount({ transactions: saved.filter((item) => !isSampleTransaction(item)) });
+  demo.updateSessionAccount({
+    transactions: saved.filter((item) => !isSampleTransaction(item)),
+    sampleActivityVersion: undefined,
+  });
 }

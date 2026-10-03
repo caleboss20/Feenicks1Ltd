@@ -54,6 +54,8 @@ export type DemoAccount = {
   onboardingFinishedAt?: string;
   /** Investments, returns, withdrawals and referral rewards (none until payments exist). */
   transactions?: Transaction[];
+  /** Which version of the demo's sample year is in `transactions`, if any (see SAMPLE_VERSION). */
+  sampleActivityVersion?: number;
   createdAt: string;
 };
 
@@ -179,6 +181,7 @@ export function updateAccount(
       | "termsAcceptances"
       | "onboardingFinishedAt"
       | "transactions"
+      | "sampleActivityVersion"
     >
   >,
 ) {

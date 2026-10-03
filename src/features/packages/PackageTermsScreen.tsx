@@ -23,6 +23,9 @@
  *     (the floating arrow shows there's more to read; no nagging text)
  *   - the button only works once the box is ticked
  *   - acceptance is saved with the terms version and time (investmentService)
+ *   - a package the investor can't put money into under the package rules
+ *     (packagePolicy.ts: for now, one investor, one package) says why, and
+ *     can't be agreed to (the service refuses it too)
  *
  * Then → the dashboard (TODO(invest): amount → payment → confirm, once built).
  * Two flows, same screen (config/investingFlow.ts): Back returns to the
@@ -39,9 +42,12 @@ import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { packageDetailsHref, packageTermsHref, type InvestingFlow } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useLeaveFinishedOnboarding } from "@/features/investor-profile/useLeaveFinishedOnboarding";
+import { useTransactions } from "@/features/transactions/useTransactions";
 import { cn } from "@/lib/utils";
 import type { InvestmentPackage } from "./investmentPackages";
 import { acceptPackageTerms } from "./investmentService";
+import { investBlockedReason, investOptionFor } from "./packagePolicy";
+import { PackageRuleNotice } from "./PackageRuleNotice";
 import { keyPointsFor, termsFor, TERMS_EFFECTIVE_DATE } from "./termsAndConditions";
 
 /** Where "Agree and continue" leads. TODO(invest): the amount/payment step once built. */
@@ -60,6 +66,10 @@ export function PackageTermsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow
   const [hasAgreed, setHasAgreed] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The package rules: e.g. already in another package (reached by a link or
+  // typed address). The terms stay readable; agreeing is off, with the reason.
+  const transactions = useTransactions();
+  const blockedReason = transactions ? investBlockedReason(investOptionFor(transactions, pkg.id), pkg.id) : null;
 
   // Is the end of the terms on screen (above the pinned bottom bar)? Seeing it
   // once unlocks the checkbox for good. Checked on every scroll and resize,
@@ -183,11 +193,16 @@ export function PackageTermsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow
               <FormErrorMessage message={error} />
             </div>
           )}
+          {blockedReason && (
+            <div className="mb-3">
+              <PackageRuleNotice>{blockedReason}</PackageRuleNotice>
+            </div>
+          )}
 
           <Checkbox
             label="I have read and agree to the Terms & Conditions and understand the risks."
             checked={hasAgreed}
-            disabled={!hasReadToEnd || isSaving}
+            disabled={!hasReadToEnd || isSaving || Boolean(blockedReason)}
             onChange={(event) => setHasAgreed(event.target.checked)}
             size="sm"
             className="items-start gap-2.5 text-[0.8125rem] leading-snug font-normal text-neutral-700 has-disabled:cursor-not-allowed has-disabled:opacity-50 lg:text-[0.8125rem] dark:text-neutral-300"
@@ -195,7 +210,7 @@ export function PackageTermsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow
           <Button
             size="lg"
             fullWidth
-            disabled={!hasAgreed}
+            disabled={!hasAgreed || Boolean(blockedReason)}
             isLoading={isSaving}
             loadingLabel="Saving"
             onClick={handleAgree}

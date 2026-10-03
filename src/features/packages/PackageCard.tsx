@@ -17,6 +17,12 @@
  * The "Best match" card only differs by a thin green outline and a small
  * green "Best match" label.
  *
+ * Under the package rules (packagePolicy.ts: for now, one investor, one
+ * package), the investor's own package says "Your package" and shows how much
+ * they've put in instead of the minimum, and packages they can't invest in
+ * now show a grey lock instead of the green arrow. Locked cards still open, so
+ * the details and returns calculator can be read.
+ *
  * Also exports PackageIcon (the coloured round icon) for the details page.
  */
 
@@ -26,6 +32,7 @@ import {
   BriefcaseIcon,
   BuildingIcon,
   ClockIcon,
+  LockIcon,
   SproutIcon,
   TrendUpIcon,
 } from "@/components/icons";
@@ -82,6 +89,9 @@ export function PackageCard({
   isBestMatch,
   isSelected,
   onSelect,
+  isYours,
+  invested,
+  isLocked,
 }: {
   pkg: InvestmentPackage;
   /** Which details page it opens: in the app (/invest/…) or during onboarding (/packages/…). */
@@ -92,15 +102,22 @@ export function PackageCard({
   isSelected?: boolean;
   /** Called when the card is tapped, just before its details open. */
   onSelect?: () => void;
+  /** The investor's own package: green outline + "Your package" label. */
+  isYours?: boolean;
+  /** How much they've put in (their package), shown instead of the minimum. */
+  invested?: number;
+  /** They can't invest in it right now (package rules): a lock instead of the arrow. */
+  isLocked?: boolean;
 }) {
   const [lowRoi, highRoi] = pkg.monthlyRoiPercent;
+  const label = isYours ? "Your package" : isBestMatch ? "Best match" : null;
 
   return (
     <Link
       id={packageCardId(pkg.id)}
       href={packageDetailsHref(pkg.id, flow)}
       onClick={onSelect}
-      aria-label={`${pkg.name}${isBestMatch ? ", best match" : ""}${isSelected ? ", selected" : ""}. Expected return ${roiRangeLabel(pkg.monthlyRoiPercent)} a month, from ${formatCedis(pkg.minimum)}.`}
+      aria-label={`${pkg.name}${label ? `, ${label.toLowerCase()}` : ""}${isSelected ? ", selected" : ""}${isLocked ? ", not available to invest in right now" : ""}. Expected return ${roiRangeLabel(pkg.monthlyRoiPercent)} a month, ${invested !== undefined ? `you've invested ${formatCedis(invested)}` : `from ${formatCedis(pkg.minimum)}`}.`}
       className={cn(
         "group block p-6 transition-[transform,background-color,box-shadow] duration-200 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400",
         WAVY_CORNERS,
@@ -112,7 +129,7 @@ export function PackageCard({
           ? "bg-brand-50 ring-2 ring-brand-600 ring-inset dark:bg-brand-500/10 dark:ring-brand-500"
           : cn(
               "bg-neutral-100 dark:bg-white/5",
-              isBestMatch && "ring-[1.5px] ring-brand-600 ring-inset dark:ring-brand-500",
+              (isBestMatch || isYours) && "ring-[1.5px] ring-brand-600 ring-inset dark:ring-brand-500",
             ),
       )}
     >
@@ -120,9 +137,9 @@ export function PackageCard({
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-xs font-medium text-neutral-500">
             {pkg.ticker}
-            {isBestMatch && (
+            {label && (
               <span className="rounded-full bg-brand-600 px-2 py-0.5 text-[0.6875rem] font-semibold text-white">
-                Best match
+                {label}
               </span>
             )}
           </p>
@@ -131,15 +148,17 @@ export function PackageCard({
           </h3>
         </div>
 
-        {/* Round arrow (↗), like "open this". */}
+        {/* Round arrow (↗), like "open this"; a grey lock when it can't be invested in now. */}
         <span
           aria-hidden
           className={cn(
-            "grid size-12 shrink-0 place-items-center rounded-full transition-transform group-hover:rotate-12",
-            "bg-brand-600 text-white",
+            "grid size-12 shrink-0 place-items-center rounded-full transition-transform",
+            isLocked
+              ? "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-400"
+              : "bg-brand-600 text-white group-hover:rotate-12",
           )}
         >
-          <ArrowRight className="size-5 -rotate-45" />
+          {isLocked ? <LockIcon className="size-5" /> : <ArrowRight className="size-5 -rotate-45" />}
         </span>
       </div>
 
@@ -162,9 +181,10 @@ export function PackageCard({
           "bg-background dark:bg-white/5",
         )}
       >
+        {/* Their package: what they've put in. Otherwise: the minimum to start. */}
         <span>
-          <span className="text-neutral-500">From </span>
-          <span className="font-semibold">{formatCedis(pkg.minimum)}</span>
+          <span className="text-neutral-500">{invested !== undefined ? "Invested " : "From "}</span>
+          <span className="font-semibold">{formatCedis(invested ?? pkg.minimum)}</span>
         </span>
         {/* How often profit can be withdrawn: clock + "Monthly" / "Every 3 mo". */}
         <span

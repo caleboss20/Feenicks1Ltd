@@ -18,6 +18,17 @@
  * The package the user taps is highlighted (green fill and outline), and stays
  * highlighted, scrolled into view, when they come back from its details.
  *
+ * Once they've invested, the package rules apply (packagePolicy.ts: for now,
+ * one investor, one package):
+ *
+ *   You're invested in InvestWise Capital. Add money to it any time…
+ *   YOUR PACKAGE
+ *   [ InvestWise Capital   Your package    Invested GH₵ 2,500 ]
+ *   OTHER PACKAGES
+ *   (🔒 For now, you can invest in one package at a time…)
+ *   [ Agribusiness Capital  Best match                      🔒 ]  ← can be opened
+ *   …                                                                to read, not invested in
+ *
  * Two flows, same screen (config/investingFlow.ts):
  *   - onboarding (/packages): the last step of start investing; Back → the
  *     profile result; "Go to dashboard" finishes the journey
@@ -36,6 +47,7 @@ import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
 import { useLeaveFinishedOnboarding } from "@/features/investor-profile/useLeaveFinishedOnboarding";
+import { useTransactions } from "@/features/transactions/useTransactions";
 import {
   ALL_PACKAGES,
   INVESTMENT_PACKAGES,
@@ -44,6 +56,16 @@ import {
   type PackageId,
 } from "./investmentPackages";
 import { PackageCard, packageCardId } from "./PackageCard";
+import {
+  amountInvestedIn,
+  heldPackageIds,
+  MAX_PACKAGES_PER_INVESTOR,
+  PACKAGE_LIMIT_SENTENCE,
+} from "./packagePolicy";
+import { PackageRuleNotice } from "./PackageRuleNotice";
+
+/** Small uppercase heading above a group of cards. */
+const SECTION_TITLE = "text-xs font-semibold tracking-wider text-neutral-400 uppercase";
 
 /** The package last picked from this list (this tab session), highlighted on return. */
 const SELECTED_PACKAGE_KEY = "feenicks1-selected-package";
@@ -63,6 +85,13 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
   const riskLevel = current.status === "signed-in" ? current.account.riskLevel : null;
   const isLeaving = useLeaveFinishedOnboarding(ROUTES.invest, flow === "onboarding");
   const isApp = flow === "app";
+
+  // The package rules (packagePolicy.ts): the packages they're in come first;
+  // once they're in as many as allowed (for now, one), the rest can be read
+  // but not invested in.
+  const transactions = useTransactions();
+  const heldIds = transactions ? heldPackageIds(transactions) : [];
+  const isAtLimit = heldIds.length >= MAX_PACKAGES_PER_INVESTOR;
 
   // Highlight the package the user picks, and keep it highlighted when they
   // come back from its details. (This screen only renders in the browser.)
@@ -90,9 +119,29 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
 
   if (isLeaving) return null;
 
-  const matchedIds = riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel] : [];
+  // The top recommendation keeps its label even if listed lower down.
+  const bestMatchId = riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : null;
+  const matchedIds = (riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel] : []).filter(
+    (id) => !heldIds.includes(id),
+  );
   const matched = matchedIds.map((id) => INVESTMENT_PACKAGES[id]);
-  const others = ALL_PACKAGES.filter((pkg) => !matchedIds.includes(pkg.id));
+  const others = ALL_PACKAGES.filter(
+    (pkg) => !matchedIds.includes(pkg.id) && !heldIds.includes(pkg.id),
+  );
+  const yours = heldIds.map((id) => INVESTMENT_PACKAGES[id]);
+  const yourNames = yours.map((pkg) => pkg.name).join(" and ");
+
+  const card = (pkg: (typeof ALL_PACKAGES)[number], extra?: Partial<React.ComponentProps<typeof PackageCard>>) => (
+    <PackageCard
+      key={pkg.id}
+      pkg={pkg}
+      flow={flow}
+      isBestMatch={pkg.id === bestMatchId}
+      isSelected={pkg.id === selectedId}
+      onSelect={() => select(pkg.id)}
+      {...extra}
+    />
+  );
 
   const title = isApp ? "Investment packages" : riskLevel ? "Packages for you" : "Our packages";
   const backHref = isApp
@@ -105,7 +154,16 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
     <StepScreenLayout title={title} centeredTitle stickyHeader backHref={backHref}>
       <div className="flex flex-1 flex-col sm:flex-none">
         <p className="pt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          {riskLevel ? (
+          {yours.length > 0 ? (
+            // Already investing: start from what they have.
+            <>
+              You&apos;re invested in{" "}
+              <span className="font-semibold text-foreground">{yourNames}</span>.{" "}
+              {isAtLimit
+                ? `Add money to ${yours.length === 1 ? "it" : "them"} any time, up to the package maximum.`
+                : "You can add money to it, or invest in another package too."}
+            </>
+          ) : riskLevel ? (
             <>
               Based on your{" "}
               {isApp ? (
@@ -129,8 +187,9 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
           )}
         </p>
 
-        {/* In the app, without a profile yet: invite them to find their best match. */}
-        {isApp && !riskLevel && (
+        {/* In the app, without a profile yet: invite them to find their best match
+            (unless they can't take another package anyway). */}
+        {isApp && !riskLevel && !isAtLimit && (
           <Link
             href={ROUTES.investorProfileQuestions}
             className="group mt-5 flex items-center gap-3.5 rounded-3xl bg-brand-50 p-4 transition-colors hover:bg-brand-100 dark:bg-brand-500/10 dark:hover:bg-brand-500/15"
@@ -148,40 +207,55 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
           </Link>
         )}
 
-        {matched.length > 0 && (
-          <div className="mt-6 flex flex-col gap-5">
-            {matched.map((pkg, index) => (
-              <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-                flow={flow}
-                isBestMatch={index === 0}
-                isSelected={pkg.id === selectedId}
-                onSelect={() => select(pkg.id)}
-              />
-            ))}
-          </div>
-        )}
-
-        {others.length > 0 && (
-          <section className={matched.length > 0 ? "mt-12" : "mt-6"}>
-            {matched.length > 0 && (
-              <h2 className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-                Other packages
+        {yours.length > 0 ? (
+          <>
+            {/* Investing already: their package first, then everything else
+                (best matches first), locked once they're at the limit. */}
+            <section aria-labelledby="your-package-title" className="mt-6">
+              <h2 id="your-package-title" className={SECTION_TITLE}>
+                {yours.length === 1 ? "Your package" : "Your packages"}
               </h2>
+              <div className="mt-4 flex flex-col gap-5">
+                {yours.map((pkg) =>
+                  card(pkg, { isYours: true, invested: amountInvestedIn(transactions ?? [], pkg.id) }),
+                )}
+              </div>
+            </section>
+
+            {matched.length + others.length > 0 && (
+              <section aria-labelledby="other-packages-title" className="mt-12">
+                <h2 id="other-packages-title" className={SECTION_TITLE}>
+                  Other packages
+                </h2>
+                {isAtLimit && (
+                  <div className="mt-4">
+                    <PackageRuleNotice>
+                      {PACKAGE_LIMIT_SENTENCE} You can still open these to read about them and
+                      try the returns calculator.
+                    </PackageRuleNotice>
+                  </div>
+                )}
+                <div className="mt-4 flex flex-col gap-5">
+                  {[...matched, ...others].map((pkg) => card(pkg, { isLocked: isAtLimit }))}
+                </div>
+              </section>
             )}
-            <div className={matched.length > 0 ? "mt-4 flex flex-col gap-5" : "flex flex-col gap-5"}>
-              {others.map((pkg) => (
-                <PackageCard
-                  key={pkg.id}
-                  pkg={pkg}
-                  flow={flow}
-                  isSelected={pkg.id === selectedId}
-                  onSelect={() => select(pkg.id)}
-                />
-              ))}
-            </div>
-          </section>
+          </>
+        ) : (
+          <>
+            {matched.length > 0 && (
+              <div className="mt-6 flex flex-col gap-5">{matched.map((pkg) => card(pkg))}</div>
+            )}
+
+            {others.length > 0 && (
+              <section className={matched.length > 0 ? "mt-12" : "mt-6"}>
+                {matched.length > 0 && <h2 className={SECTION_TITLE}>Other packages</h2>}
+                <div className={matched.length > 0 ? "mt-4 flex flex-col gap-5" : "flex flex-col gap-5"}>
+                  {others.map((pkg) => card(pkg))}
+                </div>
+              </section>
+            )}
+          </>
         )}
 
         <p className="mt-8 text-xs leading-relaxed text-neutral-400">
