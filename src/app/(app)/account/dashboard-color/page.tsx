@@ -1,0 +1,22 @@
+import type { Metadata, Viewport } from "next";
+import { GREY_PAGE_COLORS } from "@/config/pageColors";
+import { DashboardColorScreen } from "@/features/account/DashboardColorScreen";
+
+/**
+ * Route: `/account/dashboard-color` (choose the colour behind the balance on
+ * Home), from Account › Dashboard colour. Private, logged-in users only →
+ * hidden from search engines.
+ */
+export const metadata: Metadata = {
+  title: "Dashboard colour",
+  robots: { index: false, follow: false },
+};
+
+/** Phone status bar in the page's colour, like Account (dark in dark mode: useStatusBarColor). */
+export const viewport: Viewport = {
+  themeColor: GREY_PAGE_COLORS.light,
+};
+
+export default function DashboardColorPage() {
+  return <DashboardColorScreen />;
+}

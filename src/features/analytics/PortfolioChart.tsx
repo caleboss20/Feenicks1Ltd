@@ -133,6 +133,12 @@ type PortfolioChartProps = {
   variant?: "full" | "compact";
   /** Hide amounts in the reading and the table (the dashboard's eye toggle). */
   hideAmounts?: boolean;
+  /**
+   * Compact: take the line and bubble colours from CSS variables set by the
+   * parent (--chart-line, --chart-line-dark, --chart-bubble,
+   * --chart-bubble-dark): the dashboard's chosen colour. Otherwise brand green.
+   */
+  themed?: boolean;
 };
 
 export function PortfolioChart({
@@ -143,6 +149,7 @@ export function PortfolioChart({
   emptyMessage,
   variant = "full",
   hideAmounts = false,
+  themed = false,
 }: PortfolioChartProps) {
   const gradientId = useId();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -175,19 +182,6 @@ export function PortfolioChart({
   /** Keep a reading on screen near the edges. */
   const edgeAlign = (index: number) =>
     percentX(index) < 18 ? "translate-x-0" : percentX(index) > 82 ? "-translate-x-full" : "-translate-x-1/2";
-  /**
-   * Where money moved: the value only changes when a transaction completes
-   * (portfolioHistory.valueAt), so every point that differs from the one
-   * before is a transaction (or several close together). Each gets a dot,
-   * green up, red down, so every step visibly matches the history.
-   */
-  const moves = isEmpty
-    ? []
-    : points.flatMap((point, index) =>
-        index > 0 && point.value !== points[index - 1].value
-          ? [{ index, isUp: point.value > points[index - 1].value }]
-          : [],
-      );
 
   /** The point nearest the pointer's position across the chart. */
   const indexAt = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -224,7 +218,8 @@ export function PortfolioChart({
             }
           }}
           className={cn(
-            "relative flex-1 rounded-lg text-brand-600 outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 dark:text-brand-400",
+            "relative flex-1 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60",
+            themed ? "text-(--chart-line) dark:text-(--chart-line-dark)" : "text-brand-600 dark:text-brand-400",
             isCompact ? "h-40" : "h-56",
           )}
         >
@@ -294,19 +289,6 @@ export function PortfolioChart({
             )}
           </svg>
 
-          {/* A dot at each transaction: green in, red out. */}
-          {moves.map((move) => (
-            <span
-              key={move.index}
-              aria-hidden
-              className={cn(
-                "pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-background",
-                move.isUp ? "bg-current" : "bg-red-500",
-              )}
-              style={{ left: `${percentX(move.index)}%`, top: `${percentY(move.index)}%` }}
-            />
-          ))}
-
           {/* Compact: the marked point, and a bubble with the change since the
               range began (and, while reading a past point, when it was). */}
           {markedIndex !== null && (
@@ -319,12 +301,13 @@ export function PortfolioChart({
               <div
                 aria-hidden
                 className={cn(
-                  "pointer-events-none absolute z-10 -translate-y-[calc(100%+0.75rem)] rounded-xl bg-brand-800 px-2.5 py-1.5 text-center whitespace-nowrap text-white dark:bg-brand-600",
+                  "pointer-events-none absolute z-10 -translate-y-[calc(100%+0.75rem)] rounded-xl px-2.5 py-1.5 text-center whitespace-nowrap text-white",
+                  themed ? "bg-(--chart-bubble) dark:bg-(--chart-bubble-dark)" : "bg-brand-800 dark:bg-brand-600",
                   edgeAlign(markedIndex),
                 )}
                 style={{ left: `${percentX(markedIndex)}%`, top: `${percentY(markedIndex)}%` }}
               >
-                <p className="text-xs font-semibold tabular-nums">
+                <p className="text-[0.6875rem] font-semibold tabular-nums">
                   {changeTo(markedIndex) === 0
                     ? "No change"
                     : `${changeTo(markedIndex) > 0 ? "+ " : "− "}${amount(Math.abs(changeTo(markedIndex)))}`}
@@ -417,21 +400,6 @@ export function PortfolioChart({
           <span>{formatAxisTime(points[Math.floor(lastIndex / 2)].time)}</span>
           <span>{formatAxisTime(points[lastIndex].time)}</span>
         </div>
-      )}
-
-      {/* What the dots mean (full only; the dashboard keeps it minimal). */}
-      {!isCompact && moves.length > 0 && (
-        <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.6875rem] text-neutral-500 dark:text-neutral-400">
-          <span className="inline-flex items-center gap-1.5">
-            <span aria-hidden className="size-2 rounded-full bg-brand-600 dark:bg-brand-400" />
-            Money in
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span aria-hidden className="size-2 rounded-full bg-red-500" />
-            Money out
-          </span>
-          <span>Each dot is a transaction.</span>
-        </p>
       )}
 
       {/* Live readout for keyboard scrubbing. */}

@@ -55,13 +55,13 @@ export function RecentTransactions({
   return (
     <section aria-labelledby="recent-activity-title">
       <div className="flex items-center justify-between">
-        <h2 id="recent-activity-title" className="text-lg font-semibold tracking-tight">
+        <h2 id="recent-activity-title" className="text-base font-semibold tracking-tight">
           Recent activity
         </h2>
         {latest.length > 0 && (
           <Link
             href={ROUTES.transactions}
-            className="text-sm font-medium text-neutral-500 transition-colors hover:text-foreground dark:text-neutral-400"
+            className="text-xs font-medium text-neutral-500 transition-colors hover:text-foreground dark:text-neutral-400"
           >
             View all
           </Link>
@@ -87,8 +87,8 @@ export function RecentTransactions({
             <ClockIcon className="size-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-[0.9375rem] font-medium">No activity yet</p>
-            <p className="mt-1 text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
+            <p className="text-[0.8125rem] font-medium">No activity yet</p>
+            <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
               Your investments, returns and withdrawals will show here.
             </p>
           </div>
@@ -129,19 +129,19 @@ function RecentRow({ transaction }: { transaction: Transaction }) {
       </span>
 
       <div className="min-w-0 flex-1">
-        <p className="line-clamp-2 text-[0.9375rem] leading-snug font-medium">{title}</p>
-        <p className="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="line-clamp-2 text-[0.8125rem] leading-snug font-medium">{title}</p>
+        <p className="mt-1 truncate text-[0.6875rem] text-neutral-500 dark:text-neutral-400">
           {/* Beside a wide amount, "Transaction ID: …" only fits from 375px up;
               narrower phones (360px is common) get "ID: …". */}
           <span className="max-[375px]:hidden">Transaction </span>ID: {transaction.id}
         </p>
-        <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">{when}</p>
+        <p className="mt-0.5 text-[0.6875rem] text-neutral-400 dark:text-neutral-500">{when}</p>
       </div>
 
       <div className="shrink-0 text-right">
         <p
           className={cn(
-            "text-[0.9375rem] font-semibold whitespace-nowrap tabular-nums",
+            "text-[0.8125rem] font-semibold whitespace-nowrap tabular-nums",
             isFailed && "text-neutral-400 line-through",
             !isFailed && isOut && "text-red-600 dark:text-red-400",
             !isFailed && sign === "+ " && "text-brand-600 dark:text-brand-400",
@@ -153,7 +153,7 @@ function RecentRow({ transaction }: { transaction: Transaction }) {
         {transaction.status !== "completed" && (
           <p
             className={cn(
-              "mt-1 text-[0.6875rem] font-semibold",
+              "mt-1 text-[0.625rem] font-semibold",
               transaction.status === "pending"
                 ? "text-amber-600 dark:text-amber-400"
                 : "text-red-600 dark:text-red-400",

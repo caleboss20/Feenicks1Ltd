@@ -56,7 +56,7 @@ function BannerCard({ banner }: { banner: Banner }) {
   }, [copied]);
 
   const buttonClass =
-    "group mt-3.5 flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-background text-[0.8125rem] font-medium text-neutral-900 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:text-white dark:hover:bg-white/5";
+    "group mt-3.5 flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-background text-xs font-medium text-neutral-900 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:text-white dark:hover:bg-white/5";
   const arrow = <ArrowRight className="size-4" />;
 
   return (
@@ -64,11 +64,11 @@ function BannerCard({ banner }: { banner: Banner }) {
       {/* Room on the right for the dots. */}
       <div className="flex items-center gap-2 px-2 pt-1 pr-16 pb-2.5">
         <span className="text-brand-600 dark:text-brand-400 [&_svg]:size-[18px]">{banner.icon}</span>
-        <h2 className="truncate text-sm font-semibold">{banner.title}</h2>
+        <h2 className="truncate text-[0.8125rem] font-semibold">{banner.title}</h2>
       </div>
 
       <div className="flex flex-1 flex-col rounded-2xl border border-neutral-100 bg-neutral-50 p-3.5 dark:border-white/5 dark:bg-white/5">
-        <p className="flex-1 text-[0.8125rem] leading-relaxed text-neutral-600 dark:text-neutral-300 [&_strong]:font-semibold [&_strong]:text-neutral-900 dark:[&_strong]:text-white">
+        <p className="flex-1 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300 [&_strong]:font-semibold [&_strong]:text-neutral-900 dark:[&_strong]:text-white">
           {banner.text}
         </p>
         {"href" in banner.action ? (

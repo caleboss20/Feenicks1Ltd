@@ -74,7 +74,9 @@ import { useTransactions } from "@/features/transactions/useTransactions";
 import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { type Banner, BannerCarousel } from "./BannerCarousel";
-import { DASHBOARD_TOP_GRADIENT, DASHBOARD_TOP_GRADIENT_WITH_CHART } from "./dashboardTheme";
+import { useStatusBarColor } from "@/hooks/useStatusBarColor";
+import { useThemeStore } from "@/stores/useThemeStore";
+import { dashboardColor, dashboardGradient } from "./dashboardTheme";
 import { FirstInvestmentSheet } from "./FirstInvestmentSheet";
 import { PerformanceCard } from "./PerformanceCard";
 
@@ -111,6 +113,10 @@ export function DashboardScreen() {
   const hasInvested = transactions ? hasCompletedInvestment(transactions) : null;
   // The dashboard only renders in the browser (AppLockGuard), so storage is safe here.
   const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
+  // The colour they chose for the top (Account › Dashboard colour), and the
+  // phone's status bar in its deepest shade, so the two blend.
+  const color = dashboardColor(useThemeStore((state) => state.dashboardColor));
+  useStatusBarColor({ light: color.top, dark: color.top });
 
   // Reaching the dashboard ends the start-investing journey: from now on its
   // screens hand over to the in-app versions (Invest, Account › Investor profile).
@@ -209,7 +215,7 @@ export function DashboardScreen() {
   const headerIconButton =
     "grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white/15 min-[360px]:size-11 text-white transition-colors hover:bg-white/25 [&_svg]:size-5";
   const whiteButton =
-    "flex h-13 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white text-sm font-semibold min-[360px]:gap-2 min-[360px]:text-[0.9375rem] text-neutral-900 transition-colors hover:bg-neutral-50 [&_svg]:size-5";
+    "flex h-13 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white text-xs font-semibold min-[360px]:gap-2 min-[360px]:text-[0.8125rem] text-neutral-900 transition-colors hover:bg-neutral-50 [&_svg]:size-[18px]";
 
   return (
     <div
@@ -218,12 +224,12 @@ export function DashboardScreen() {
         appTabBarPadding,
       )}
     >
-      {/* Green at the top, fading into the page background behind the cards;
-          for investors, solid behind the chart's white title, then a quicker
-          fade behind the top of the chart. */}
+      {/* Their colour (green by default) at the top, fading into the page
+          behind the cards; for investors, solid behind the chart's white
+          title, then a quicker fade behind the top of the chart. */}
       <div
         aria-hidden
-        style={{ backgroundImage: hasInvested ? DASHBOARD_TOP_GRADIENT_WITH_CHART : DASHBOARD_TOP_GRADIENT }}
+        style={{ backgroundImage: dashboardGradient(color, { withChart: Boolean(hasInvested) }) }}
         className="absolute inset-x-0 top-0 -z-10 h-[31rem]"
       />
 
@@ -250,10 +256,10 @@ export function DashboardScreen() {
           )}
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[0.8125rem] text-white/80">
+          <p className="truncate text-xs text-white/80">
             {greetingForNow()} <span aria-hidden>👋</span>
           </p>
-          <h1 className="mt-0.5 truncate text-lg font-semibold tracking-tight">
+          <h1 className="mt-0.5 truncate text-base font-semibold tracking-tight">
             {firstName ?? "Welcome"}
           </h1>
         </div>
@@ -273,19 +279,19 @@ export function DashboardScreen() {
 
       {/* ── Balance ──────────────────────────────────────────────── */}
       <section aria-label="Your portfolio" className="mt-11 px-5 text-white">
-        <p className="text-sm font-medium text-white/85">Portfolio value</p>
+        <p className="text-xs font-medium text-white/85">Portfolio value</p>
 
         <div className="mt-3.5 flex items-center gap-3">
           <p className="flex items-baseline gap-2 leading-none">
-            <span className="text-2xl font-semibold text-white/90">{CEDI_SYMBOL}</span>
+            <span className="text-xl font-semibold text-white/90">{CEDI_SYMBOL}</span>
             {hideAmounts ? (
-              <span aria-label="Amount hidden" className="text-[2.25rem] font-bold tracking-[0.1em]">
+              <span aria-label="Amount hidden" className="text-[2.0625rem] font-bold tracking-[0.1em]">
                 ••••••
               </span>
             ) : (
-              <span className="text-[2.875rem] font-bold tracking-[-0.03em] tabular-nums">
+              <span className="text-[2.6875rem] font-bold tracking-[-0.03em] tabular-nums">
                 {balanceWhole}
-                <span className="text-[1.875rem] text-white/80">.{balanceFraction}</span>
+                <span className="text-[1.6875rem] text-white/80">.{balanceFraction}</span>
               </span>
             )}
           </p>
@@ -300,7 +306,7 @@ export function DashboardScreen() {
           </button>
         </div>
 
-        <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/15 py-1.5 pr-3.5 pl-1.5 text-[0.8125rem] text-white/90">
+        <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/15 py-1.5 pr-3.5 pl-1.5 text-xs text-white/90">
           {/* Stock-ticker arrow: green ▲ for a gain (or nothing yet), red ▼ for a loss. */}
           <span className="grid size-6 place-items-center rounded-full bg-white">
             <TriangleUpIcon
@@ -346,7 +352,7 @@ export function DashboardScreen() {
           // Loading (a moment): empty space, so neither flashes up.
           <div aria-hidden className="h-48" />
         ) : hasInvested ? (
-          <PerformanceCard transactions={transactions} hideAmounts={hideAmounts} />
+          <PerformanceCard transactions={transactions} hideAmounts={hideAmounts} color={color} />
         ) : (
           <BannerCarousel label="Offers and tips" banners={banners} />
         )}

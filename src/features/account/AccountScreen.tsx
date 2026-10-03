@@ -23,6 +23,7 @@
  *   ╰────────────────────────────────────╯
  *   ╭────────────────────────────────────╮
  *   │ ☾  Dark mode                  (  ●) │   ← light by default
+ *   │ 🎨 Dashboard colour         (●)  › │   ← the colour behind the balance
  *   ╰────────────────────────────────────╯
  *   ╭────────────────────────────────────╮
  *   │ 🎧 Help & support                 › │
@@ -51,6 +52,7 @@ import {
   KeyIcon,
   LogoutIcon,
   MoonIcon,
+  PaletteIcon,
   SupportIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
@@ -68,6 +70,7 @@ import { guessBiometricKind } from "@/lib/webAuthn";
 import { cn } from "@/lib/utils";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { GREY_PAGE_COLORS } from "@/config/pageColors";
+import { dashboardColor, swatchGradient } from "@/features/dashboard/dashboardTheme";
 
 /** Company website, for "Help & support" until in-app support exists. */
 const SUPPORT_URL = "https://www.feenicks1solutions.com";
@@ -165,6 +168,7 @@ export function AccountScreen() {
 
       <RowGroup>
         <DarkModeRow />
+        <DashboardColorRow />
       </RowGroup>
 
       <RowGroup>
@@ -219,12 +223,15 @@ function LinkRow({
   icon,
   label,
   value,
+  trailing,
   href,
   external,
 }: {
   icon: React.ReactNode;
   label: string;
   value?: string;
+  /** Something to show before the chevron instead of a text value (e.g. a colour swatch). */
+  trailing?: React.ReactNode;
   href: string;
   external?: boolean;
 }) {
@@ -238,6 +245,7 @@ function LinkRow({
         <span className={iconClass}>{icon}</span>
         <span className="min-w-0 flex-1 truncate text-[0.9375rem]">{label}</span>
         {value && <span className="text-sm text-neutral-500 dark:text-neutral-400">{value}</span>}
+        {trailing}
         {/* Chevron turned to point right ("open"). */}
         <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
       </Link>
@@ -265,6 +273,24 @@ function DarkModeRow() {
         label="Dark mode"
       />
     </li>
+  );
+}
+
+/** Opens the dashboard colour picker; shows the current colour as a small swatch and its name. */
+function DashboardColorRow() {
+  const color = dashboardColor(useThemeStore((state) => state.dashboardColor));
+  return (
+    <LinkRow
+      icon={<PaletteIcon />}
+      label="Dashboard colour"
+      href={ROUTES.dashboardColor}
+      trailing={
+        <span className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+          {color.name}
+          <span aria-hidden className="size-5 rounded-full" style={{ backgroundImage: swatchGradient(color) }} />
+        </span>
+      }
+    />
   );
 }
 

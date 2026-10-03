@@ -37,6 +37,7 @@ import { buildSeries, FIXED_RANGES, yearsRange, type ChartRange } from "@/featur
 import type { Transaction } from "@/features/transactions/transactionModel";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import type { DashboardColor } from "./dashboardTheme";
 
 /** The ranges on the card: short ones, a year, and everything. (Analytics has 1–25 years.) */
 const RANGES: ChartRange[] = [
@@ -50,9 +51,12 @@ const RANGES: ChartRange[] = [
 export function PerformanceCard({
   transactions,
   hideAmounts,
+  color,
 }: {
   transactions: Transaction[];
   hideAmounts: boolean;
+  /** The dashboard colour they chose: the line, bubble and selected range follow it. */
+  color: DashboardColor;
 }) {
   const [rangeId, setRangeId] = useState("1M");
   const range = RANGES.find((item) => item.id === rangeId) ?? RANGES[2];
@@ -67,15 +71,28 @@ export function PerformanceCard({
   return (
     // Open, on the page's gradient: the text lines up with the content above
     // (the parent's 16px gutter + 4px); the chart bleeds to the screen edges.
-    <section aria-labelledby="performance-title">
-      {/* On the green (the dashboard carries it this far for investors):
-          white, like the balance above. */}
+    // The chart's colours follow the dashboard colour (CSS variables read by
+    // PortfolioChart's `themed`); in dark mode, lighter tints so even Navy or
+    // Black stay visible on the dark page.
+    <section
+      aria-labelledby="performance-title"
+      style={
+        {
+          "--chart-line": color.main,
+          "--chart-line-dark": `color-mix(in srgb, ${color.main} 55%, white)`,
+          "--chart-bubble": color.top,
+          "--chart-bubble-dark": `color-mix(in srgb, ${color.main} 75%, white)`,
+        } as React.CSSProperties
+      }
+    >
+      {/* On the dashboard colour (carried this far for investors): white,
+          like the balance above. */}
       <div className="flex items-start justify-between gap-3 px-1 text-white">
         <div className="min-w-0">
-          <h2 id="performance-title" className="text-lg font-semibold tracking-tight">
+          <h2 id="performance-title" className="text-base font-semibold tracking-tight">
             Performance
           </h2>
-          <p className="mt-0.5 text-xs text-white/80">{range.period}</p>
+          <p className="mt-0.5 text-[0.6875rem] text-white/80">{range.period}</p>
         </div>
         <ChangePill change={change} percent={percent} hideAmounts={hideAmounts} />
       </div>
@@ -85,6 +102,7 @@ export function PerformanceCard({
           // A fresh chart per range, so a reading from another range doesn't linger.
           key={range.id}
           variant="compact"
+          themed
           points={points}
           hideAmounts={hideAmounts}
           label={
@@ -107,9 +125,9 @@ export function PerformanceCard({
               aria-pressed={isActive}
               onClick={() => setRangeId(item.id)}
               className={cn(
-                "h-9 cursor-pointer rounded-full text-[0.8125rem] font-semibold transition-colors",
+                "h-8 cursor-pointer rounded-full text-[0.6875rem] font-semibold transition-colors",
                 isActive
-                  ? "bg-brand-800 text-white dark:bg-brand-600"
+                  ? "bg-(--chart-bubble) text-white dark:bg-(--chart-bubble-dark)"
                   : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-400 dark:hover:bg-white/15",
               )}
             >
@@ -122,10 +140,10 @@ export function PerformanceCard({
       {/* A quiet text link (no box), so nothing frames the chart. */}
       <Link
         href={ROUTES.analytics}
-        className="group mx-auto mt-4 flex w-fit items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300"
+        className="group mx-auto mt-3 flex w-fit items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-(--chart-line) transition-opacity hover:opacity-80 dark:text-(--chart-line-dark)"
       >
         See full analytics
-        <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+        <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
       </Link>
     </section>
   );
@@ -143,7 +161,7 @@ function ChangePill({
 }) {
   if (change === 0) {
     return (
-      <span className="shrink-0 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold text-white">
+      <span className="shrink-0 rounded-full bg-white/15 px-2.5 py-1 text-[0.6875rem] font-semibold text-white">
         No change
       </span>
     );
@@ -157,7 +175,7 @@ function ChangePill({
     <span
       className={cn(
         // A white pill on the green (both themes), like the stock-ticker chips.
-        "inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold tabular-nums",
+        "inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[0.6875rem] font-semibold tabular-nums",
         isUp ? "text-brand-700" : "text-red-600",
       )}
     >

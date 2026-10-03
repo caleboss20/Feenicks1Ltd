@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { THEME_STORAGE_KEY, type Theme } from "@/config/theme";
+import { DEFAULT_DASHBOARD_COLOR, type DashboardColorId } from "@/features/dashboard/dashboardTheme";
 
 /**
  * Theme store (Zustand): light / dark appearance.
@@ -33,6 +34,13 @@ function applyTheme(theme: Theme) {
 type ThemeStore = {
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  /**
+   * The colour of the dashboard's top area (Account › Dashboard colour),
+   * green by default. Saved on this device with the theme. An id that's no
+   * longer offered falls back to green when read (dashboardColor()).
+   */
+  dashboardColor: DashboardColorId;
+  setDashboardColor: (id: DashboardColorId) => void;
 };
 
 export const useThemeStore = create<ThemeStore>()(
@@ -43,12 +51,15 @@ export const useThemeStore = create<ThemeStore>()(
         applyTheme(theme);
         set({ theme });
       },
+      dashboardColor: DEFAULT_DASHBOARD_COLOR,
+      setDashboardColor: (dashboardColor) => set({ dashboardColor }),
     }),
     {
       name: THEME_STORAGE_KEY,
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ theme: state.theme }),
+      // Saved before dashboardColor existed? It's simply missing, and stays green.
+      partialize: (state) => ({ theme: state.theme, dashboardColor: state.dashboardColor }),
     },
   ),
 );
