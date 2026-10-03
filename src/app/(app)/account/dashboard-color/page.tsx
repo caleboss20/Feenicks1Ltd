@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { DashboardColorScreen } from "@/features/account/DashboardColorScreen";
 
 /**
@@ -12,9 +11,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Phone status bar in the page's colour, like Account (dark in dark mode: useStatusBarColor). */
+/** Phone status bar in the page's colour: white (black in dark mode: useStatusBarColor). */
 export const viewport: Viewport = {
-  themeColor: GREY_PAGE_COLORS.light,
+  themeColor: "#ffffff",
 };
 
 export default function DashboardColorPage() {

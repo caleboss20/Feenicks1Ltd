@@ -45,10 +45,13 @@ function titleFor(transaction: Transaction): string {
 export function RecentTransactions({
   transactions,
   limit = 5,
+  hideAmounts = false,
 }: {
   /** Newest first; null while loading. */
   transactions: Transaction[] | null;
   limit?: number;
+  /** The dashboard's eye: amounts show as dots, like the balance. */
+  hideAmounts?: boolean;
 }) {
   const latest = transactions?.slice(0, limit) ?? [];
 
@@ -96,7 +99,7 @@ export function RecentTransactions({
       ) : (
         <ul className="mt-6 flex flex-col gap-7">
           {latest.map((transaction) => (
-            <RecentRow key={transaction.id} transaction={transaction} />
+            <RecentRow key={transaction.id} transaction={transaction} hideAmount={hideAmounts} />
           ))}
         </ul>
       )}
@@ -104,7 +107,7 @@ export function RecentTransactions({
   );
 }
 
-function RecentRow({ transaction }: { transaction: Transaction }) {
+function RecentRow({ transaction, hideAmount }: { transaction: Transaction; hideAmount: boolean }) {
   const title = titleFor(transaction);
   const when = formatWhen(transaction.createdAt);
   const amount = formatCedis(transaction.amount, { exact: true });
@@ -147,8 +150,17 @@ function RecentRow({ transaction }: { transaction: Transaction }) {
             !isFailed && sign === "+ " && "text-brand-600 dark:text-brand-400",
           )}
         >
-          {sign}
-          {amount}
+          {hideAmount ? (
+            <>
+              <span aria-hidden>••••</span>
+              <span className="sr-only">Amount hidden</span>
+            </>
+          ) : (
+            <>
+              {sign}
+              {amount}
+            </>
+          )}
         </p>
         {transaction.status !== "completed" && (
           <p

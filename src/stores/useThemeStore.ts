@@ -1,7 +1,17 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { THEME_STORAGE_KEY, type Theme } from "@/config/theme";
-import { DEFAULT_DASHBOARD_COLOR, type DashboardColorId } from "@/features/dashboard/dashboardTheme";
+import {
+  DEFAULT_DASHBOARD_COLOR,
+  type CustomColor,
+  type DashboardColorId,
+} from "@/features/dashboard/dashboardTheme";
+
+/** How many colours "+" keeps (newest first; the oldest drops off). */
+const MAX_SAVED_COLORS = 8;
+
+const sameColor = (a: CustomColor, b: CustomColor) =>
+  a.hue === b.hue && a.saturation === b.saturation && a.brightness === b.brightness;
 
 /**
  * Theme store (Zustand): light / dark appearance.
@@ -40,7 +50,16 @@ type ThemeStore = {
    * longer offered falls back to green when read (dashboardColor()).
    */
   dashboardColor: DashboardColorId;
+  /** Picks a preset (and drops any colour-wheel colour). */
   setDashboardColor: (id: DashboardColorId) => void;
+  /** A colour picked on the colour wheel; when set, it's used instead of the preset. */
+  customDashboardColor: CustomColor | null;
+  setCustomDashboardColor: (color: CustomColor) => void;
+  /** Colours kept with "+" on the picker, newest first (up to 8). */
+  savedDashboardColors: CustomColor[];
+  saveDashboardColor: (color: CustomColor) => void;
+  /** Back to the default (green): the picker's "Reset". */
+  resetDashboardColor: () => void;
 };
 
 export const useThemeStore = create<ThemeStore>()(
@@ -52,14 +71,31 @@ export const useThemeStore = create<ThemeStore>()(
         set({ theme });
       },
       dashboardColor: DEFAULT_DASHBOARD_COLOR,
-      setDashboardColor: (dashboardColor) => set({ dashboardColor }),
+      setDashboardColor: (dashboardColor) => set({ dashboardColor, customDashboardColor: null }),
+      customDashboardColor: null,
+      setCustomDashboardColor: (customDashboardColor) => set({ customDashboardColor }),
+      savedDashboardColors: [],
+      saveDashboardColor: (color) =>
+        set((state) => ({
+          savedDashboardColors: [
+            color,
+            ...state.savedDashboardColors.filter((saved) => !sameColor(saved, color)),
+          ].slice(0, MAX_SAVED_COLORS),
+        })),
+      resetDashboardColor: () =>
+        set({ dashboardColor: DEFAULT_DASHBOARD_COLOR, customDashboardColor: null }),
     }),
     {
       name: THEME_STORAGE_KEY,
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      // Saved before dashboardColor existed? It's simply missing, and stays green.
-      partialize: (state) => ({ theme: state.theme, dashboardColor: state.dashboardColor }),
+      // Saved before these existed? They're simply missing and take their defaults.
+      partialize: (state) => ({
+        theme: state.theme,
+        dashboardColor: state.dashboardColor,
+        customDashboardColor: state.customDashboardColor,
+        savedDashboardColors: state.savedDashboardColors,
+      }),
     },
   ),
 );

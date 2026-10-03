@@ -70,7 +70,7 @@ import { guessBiometricKind } from "@/lib/webAuthn";
 import { cn } from "@/lib/utils";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { GREY_PAGE_COLORS } from "@/config/pageColors";
-import { dashboardColor, swatchGradient } from "@/features/dashboard/dashboardTheme";
+import { chosenDashboardColor, swatchGradient } from "@/features/dashboard/dashboardTheme";
 
 /** Company website, for "Help & support" until in-app support exists. */
 const SUPPORT_URL = "https://www.feenicks1solutions.com";
@@ -278,7 +278,10 @@ function DarkModeRow() {
 
 /** Opens the dashboard colour picker; shows the current colour as a small swatch and its name. */
 function DashboardColorRow() {
-  const color = dashboardColor(useThemeStore((state) => state.dashboardColor));
+  const color = chosenDashboardColor(
+    useThemeStore((state) => state.dashboardColor),
+    useThemeStore((state) => state.customDashboardColor),
+  );
   return (
     <LinkRow
       icon={<PaletteIcon />}

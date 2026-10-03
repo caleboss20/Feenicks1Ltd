@@ -76,7 +76,7 @@ import { cn } from "@/lib/utils";
 import { type Banner, BannerCarousel } from "./BannerCarousel";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { useThemeStore } from "@/stores/useThemeStore";
-import { dashboardColor, dashboardGradient } from "./dashboardTheme";
+import { chosenDashboardColor, dashboardGradient } from "./dashboardTheme";
 import { FirstInvestmentSheet } from "./FirstInvestmentSheet";
 import { PerformanceCard } from "./PerformanceCard";
 
@@ -102,6 +102,14 @@ function readHideAmounts(): boolean {
   }
 }
 
+function saveHideAmounts(hidden: boolean) {
+  try {
+    window.localStorage.setItem(HIDE_AMOUNTS_KEY, hidden ? "1" : "0");
+  } catch {
+    // Storage blocked: the choice just won't be remembered.
+  }
+}
+
 export function DashboardScreen() {
   const current = useCurrentAccount();
   // Value and profit come from the transaction history (same maths as
@@ -115,7 +123,10 @@ export function DashboardScreen() {
   const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
   // The colour they chose for the top (Account › Dashboard colour), and the
   // phone's status bar in its deepest shade, so the two blend.
-  const color = dashboardColor(useThemeStore((state) => state.dashboardColor));
+  const color = chosenDashboardColor(
+    useThemeStore((state) => state.dashboardColor),
+    useThemeStore((state) => state.customDashboardColor),
+  );
   useStatusBarColor({ light: color.top, dark: color.top });
 
   // Reaching the dashboard ends the start-investing journey: from now on its
@@ -128,14 +139,28 @@ export function DashboardScreen() {
 
   const toggleHideAmounts = () => {
     setHideAmounts((hidden) => {
-      try {
-        window.localStorage.setItem(HIDE_AMOUNTS_KEY, hidden ? "0" : "1");
-      } catch {
-        // Storage blocked: the choice just won't be remembered.
-      }
+      saveHideAmounts(!hidden);
       return !hidden;
     });
   };
+
+  // Privacy: leaving the app (another app, the home screen, locking the
+  // phone) hides the amounts, so whoever sees the screen on the way back in
+  // (or the phone's app switcher) sees dots, not money. The eye shows them
+  // again. Saved, so it holds even if the phone closes the app meanwhile.
+  useEffect(() => {
+    const hideOnLeave = () => {
+      if (document.visibilityState !== "hidden") return;
+      setHideAmounts(true);
+      saveHideAmounts(true);
+    };
+    document.addEventListener("visibilitychange", hideOnLeave);
+    window.addEventListener("pagehide", hideOnLeave);
+    return () => {
+      document.removeEventListener("visibilitychange", hideOnLeave);
+      window.removeEventListener("pagehide", hideOnLeave);
+    };
+  }, []);
 
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
@@ -360,7 +385,7 @@ export function DashboardScreen() {
 
       {/* ── Recent activity: the latest transactions (all of them on the Transactions tab) ── */}
       <div className="mt-12 px-4">
-        <RecentTransactions transactions={transactions} />
+        <RecentTransactions transactions={transactions} hideAmounts={hideAmounts} />
       </div>
 
       <AppTabBar />

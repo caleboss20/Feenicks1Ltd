@@ -14,7 +14,13 @@
  * Both carry WHITE text (the greeting, the balance, the chart's title) at a
  * contrast of about 4.5:1 or more. That's why "yellow" is a deep gold:
  * bright yellow can't hold white text.
+ *
+ * Besides the presets, any colour can be picked on a colour wheel (hue +
+ * brightness): customColor() turns it into the two shades, deepening it just
+ * enough to keep white text readable.
  */
+
+import { hexToHsl, hslToHex, lightestForWhiteText } from "@/lib/color";
 
 export type DashboardColorId =
   | "green"
@@ -35,10 +41,18 @@ export type DashboardColorId =
   | "graphite"
   | "black";
 
-export type DashboardColor = { id: DashboardColorId; name: string; top: string; main: string };
+/** A colour ready to use: a preset, or "custom" (picked on the colour wheel). */
+export type DashboardColor = { id: DashboardColorId | "custom"; name: string; top: string; main: string };
 
-/** The choices, in the order shown on the picker (greens, blues, purples, reds, warm, neutrals). */
-export const DASHBOARD_COLORS: DashboardColor[] = [
+/**
+ * A colour picked on the wheel: its hue (0–360), saturation (0–100) and
+ * brightness (0–100: 0 the deepest, 100 the lightest that still carries
+ * white text). Turned into shades by customColor().
+ */
+export type CustomColor = { hue: number; saturation: number; brightness: number };
+
+/** The ready-made choices, in the order shown on the picker (greens, blues, purples, reds, warm, neutrals). */
+export const DASHBOARD_COLORS: (DashboardColor & { id: DashboardColorId })[] = [
   // Feenicks1 green (brand-700 → brand-600): the default, as designed.
   { id: "green", name: "Green", top: "#0f8249", main: "#13934f" },
   { id: "emerald", name: "Emerald", top: "#064e3b", main: "#047857" },
@@ -71,6 +85,44 @@ export function dashboardColor(id: string | null | undefined): DashboardColor {
 
 /** Default top colour, for the dashboard page's `viewport` (the chosen one is applied in the browser). */
 export const DASHBOARD_TOP_COLOR = dashboardColor(DEFAULT_DASHBOARD_COLOR).top;
+
+/* ── Custom colours (the colour wheel) ───────────────────────────────── */
+
+/** Saturation for colours picked on the wheel: vivid, not neon. */
+export const WHEEL_SATURATION = 72;
+
+/** The deepest main shade the brightness slider goes to (HSL lightness, %). */
+const DEEPEST_LIGHTNESS = 14;
+
+/**
+ * Shades for a wheel colour. `main` runs from the deepest (brightness 0) to
+ * the lightest that still carries white text at 4.5:1 (brightness 100), so
+ * whatever is picked, the balance stays readable; `top` is a little deeper,
+ * as with the presets.
+ */
+export function customColor({ hue, saturation, brightness }: CustomColor): DashboardColor {
+  const lightest = lightestForWhiteText(hue, saturation);
+  const lightness = DEEPEST_LIGHTNESS + (lightest - DEEPEST_LIGHTNESS) * (brightness / 100);
+  return {
+    id: "custom",
+    name: "Custom",
+    main: hslToHex(hue, saturation, lightness),
+    top: hslToHex(hue, Math.min(saturation + 6, 100), Math.max(lightness - 8, 6)),
+  };
+}
+
+/** Where a colour sits on the wheel and the brightness slider (so the controls start from it). */
+export function asCustomColor(color: DashboardColor): CustomColor {
+  const { hue, saturation, lightness } = hexToHsl(color.main);
+  const lightest = lightestForWhiteText(hue, saturation);
+  const brightness = ((lightness - DEEPEST_LIGHTNESS) / (lightest - DEEPEST_LIGHTNESS)) * 100;
+  return { hue: Math.round(hue), saturation: Math.round(saturation), brightness: Math.round(Math.min(Math.max(brightness, 0), 100)) };
+}
+
+/** The colour in use: the custom one if they picked one on the wheel, otherwise the preset. */
+export function chosenDashboardColor(presetId: string, custom: CustomColor | null): DashboardColor {
+  return custom ? customColor(custom) : dashboardColor(presetId);
+}
 
 /** `color` mixed with the page background: fades to white in light mode, near-black in dark. */
 const towardsPage = (color: string, percent: number) =>
