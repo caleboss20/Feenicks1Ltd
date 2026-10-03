@@ -11,13 +11,16 @@ import type { Transaction } from "@/features/transactions/transactionModel";
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
-/** The chart's time ranges: how far back, and how many points to plot. */
+/**
+ * The chart's time ranges: how far back, and how many points to plot. Dense
+ * enough that each rise or drop is drawn crisp, not as a long slant.
+ */
 export const RANGES = [
-  { id: "1D", label: "1D", period: "Past day", ms: DAY, points: 49 },
-  { id: "1W", label: "1W", period: "Past week", ms: 7 * DAY, points: 57 },
-  { id: "1M", label: "1M", period: "Past month", ms: 30 * DAY, points: 61 },
-  { id: "1Y", label: "1Y", period: "Past year", ms: 365 * DAY, points: 53 },
-  { id: "ALL", label: "All", period: "All time", ms: null, points: 61 },
+  { id: "1D", label: "1D", period: "Past day", ms: DAY, points: 97 }, // every 15 min
+  { id: "1W", label: "1W", period: "Past week", ms: 7 * DAY, points: 113 }, // every 1.5 h
+  { id: "1M", label: "1M", period: "Past month", ms: 30 * DAY, points: 121 }, // every 6 h
+  { id: "1Y", label: "1Y", period: "Past year", ms: 365 * DAY, points: 147 }, // every 2.5 days
+  { id: "ALL", label: "All", period: "All time", ms: null, points: 147 },
 ] as const;
 
 export type RangeId = (typeof RANGES)[number]["id"];

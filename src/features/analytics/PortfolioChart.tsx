@@ -161,7 +161,7 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
               setActiveIndex(null);
             }
           }}
-          className="relative h-52 flex-1 rounded-lg text-brand-600 outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 dark:text-brand-400"
+          className="relative h-56 flex-1 rounded-lg text-brand-600 outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 dark:text-brand-400"
         >
           <svg
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -265,29 +265,30 @@ export function PortfolioChart({ points, label, formatTime, formatAxisTime, empt
             />
           )}
 
+          {/* Value ticks (clean numbers), sitting on their gridlines at the right
+              edge, inside the plot, so the line spans the full width, centred. */}
+          {!isEmpty &&
+            ticks.map((tick) => (
+              <span
+                key={tick}
+                aria-hidden
+                className="pointer-events-none absolute right-0 -translate-y-full rounded bg-background/85 px-1 pb-0.5 text-[0.625rem] leading-none text-neutral-400 tabular-nums"
+                style={{ top: `${(y(tick) / HEIGHT) * 100}%` }}
+              >
+                {compactValue(tick)}
+              </span>
+            ))}
+
           {isEmpty && (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-foreground">
               {emptyMessage}
             </div>
           )}
         </div>
-
-        {/* Value ticks (clean numbers), right of the plot; none on an empty chart. */}
-        <div aria-hidden className="relative w-11 shrink-0">
-          {!isEmpty && ticks.map((tick) => (
-            <span
-              key={tick}
-              className="absolute right-0 -translate-y-1/2 text-[0.6875rem] text-neutral-400 tabular-nums"
-              style={{ top: `${(y(tick) / HEIGHT) * 100}%` }}
-            >
-              {compactValue(tick)}
-            </span>
-          ))}
-        </div>
       </div>
 
-      {/* Dates: start, middle, now. */}
-      <div aria-hidden className="mt-2 flex justify-between pr-11 text-[0.6875rem] text-neutral-400">
+      {/* Dates: start, middle, now, across the full width. */}
+      <div aria-hidden className="mt-2.5 flex justify-between text-[0.6875rem] text-neutral-400">
         <span>{formatAxisTime(points[0].time)}</span>
         <span>{formatAxisTime(points[Math.floor(lastIndex / 2)].time)}</span>
         <span>{formatAxisTime(points[lastIndex].time)}</span>
