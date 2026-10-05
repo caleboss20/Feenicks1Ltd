@@ -70,8 +70,6 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
   const current = useCurrentAccount();
   const transactions = useTransactions();
   const [amountText, setAmountText] = useState("");
-  // "Too low" waits until they leave the field: typing 1500 passes through 1, 15, 150.
-  const [isTyping, setIsTyping] = useState(true);
 
   const isReady = current.status === "signed-in" && transactions !== null;
   const option = transactions ? investOptionFor(transactions, pkg.id) : null;
@@ -92,9 +90,10 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
   const minimum = isTopUp ? 0.01 : pkg.minimum;
   const maximum = isTopUp ? option.roomLeft : pkg.maximum;
   const amount = Number(amountText) || 0;
+  // Checked as they type, both ways: red the moment it's below the minimum or above the maximum.
   const error = !amountText
     ? null
-    : amount < minimum && !isTyping
+    : amount < minimum
       ? isTopUp
         ? "Enter an amount"
         : `The minimum is ${formatCedis(pkg.minimum)}`
@@ -114,7 +113,7 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
   const card = "rounded-3xl bg-white px-5 py-4 dark:bg-white/5";
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-neutral-100 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-background">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-neutral-100 px-4 pt-[max(2.75rem,calc(env(safe-area-inset-top)+1.75rem))] pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-background">
       <header className="grid grid-cols-[2.75rem_1fr_2.75rem] items-center">
         <Link
           href={ROUTES.invest}
@@ -187,8 +186,6 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
               aria-label={`Amount to ${isTopUp ? "add" : "invest"}, in cedis`}
               value={withCommas(amountText)}
               onChange={(event) => setAmountText(cleanAmount(event.target.value))}
-              onFocus={() => setIsTyping(true)}
-              onBlur={() => setIsTyping(false)}
               inputMode="decimal"
               autoComplete="off"
               placeholder="0"
