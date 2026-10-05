@@ -59,10 +59,13 @@ export const ROUTES = {
   /** Invite a friend: the user's referral QR code (the dashboard's scan button). */
   refer: "/refer",
   /**
-   * Investing, inside the app (dashboard, Account…): packages matched to the
-   * risk profile; details at /invest/[id], terms at /invest/[id]/terms.
+   * Investing, inside the app: the dashboard's Invest button. Opens their
+   * package (chosen at sign-up, or the one they're invested in), or the
+   * packages list if they haven't chosen one (features/packages/InvestStartScreen).
    */
   invest: "/invest",
+  /** All packages (matched to the risk profile first): choose or change. Details at /invest/[id], terms at /invest/[id]/terms. */
+  investPackages: "/invest/packages",
   /** The investor risk profile inside the app (Account › Investor profile), and retaking it. */
   investorProfile: "/account/investor-profile",
   investorProfileQuestions: "/account/investor-profile/questions",

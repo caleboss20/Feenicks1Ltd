@@ -33,15 +33,19 @@
  *   Fee (4% of profit)               − GH₵ 67.20 – 96
  *   …not guaranteed…
  *
- *   (          Invest in ABC          )         ← pinned; opens the Terms
+ *   (            Choose ABC            )         ← pinned; opens the Terms
  *
- * The button follows the package rules (packagePolicy.ts: for now, one
- * investor, one package):
- *   - not investing yet          → "Invest in ABC"
- *   - their own package          → "Add money to ABC", with how much more fits
- *   - their package, at its max  → a note, and the button is off
- *   - another package            → a note ("You're invested in …") and
- *                                  "View your package" instead
+ * The button follows their chosen package (saved when they agree to a
+ * package's terms; Invest opens it) and the package rules (packagePolicy.ts:
+ * for now, one investor, one package):
+ *   - a package they haven't chosen   → "Choose ABC" → its terms → saved as
+ *                                       their choice → back to Invest
+ *   - their chosen package (in the app) → "Back to your package"
+ *   - their package, invested         → a note with how much is in and how
+ *                                       much more fits; "Back to your package"
+ *   - another, while invested         → a note ("You're invested in …") and
+ *                                       "View your package" instead
+ * TODO(invest): "Add money" on their invested package once the amount step exists.
  * Everything else (figures, calculator) stays readable for every package.
  *
  * Estimate (estimateProfit): amount × monthly ROI × months, using the low
@@ -62,6 +66,8 @@ import {
   packageTermsHref,
   type InvestingFlow,
 } from "@/config/investingFlow";
+import { ROUTES } from "@/config/routes";
+import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
 import { useLeaveFinishedOnboarding } from "@/features/investor-profile/useLeaveFinishedOnboarding";
 import { useTransactions } from "@/features/transactions/useTransactions";
@@ -109,6 +115,11 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
   const transactions = useTransactions();
   const option = transactions ? investOptionFor(transactions, pkg.id) : null;
   const blockedReason = option ? investBlockedReason(option, pkg.id) : null;
+  // Their package already, in the app: chosen (not invested yet), or invested in.
+  const current = useCurrentAccount();
+  const chosenId = current.status === "signed-in" ? current.account.chosenPackageId : null;
+  const isChosenHere = flow === "app" && option?.kind === "new" && chosenId === pkg.id;
+  const isYourPackage = flow === "app" && (isChosenHere || option?.kind === "top-up" || option?.kind === "at-maximum");
 
   // The amount to estimate: what they typed, or a sensible start. On their
   // own package, what they've invested (what their money could earn; a
@@ -294,21 +305,31 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
             </div>
           )}
 
+          {isChosenHere && (
+            <p className="mb-3 text-center text-[0.8125rem] text-neutral-600 dark:text-neutral-400">
+              This is your chosen package.
+            </p>
+          )}
+
           {option?.kind === "limit-reached" ? (
             // Can't invest here: point them to the package they're in.
-            <Button size="lg" fullWidth onClick={() => router.push(packageDetailsHref(option.held[0], flow))}>
+            <Button size="lg" fullWidth onClick={() => router.push(ROUTES.invest)}>
               View your package
             </Button>
+          ) : isYourPackage ? (
+            // Already their package (chosen, or invested): nothing to choose.
+            <Button size="lg" fullWidth onClick={() => router.push(ROUTES.invest)}>
+              Back to your package
+            </Button>
           ) : (
+            // Choosing it starts with its Terms; agreeing saves it as their package.
             <Button
               size="lg"
               fullWidth
               disabled={!option || !canInvest(option)}
               onClick={() => router.push(packageTermsHref(pkg.id, flow))}
             >
-              {option?.kind === "top-up" || option?.kind === "at-maximum"
-                ? `Add money to ${pkg.ticker}`
-                : `Invest in ${pkg.ticker}`}
+              Choose {pkg.ticker}
             </Button>
           )}
         </div>

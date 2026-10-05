@@ -90,6 +90,7 @@ export function PackageCard({
   isSelected,
   onSelect,
   isYours,
+  isChosen,
   invested,
   isLocked,
 }: {
@@ -104,13 +105,15 @@ export function PackageCard({
   onSelect?: () => void;
   /** The investor's own package: green outline + "Your package" label. */
   isYours?: boolean;
+  /** The package they've chosen but not invested in yet: green outline + "Your choice" label. */
+  isChosen?: boolean;
   /** How much they've put in (their package), shown instead of the minimum. */
   invested?: number;
   /** They can't invest in it right now (package rules): a lock instead of the arrow. */
   isLocked?: boolean;
 }) {
   const [lowRoi, highRoi] = pkg.monthlyRoiPercent;
-  const label = isYours ? "Your package" : isBestMatch ? "Best match" : null;
+  const label = isYours ? "Your package" : isChosen ? "Your choice" : isBestMatch ? "Best match" : null;
 
   return (
     <Link
@@ -129,7 +132,7 @@ export function PackageCard({
           ? "bg-brand-50 ring-2 ring-brand-600 ring-inset dark:bg-brand-500/10 dark:ring-brand-500"
           : cn(
               "bg-neutral-100 dark:bg-white/5",
-              (isBestMatch || isYours) && "ring-[1.5px] ring-brand-600 ring-inset dark:ring-brand-500",
+              (isBestMatch || isYours || isChosen) && "ring-[1.5px] ring-brand-600 ring-inset dark:ring-brand-500",
             ),
       )}
     >

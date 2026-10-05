@@ -23,8 +23,10 @@ type FlowRoutes = {
   profileQuestions: string;
   /** Risk profile result. */
   profileResult: string;
-  /** The packages list; details at `${packages}/[id]`. */
+  /** The packages list. */
   packages: string;
+  /** Where a package's pages live: details at `${packageBase}/[id]`, terms at `…/[id]/terms`. */
+  packageBase: string;
 };
 
 export const INVESTING_ROUTES: Record<InvestingFlow, FlowRoutes> = {
@@ -32,17 +34,19 @@ export const INVESTING_ROUTES: Record<InvestingFlow, FlowRoutes> = {
     profileQuestions: ROUTES.riskProfileQuestions,
     profileResult: ROUTES.riskProfileResult,
     packages: ROUTES.packages,
+    packageBase: ROUTES.packages,
   },
   app: {
     profileQuestions: ROUTES.investorProfileQuestions,
     profileResult: ROUTES.investorProfile,
-    packages: ROUTES.invest,
+    packages: ROUTES.investPackages,
+    packageBase: ROUTES.invest,
   },
 };
 
 /** A package's details page: "/invest/abc" in the app, "/packages/abc" during onboarding. */
 export function packageDetailsHref(packageId: string, flow: InvestingFlow = "app"): string {
-  return `${INVESTING_ROUTES[flow].packages}/${packageId}`;
+  return `${INVESTING_ROUTES[flow].packageBase}/${packageId}`;
 }
 
 /** A package's Terms & Conditions (the first step of investing in it). */

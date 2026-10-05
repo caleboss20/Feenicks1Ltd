@@ -32,8 +32,10 @@
  * Two flows, same screen (config/investingFlow.ts):
  *   - onboarding (/packages): the last step of start investing; Back → the
  *     profile result; "Go to dashboard" finishes the journey
- *   - app (/invest, the dashboard's Invest button): Back → dashboard; the
- *     profile is a link (view it, or take it if they haven't yet)
+ *   - app (/invest/packages: Invest › Change package, or Invest when they
+ *     haven't chosen one): Back → their package (Invest), or Home; the
+ *     profile is a link (view it, or take it if they haven't yet). Their
+ *     chosen package is marked "Your choice" until they invest.
  */
 
 import { useEffect, useState } from "react";
@@ -83,8 +85,10 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
   const router = useRouter();
   const current = useCurrentAccount();
   const riskLevel = current.status === "signed-in" ? current.account.riskLevel : null;
-  const isLeaving = useLeaveFinishedOnboarding(ROUTES.invest, flow === "onboarding");
+  const isLeaving = useLeaveFinishedOnboarding(ROUTES.investPackages, flow === "onboarding");
   const isApp = flow === "app";
+  // The package they chose (at sign-up or since): marked "Your choice" until they invest.
+  const chosenId = current.status === "signed-in" ? current.account.chosenPackageId : null;
 
   // The package rules (packagePolicy.ts): the packages they're in come first;
   // once they're in as many as allowed (for now, one), the rest can be read
@@ -130,6 +134,8 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
   );
   const yours = heldIds.map((id) => INVESTMENT_PACKAGES[id]);
   const yourNames = yours.map((pkg) => pkg.name).join(" and ");
+  // Not invested yet, but chose one: it's marked, and they can pick another.
+  const isChoosing = isApp && yours.length === 0 && chosenId !== null;
 
   const card = (pkg: (typeof ALL_PACKAGES)[number], extra?: Partial<React.ComponentProps<typeof PackageCard>>) => (
     <PackageCard
@@ -137,6 +143,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
       pkg={pkg}
       flow={flow}
       isBestMatch={pkg.id === bestMatchId}
+      isChosen={isChoosing && pkg.id === chosenId}
       isSelected={pkg.id === selectedId}
       onSelect={() => select(pkg.id)}
       {...extra}
@@ -144,8 +151,11 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
   );
 
   const title = isApp ? "Investment packages" : riskLevel ? "Packages for you" : "Our packages";
+  // In the app: back to their package (Invest) if they have one, else Home.
   const backHref = isApp
-    ? ROUTES.dashboard
+    ? yours.length > 0 || chosenId
+      ? ROUTES.invest
+      : ROUTES.dashboard
     : riskLevel
       ? INVESTING_ROUTES.onboarding.profileResult
       : ROUTES.dashboard;
@@ -186,6 +196,12 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
             "Choose the package that fits your goals. Tap one to see its details."
           )}
         </p>
+        {isChoosing && (
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            Your choice is marked. To change it, open another package and choose it: you can
+            change until you invest.
+          </p>
+        )}
 
         {/* In the app, without a profile yet: invite them to find their best match
             (unless they can't take another package anyway). */}

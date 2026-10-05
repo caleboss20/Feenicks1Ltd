@@ -1,5 +1,5 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
-import { packageDetailsHref } from "@/config/investingFlow";
+import { ROUTES } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
 import { notify } from "@/demo/demoNotifications";
 import { INVESTMENT_PACKAGES, type PackageId } from "./investmentPackages";
@@ -15,7 +15,8 @@ export type InvestmentResult = { ok: true } | { ok: false; message: string };
 
 /**
  * Records that the user accepted a package's Terms & Conditions: the step
- * just before paying in.
+ * just before paying in. It also makes it their chosen package (saved: the
+ * one Invest opens), which they can change until they invest.
  *
  * Server requirements (for the backend):
  *   - store user, package, terms version and time (legal proof of consent);
@@ -38,19 +39,22 @@ export async function acceptPackageTerms(packageId: PackageId): Promise<Investme
       );
       if (blocked) return { ok: false, message: blocked };
 
-      const previous = demo.findAccount(email)?.termsAcceptances ?? [];
+      const account = demo.findAccount(email);
+      const previous = account?.termsAcceptances ?? [];
+      const wasChosen = account?.chosenPackageId === packageId;
       demo.updateAccount(email, {
         termsAcceptances: [
           ...previous,
           { packageId, version: TERMS_VERSION, acceptedAt: new Date().toISOString() },
         ],
+        chosenPackageId: packageId,
       });
       const { name } = INVESTMENT_PACKAGES[packageId];
       notify(email, {
         kind: "investing",
-        title: `Terms accepted: ${name}`,
-        body: `You agreed to the ${name} terms (effective ${TERMS_EFFECTIVE_DATE}).`,
-        href: packageDetailsHref(packageId),
+        title: wasChosen ? `Terms accepted: ${name}` : `You chose ${name}`,
+        body: `You agreed to the ${name} terms (effective ${TERMS_EFFECTIVE_DATE}).${wasChosen ? "" : " It's your package: Invest opens it."}`,
+        href: ROUTES.invest,
       });
     }
     return { ok: true };

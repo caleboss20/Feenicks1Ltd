@@ -17,6 +17,7 @@
 import { isStepAfter, type AccountStep } from "@/features/auth/accountProgress";
 import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
 import type { AppNotification } from "@/features/notifications/notificationModel";
+import type { PackageId } from "@/features/packages/investmentPackages";
 import type { SupportRequest } from "@/features/support/supportService";
 import type { Transaction } from "@/features/transactions/transactionModel";
 
@@ -52,6 +53,12 @@ export type DemoAccount = {
   riskProfile?: { level: RiskLevel; score: number; answeredAt: string };
   /** Every Terms & Conditions acceptance: which package, which version, when. */
   termsAcceptances?: { packageId: string; version: string; acceptedAt: string }[];
+  /**
+   * The package they've chosen to invest in: set when they agree to a
+   * package's terms (at sign-up or later). Invest opens it. They can change
+   * it until they invest; then the one-package rule holds it (packagePolicy.ts).
+   */
+  chosenPackageId?: PackageId;
   /** When they first reached the dashboard: the start-investing journey is over. */
   onboardingFinishedAt?: string;
   /** Investments, returns, withdrawals and referral rewards (none until payments exist). */
@@ -185,6 +192,7 @@ export function updateAccount(
       | "totpSecret"
       | "riskProfile"
       | "termsAcceptances"
+      | "chosenPackageId"
       | "onboardingFinishedAt"
       | "transactions"
       | "sampleActivityVersion"

@@ -8,6 +8,7 @@ import {
   subscribeToSession,
 } from "@/demo/demoAccounts";
 import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
+import { isPackageId, type PackageId } from "@/features/packages/investmentPackages";
 import type { AccountStep } from "./accountProgress";
 
 /**
@@ -37,6 +38,11 @@ export type CurrentAccount = {
   hasBiometrics: boolean;
   /** Investor risk profile, once the questions are answered. */
   riskLevel: RiskLevel | null;
+  /**
+   * The package they've chosen to invest in (agreed to its terms, at sign-up
+   * or later), or null if they haven't chosen. Invest opens it.
+   */
+  chosenPackageId: PackageId | null;
   step: AccountStep;
   /**
    * They've reached the dashboard at least once: the start-investing journey
@@ -55,8 +61,18 @@ export type CurrentAccountState =
   | { status: "signed-in"; account: CurrentAccount };
 
 /**
+ * The package an account has chosen. Saved when terms are agreed to; for
+ * accounts from before it was saved, the package of their latest terms
+ * acceptance (that's what they chose at sign-up).
+ */
+function chosenPackageOf(account: ReturnType<typeof findAccount>): PackageId | null {
+  const id = account?.chosenPackageId ?? account?.termsAcceptances?.at(-1)?.packageId;
+  return id && isPackageId(id) ? id : null;
+}
+
+/**
  * Everything the screens react to, as one string
- * ("email|unlockedAt|step|biometrics|risk|avatar|username|onboarded"),
+ * ("email|unlockedAt|step|biometrics|risk|avatar|username|onboarded|package"),
  * so React can tell cheaply whether anything changed.
  */
 function readSnapshot() {
@@ -73,6 +89,7 @@ function readSnapshot() {
     account?.avatarDataUrl?.length ?? 0,
     account?.username ?? "",
     account?.onboardingFinishedAt ? 1 : 0,
+    chosenPackageOf(account) ?? "",
   ].join("|");
 }
 
@@ -100,6 +117,7 @@ export function useCurrentAccount(): CurrentAccountState {
         avatarUrl: account.avatarDataUrl ?? null,
         hasBiometrics: Boolean(account.biometricCredentialId),
         riskLevel: account.riskProfile?.level ?? null,
+        chosenPackageId: chosenPackageOf(account),
         step: account.step,
         hasFinishedOnboarding: Boolean(account.onboardingFinishedAt),
         isUnlocked: unlockedAt !== null,

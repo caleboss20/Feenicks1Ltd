@@ -27,7 +27,9 @@
  *     (packagePolicy.ts: for now, one investor, one package) says why, and
  *     can't be agreed to (the service refuses it too)
  *
- * Then → the dashboard (TODO(invest): amount → payment → confirm, once built).
+ * Agreeing makes it their chosen package (investmentService). Then: in the
+ * app → Invest (their package, now this one); at sign-up → the dashboard.
+ * TODO(invest): amount → payment → confirm, once built.
  * Two flows, same screen (config/investingFlow.ts): Back returns to the
  * package's details in the flow it was opened from.
  */
@@ -50,8 +52,11 @@ import { investBlockedReason, investOptionFor } from "./packagePolicy";
 import { PackageRuleNotice } from "./PackageRuleNotice";
 import { keyPointsFor, termsFor, TERMS_EFFECTIVE_DATE } from "./termsAndConditions";
 
-/** Where "Agree and continue" leads. TODO(invest): the amount/payment step once built. */
-const NEXT_SCREEN = ROUTES.dashboard;
+/**
+ * Where "Agree and continue" leads: in the app, Invest (their package, now
+ * this one); at sign-up, the dashboard. TODO(invest): the amount step once built.
+ */
+const NEXT_SCREEN: Record<InvestingFlow, string> = { app: ROUTES.invest, onboarding: ROUTES.dashboard };
 
 /** Height of the pinned bottom bar: the end only counts as "read" when visible above it. */
 const BOTTOM_BAR_HEIGHT_PX = 150;
@@ -109,7 +114,7 @@ export function PackageTermsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow
       setError(result.message);
       return;
     }
-    router.replace(NEXT_SCREEN);
+    router.replace(NEXT_SCREEN[flow]);
   };
 
   if (isLeaving) return null;
