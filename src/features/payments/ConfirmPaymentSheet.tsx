@@ -98,13 +98,21 @@ export function ConfirmPaymentSheet({
   ];
 
   return (
-    <BottomSheet open={open} onClose={onClose} labelledBy={titleId} canClose={!isPaying}>
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      labelledBy={titleId}
+      canClose={!isPaying}
+      // Up to just below the top of the amount screen's From card (its top
+      // padding + 2.75rem header + 3.5rem gap): only the header shows above.
+      className="min-h-[calc(100dvh-max(1rem,env(safe-area-inset-top))-6.25rem)]"
+    >
       <h2 id={titleId} className="mt-4 text-center text-base font-semibold tracking-tight">
         Confirm payment
       </h2>
 
       {/* The amount, big: what this is all about. */}
-      <div className="mt-4 text-center">
+      <div className="mt-5 text-center">
         <p className="text-[0.8125rem] text-neutral-500 dark:text-neutral-400">
           {isTopUp ? "You're adding" : "You're investing"}
         </p>
@@ -116,7 +124,7 @@ export function ConfirmPaymentSheet({
         </p>
       </div>
 
-      <dl className="mt-5 rounded-3xl bg-neutral-50 px-4 dark:bg-white/5">
+      <dl className="mt-6 rounded-3xl bg-neutral-50 px-4 dark:bg-white/5">
         {rows.map((row) => (
           <div
             key={row.label}
@@ -133,7 +141,7 @@ export function ConfirmPaymentSheet({
       </dl>
 
       {/* The network: real radio buttons (arrow keys, screen readers), drawn as tiles. */}
-      <fieldset className="mt-4" disabled={isPaying}>
+      <fieldset className="mt-5" disabled={isPaying}>
         <legend className="text-[0.8125rem] font-semibold">Pay with</legend>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {(Object.keys(MOMO_NETWORKS) as MomoNetwork[]).map((id) => (
@@ -172,7 +180,7 @@ export function ConfirmPaymentSheet({
         )}
       </p>
 
-      <div className="mt-4 flex flex-col gap-3">
+      <div className="mt-auto flex flex-col gap-3 pt-5">
         <FormErrorMessage message={error} />
         <Button
           size="lg"

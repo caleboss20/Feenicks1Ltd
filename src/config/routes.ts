@@ -91,6 +91,14 @@ export function transactionDetailsHref(id: string): string {
   return `${ROUTES.transactions}/${encodeURIComponent(id)}`;
 }
 
+/**
+ * A completed transaction's receipt (Share / Download), e.g. `/transactions/FX4991600/receipt`.
+ * `isNewPayment`: straight after paying (Back then goes home, not back into the payment).
+ */
+export function transactionReceiptHref(id: string, { isNewPayment = false } = {}): string {
+  return `${transactionDetailsHref(id)}/receipt${isNewPayment ? "?new=1" : ""}`;
+}
+
 /** Waiting for a Mobile Money payment to be approved on the phone, e.g. `/invest/payment/PAY48291736`. */
 export function investPaymentHref(paymentId: string): string {
   return `${ROUTES.invest}/payment/${encodeURIComponent(paymentId)}`;

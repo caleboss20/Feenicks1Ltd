@@ -15,9 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChartBarIcon, HomeIcon, ReceiptIcon, UserIcon } from "@/components/icons";
 import { ROUTES } from "@/config/routes";
-import { chosenDashboardColor } from "@/features/dashboard/dashboardTheme";
 import { cn } from "@/lib/utils";
-import { useThemeStore } from "@/stores/useThemeStore";
 
 const TABS = [
   { label: "Home", href: ROUTES.dashboard, icon: <HomeIcon /> },
@@ -31,21 +29,16 @@ export const appTabBarPadding = "pb-[calc(5.5rem+env(safe-area-inset-bottom))]";
 
 export function AppTabBar() {
   const pathname = usePathname();
-  // The current tab takes the dashboard colour: its deep shade on white (the
-  // default green's is the brand green used before), a light tint on black
-  // so even Black or Graphite stand out from the grey tabs.
-  const color = chosenDashboardColor(
-    useThemeStore((state) => state.dashboardColor),
-    useThemeStore((state) => state.customDashboardColor),
-  );
 
   return (
     <nav
       aria-label="Main"
       style={
         {
-          "--tab-active": color.top,
-          "--tab-active-dark": `color-mix(in srgb, ${color.main} 40%, white)`,
+          // The current tab is always the app's green: the colour chosen in
+          // Account › Dashboard colour is for the dashboard's top only.
+          "--tab-active": "var(--color-brand-600)",
+          "--tab-active-dark": "var(--color-brand-400)",
         } as React.CSSProperties
       }
       className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-100 bg-background pb-[env(safe-area-inset-bottom)] dark:border-white/10"

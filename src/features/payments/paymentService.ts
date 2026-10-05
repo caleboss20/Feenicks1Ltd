@@ -126,6 +126,14 @@ export async function getPayment(id: string): Promise<MomoPayment | null> {
   return (email && demo.findAccount(email)?.payments?.find((payment) => payment.id === id)) || null;
 }
 
+/** The payment that recorded this transaction (for its receipt: wallet, fee), or null if none did. */
+export async function getPaymentForTransaction(transactionId: string): Promise<MomoPayment | null> {
+  // TODO(api): part of GET /api/transactions/:id (the server joins the payment)
+  if (!IS_DEMO_MODE) return null;
+  const email = demo.getSessionEmail();
+  return (email && demo.findAccount(email)?.payments?.find((item) => item.transactionId === transactionId)) || null;
+}
+
 /** Sends the prompt again (after RESEND_AFTER_MS), with a fresh APPROVAL_WINDOW_MS to approve it. */
 export async function resendPaymentRequest(id: string): Promise<PaymentResult> {
   // TODO(api): POST /api/payments/:id/resend

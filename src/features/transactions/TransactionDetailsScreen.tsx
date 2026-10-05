@@ -28,6 +28,7 @@
  *   ◷ Processing
  *   ○ Paid to MTN MoMo
  *
+ *   (           View receipt           )   ← completed: Share / Download
  *   Need help with this transaction?     ← Send a message, this one picked
  *
  * Honest by design: the only time shown in Progress is when it was made (the
@@ -38,7 +39,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckIcon, ClockIcon, CloseIcon, CopyIcon } from "@/components/icons";
-import { ROUTES, supportMessageAboutHref } from "@/config/routes";
+import { ROUTES, supportMessageAboutHref, transactionReceiptHref } from "@/config/routes";
 import { INVESTMENT_PACKAGES } from "@/features/packages/investmentPackages";
 import { REFERRAL_POINTS_LABEL } from "@/features/referrals/referralService";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
@@ -227,9 +228,20 @@ function Receipt({ transaction }: { transaction: Transaction }) {
         <Progress transaction={transaction} />
       )}
 
+      {/* Completed: its receipt, to share or download. */}
+      {transaction.status === "completed" && (
+        <Link
+          href={transactionReceiptHref(transaction.id)}
+          className="mt-10 flex h-12 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+        >
+          View receipt
+        </Link>
+      )}
+
       <Link
         href={supportMessageAboutHref(transaction.id)}
-        className="mt-10 flex h-12 items-center justify-center rounded-full border border-neutral-200 text-sm font-semibold transition-colors hover:bg-neutral-50 dark:border-white/15 dark:hover:bg-white/5"
+        className={cn(transaction.status === "completed" ? "mt-3" : "mt-10", "flex h-12 items-center justify-center rounded-full border border-neutral-200 text-sm font-semibold transition-colors hover:bg-neutral-50 dark:border-white/15 dark:hover:bg-white/5",
+        )}
       >
         Need help with this transaction?
       </Link>

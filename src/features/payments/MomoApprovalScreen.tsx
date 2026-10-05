@@ -22,8 +22,8 @@
  *     🔒 Feenicks1 never asks for your MoMo PIN.
  *
  * Then, by the payment's status (paymentService):
- *   approved                       → its receipt. TODO(invest): the
- *                                    "Payment successful" screen instead.
+ *   approved                       → its receipt ("Payment successful",
+ *                                    Share / Download: ReceiptScreen)
  *   declined / expired / cancelled → "Payment not completed" (below), with
  *                                    Try again (same amount and network).
  *
@@ -42,7 +42,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { IS_DEMO_MODE } from "@/config/demoMode";
 import { investAmountHref } from "@/config/investingFlow";
 import { GREY_PAGE_COLORS } from "@/config/pageColors";
-import { investPaymentHref, ROUTES, transactionDetailsHref } from "@/config/routes";
+import { investPaymentHref, ROUTES, transactionReceiptHref } from "@/config/routes";
 import { INVESTMENT_PACKAGES } from "@/features/packages/investmentPackages";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { formatLocalNumber, MOMO_NETWORKS } from "@/lib/mobileMoney";
@@ -119,7 +119,7 @@ export function MomoApprovalScreen({ paymentId }: { paymentId: string }) {
   const transactionId = payment?.status === "approved" ? payment.transactionId : undefined;
   useEffect(() => {
     if (payment === null) router.replace(ROUTES.invest);
-    else if (transactionId) router.replace(transactionDetailsHref(transactionId));
+    else if (transactionId) router.replace(transactionReceiptHref(transactionId, { isNewPayment: true }));
   }, [payment, transactionId, router]);
 
   if (!payment || payment.status === "approved") {

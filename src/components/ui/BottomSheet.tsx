@@ -36,10 +36,12 @@ type BottomSheetProps = {
   labelledBy: string;
   /** False while something is in progress (e.g. paying): it can't be closed. */
   canClose?: boolean;
+  /** Extra classes for the sheet, e.g. a minimum height. The content fills it (a column). */
+  className?: string;
   children: React.ReactNode;
 };
 
-export function BottomSheet({ open, onClose, labelledBy, canClose = true, children }: BottomSheetProps) {
+export function BottomSheet({ open, onClose, labelledBy, canClose = true, className, children }: BottomSheetProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeFallbackTimer = useRef<number | undefined>(undefined);
   const [isClosing, setIsClosing] = useState(false);
@@ -91,12 +93,14 @@ export function BottomSheet({ open, onClose, labelledBy, canClose = true, childr
         if (isClosing && event.target === event.currentTarget) finishClose();
       }}
       className={cn(
-        "mx-auto mt-auto mb-0 max-h-[92dvh] w-full max-w-md overflow-y-auto overscroll-contain rounded-t-[2rem] bg-background p-0 text-foreground backdrop:bg-black/40",
+        // open:flex, never plain flex: that would show the dialog while it's closed.
+        "mx-auto mt-auto mb-0 max-h-[92dvh] w-full max-w-md overflow-y-auto overscroll-contain rounded-t-[2rem] bg-background p-0 text-foreground backdrop:bg-black/40 open:flex open:flex-col",
         isClosing ? "animate-sheet-down backdrop:animate-fade-out" : "animate-sheet-up backdrop:animate-fade-in",
         "motion-reduce:animate-none motion-reduce:backdrop:animate-none",
+        className,
       )}
     >
-      <div className="relative px-6 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="relative flex flex-1 flex-col px-6 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         {/* Grab handle: shows it's a sheet over the page. */}
         <span aria-hidden className="mx-auto block h-1.5 w-10 rounded-full bg-neutral-200 dark:bg-white/15" />
         <button
