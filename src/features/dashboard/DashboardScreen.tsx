@@ -69,6 +69,7 @@ import {
   REFERRAL_REWARD_LABEL,
   shareReferralLink,
 } from "@/features/referrals/referralService";
+import { UnreadBadge } from "@/features/notifications/UnreadBadge";
 import { useUnreadNotificationCount } from "@/features/notifications/useNotifications";
 import { RecentTransactions } from "@/features/transactions/RecentTransactions";
 import { useTransactions } from "@/features/transactions/useTransactions";
@@ -297,14 +298,12 @@ export function DashboardScreen() {
           className={cn(headerIconButton, "relative")}
         >
           <BellIcon />
-          {/* Something new happened on the account: a red dot, ringed in the top colour. */}
-          {unreadNotifications > 0 && (
-            <span
-              aria-hidden
-              className="absolute top-2 right-2 size-2.5 rounded-full bg-red-500"
-              style={{ boxShadow: `0 0 0 2px ${color.top}` }}
-            />
-          )}
+          {/* How many new things happened on the account (1–9, then 9+), ringed in the top colour. */}
+          <UnreadBadge
+            count={unreadNotifications}
+            className="ring-(--badge-ring)"
+            style={{ "--badge-ring": color.top } as React.CSSProperties}
+          />
         </Link>
       </header>
 

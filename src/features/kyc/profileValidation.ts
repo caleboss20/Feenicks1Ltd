@@ -8,6 +8,13 @@ import { z } from "zod";
 /** Minimum age to open an investment account. */
 export const MINIMUM_AGE = 18;
 
+/**
+ * Earliest allowed date of birth (YYYY-MM-DD). The CEO set 1960 (October
+ * 2026): earlier years aren't expected among investors, and a shorter list
+ * makes the date picker quicker to scroll.
+ */
+export const EARLIEST_BIRTH_DATE = "1960-01-01";
+
 /** Latest allowed date of birth (YYYY-MM-DD), i.e. exactly MINIMUM_AGE years ago today. */
 export function latestBirthDate(today = new Date()): string {
   const date = new Date(today);
@@ -46,7 +53,7 @@ export const profileSchema = z.object({
     .string()
     .min(1, "Enter your date of birth")
     .refine((value) => value <= latestBirthDate(), `You must be at least ${MINIMUM_AGE} to invest`)
-    .refine((value) => value >= "1900-01-01", "Enter a valid date of birth"),
+    .refine((value) => value >= EARLIEST_BIRTH_DATE, "Enter a date of birth from 1960 onwards"),
   gender: z.enum(["male", "female"], { message: "Select your gender" }),
   // No email here: it's the one they signed up and verified with, shown on
   // the screen but locked (it can't be changed in this form).

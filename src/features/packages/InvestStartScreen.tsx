@@ -9,13 +9,12 @@
  *   │ (icon) IC  🔒 Your choice               │   ← "🔒 Invested" once money is in
  *   │        InvestWise Capital                │
  *   │ Expected return    5–10% /month          │
- *   │ Amount             GH₵ 500 – 2,999.99    │   ← invested: what's in, what's left
+ *   │ Per payment        GH₵ 500 – 2,999.99    │   ← invested: also what's in
  *   │ Withdrawals        Monthly               │
  *   ╰─────────────────────────────────────────╯
  *   For now, you can invest in one package at a time. You can change your
  *   choice until you invest.
- *   (             Continue             )          ← "Add money" once invested;
- *                                                    none at the maximum
+ *   (             Continue             )          ← "Add money" once invested
  *   (          Change package          )          ← not once invested
  *             See package details
  *
@@ -27,8 +26,8 @@
  *   - invested: this screen, locked (no Change package)
  *   - never chose: straight to the packages list, to choose one
  *
- * Continue / Add money opens the amount screen (InvestAmountScreen).
- * TODO(invest): then the payment step, once built.
+ * Continue / Add money opens the amount screen (InvestAmountScreen), then
+ * the payment. The range is per payment, so they can always add more.
  */
 
 import { useEffect } from "react";
@@ -66,7 +65,7 @@ export function InvestStartScreen() {
 
   const pkg = INVESTMENT_PACKAGES[packageId];
   const option = investOptionFor(transactions, packageId);
-  const isInvested = option.kind === "top-up" || option.kind === "at-maximum";
+  const isInvested = option.kind === "top-up";
 
   return (
     <StepScreenLayout title="Invest" centeredTitle stickyHeader backHref={ROUTES.dashboard}>
@@ -85,7 +84,7 @@ export function InvestStartScreen() {
         </p>
 
         <div className="mt-8 flex flex-col items-center gap-3">
-          {/* Money in: the first investment, or more on top (none once it's at the maximum). */}
+          {/* Money in: the first investment, or more on top (any time: the range is per payment). */}
           {canInvest(option) && (
             <ButtonLink href={investAmountHref(pkg.id)} size="lg" fullWidth>
               {isInvested ? "Add money" : "Continue"}
@@ -120,17 +119,9 @@ function YourPackageCard({
 }) {
   const rows: { label: string; value: string }[] = [
     { label: "Expected return", value: `${roiRangeLabel(pkg.monthlyRoiPercent)} a month` },
-    ...(option.kind === "top-up"
-      ? [
-          { label: "Invested", value: formatCedis(option.invested, { exact: true }) },
-          { label: "You can add", value: `Up to ${formatCedis(option.roomLeft, { exact: true })}` },
-        ]
-      : option.kind === "at-maximum"
-        ? [
-            { label: "Invested", value: formatCedis(option.invested, { exact: true }) },
-            { label: "You can add", value: "Nothing more: it's at its maximum" },
-          ]
-        : [{ label: "Amount", value: `${formatCedis(pkg.minimum)} – ${formatCedis(pkg.maximum)}` }]),
+    ...(option.kind === "top-up" ? [{ label: "Invested", value: formatCedis(option.invested, { exact: true }) }] : []),
+    // The range is for each payment (packagePolicy.ts), not a cap on the total.
+    { label: "Per payment", value: `${formatCedis(pkg.minimum)} – ${formatCedis(pkg.maximum)}` },
     { label: "Withdrawals", value: withdrawalLabel(pkg.withdrawalEveryMonths) },
   ];
 

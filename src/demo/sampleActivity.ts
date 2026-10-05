@@ -18,13 +18,14 @@
  * Deterministic: the same pattern every time, anchored to "now".
  *
  * The totals, for checking (Analytics → "How your portfolio adds up"):
- *   invested 1,500 + 700 + 300                              = GH₵ 2,500.00
+ *   invested 1,500 + 700 + 500                              = GH₵ 2,700.00
  *   profit   7 × 108.00 (on 1,500) + 4 × 158.40 (on 2,200)  = GH₵ 1,389.60
  *            after fees of 7 × 4.50 + 4 × 6.60              = GH₵    57.90
  *   rewards  3 × 100                                        = GH₵   300.00
  *   withdrawn 400 + 500 (a failed 300 and a pending 400 don't count)
  *                                                           = GH₵   900.00
- *   portfolio value 2,500 + 1,389.60 + 300 − 900            = GH₵ 3,289.60
+ *   portfolio value 2,700 + 1,389.60 + 300 − 900            = GH₵ 3,489.60
+ * (The 500 was paid 3 hours ago, so it hasn't earned yet.)
  */
 
 import { INVESTMENT_PACKAGES, type PackageId } from "@/features/packages/investmentPackages";
@@ -40,8 +41,10 @@ export const SAMPLE_ID_PREFIX = "SMP";
  * today's rules without the user having to remove and reload it.
  *   1: three packages (before the one-package rule)
  *   2: one package, topped up within its maximum
+ *   3: every payment within the package's range (the range is per payment),
+ *      and Telecel Cash (formerly Vodafone Cash)
  */
-export const SAMPLE_VERSION = 2;
+export const SAMPLE_VERSION = 3;
 
 /** The one package the sample investor is in (one investor, one package). */
 const SAMPLE_PACKAGE: PackageId = "investwise";
@@ -90,7 +93,7 @@ export function sampleYearOfActivity(now = Date.now()): Transaction[] {
   const deposits = [
     { amount: 1500, msAgo: start, channel: "MTN MoMo" },
     { amount: 700, msAgo: start - 7 * MONTH + 2 * DAY, channel: "MTN MoMo" },
-    { amount: 300, msAgo: 3 * HOUR, channel: "Vodafone Cash" },
+    { amount: 500, msAgo: 3 * HOUR, channel: "Telecel Cash" },
   ];
   deposits.forEach((deposit) =>
     list.push({

@@ -33,10 +33,7 @@ export async function acceptPackageTerms(packageId: PackageId): Promise<Investme
     const email = demo.getSessionEmail();
     if (email) {
       // The package rules, checked here as the server will check them.
-      const blocked = investBlockedReason(
-        investOptionFor(demo.findAccount(email)?.transactions ?? [], packageId),
-        packageId,
-      );
+      const blocked = investBlockedReason(investOptionFor(demo.findAccount(email)?.transactions ?? [], packageId));
       if (blocked) return { ok: false, message: blocked };
 
       const account = demo.findAccount(email);

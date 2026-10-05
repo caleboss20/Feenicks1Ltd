@@ -114,18 +114,18 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
   // Can they put money in here (package rules)? null while their history loads.
   const transactions = useTransactions();
   const option = transactions ? investOptionFor(transactions, pkg.id) : null;
-  const blockedReason = option ? investBlockedReason(option, pkg.id) : null;
+  const blockedReason = option ? investBlockedReason(option) : null;
   // Their package already, in the app: chosen (not invested yet), or invested in.
   const current = useCurrentAccount();
   const chosenId = current.status === "signed-in" ? current.account.chosenPackageId : null;
   const isChosenHere = flow === "app" && option?.kind === "new" && chosenId === pkg.id;
-  const isYourPackage = flow === "app" && (isChosenHere || option?.kind === "top-up" || option?.kind === "at-maximum");
+  const isYourPackage = flow === "app" && (isChosenHere || option?.kind === "top-up");
 
   // The amount to estimate: what they typed, or a sensible start. On their
-  // own package, what they've invested (what their money could earn; a
-  // top-up can only take it up to the maximum); otherwise the minimum.
+  // own package, what they've invested (what their money could earn: any
+  // total, since the range is per payment); otherwise the minimum.
   const [typedAmount, setTypedAmount] = useState<string | null>(null);
-  const ownInvested = option?.kind === "top-up" || option?.kind === "at-maximum" ? option.invested : null;
+  const ownInvested = option?.kind === "top-up" ? option.invested : null;
   const amountText = typedAmount ?? String(ownInvested ?? pkg.minimum);
 
   const amount = Number(amountText.replace(/,/g, ""));
@@ -134,7 +134,8 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
       ? "Enter an amount"
       : amount < pkg.minimum
         ? `The minimum is ${formatCedis(pkg.minimum)}`
-        : amount > pkg.maximum
+        : // The maximum is per payment; on their own package they can estimate their whole total.
+          amount > pkg.maximum && ownInvested === null
           ? `The maximum is ${formatCedis(pkg.maximum)}`
           : null;
 
@@ -296,7 +297,8 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
               <span className="font-semibold text-foreground">
                 {formatCedis(option.invested, { exact: true })}
               </span>{" "}
-              here. You can add up to {formatCedis(option.roomLeft, { exact: true })} more.
+              here. You can add more at any time: {formatCedis(pkg.minimum)} – {formatCedis(pkg.maximum)} per
+              payment.
             </p>
           )}
           {blockedReason && (

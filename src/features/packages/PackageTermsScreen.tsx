@@ -74,7 +74,7 @@ export function PackageTermsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow
   // The package rules: e.g. already in another package (reached by a link or
   // typed address). The terms stay readable; agreeing is off, with the reason.
   const transactions = useTransactions();
-  const blockedReason = transactions ? investBlockedReason(investOptionFor(transactions, pkg.id), pkg.id) : null;
+  const blockedReason = transactions ? investBlockedReason(investOptionFor(transactions, pkg.id)) : null;
 
   // Is the end of the terms on screen (above the pinned bottom bar)? Seeing it
   // once unlocks the checkbox for good. Checked on every scroll and resize,

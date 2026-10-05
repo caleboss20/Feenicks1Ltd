@@ -4,7 +4,12 @@ import * as demo from "@/demo/demoAccounts";
 import { notify } from "@/demo/demoNotifications";
 import { chosenPackageOf } from "@/features/auth/useCurrentAccount";
 import { INVESTMENT_PACKAGES, type PackageId } from "@/features/packages/investmentPackages";
-import { heldPackageIds, investOptionFor } from "@/features/packages/packagePolicy";
+import {
+  heldPackageIds,
+  investBlockedReason,
+  investOptionFor,
+  isWithinPaymentRange,
+} from "@/features/packages/packagePolicy";
 import type { Transaction } from "@/features/transactions/transactionModel";
 import { MOMO_NETWORKS, type MomoNetwork } from "@/lib/mobileMoney";
 import { formatCedis } from "@/lib/money";
@@ -93,7 +98,7 @@ export async function requestMomoPayment(input: {
 
 /**
  * Why this amount can't go into this package, or null if it can: only
- * their own package (packagePolicy.ts), within its limits.
+ * their own package, and each payment within its range (packagePolicy.ts).
  */
 function amountProblem(
   transactions: Transaction[],
@@ -104,15 +109,10 @@ function amountProblem(
   const theirs = heldPackageIds(transactions)[0] ?? chosenId;
   if (theirs !== packageId) return "You can only pay into your own package.";
   const pkg = INVESTMENT_PACKAGES[packageId];
-  const option = investOptionFor(transactions, packageId);
-  if (option.kind === "new" && (amount < pkg.minimum || amount > pkg.maximum)) {
+  const blocked = investBlockedReason(investOptionFor(transactions, packageId));
+  if (blocked) return blocked;
+  if (!isWithinPaymentRange(packageId, amount)) {
     return `Enter between ${formatCedis(pkg.minimum)} and ${formatCedis(pkg.maximum, { exact: true })}.`;
-  }
-  if (option.kind === "top-up" && (amount <= 0 || amount > option.roomLeft)) {
-    return `You can add up to ${formatCedis(option.roomLeft, { exact: true })}.`;
-  }
-  if (option.kind === "at-maximum" || option.kind === "limit-reached") {
-    return "This package can't take any more money.";
   }
   return null;
 }

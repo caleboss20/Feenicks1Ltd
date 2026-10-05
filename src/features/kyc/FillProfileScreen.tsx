@@ -39,6 +39,7 @@ import { saveProfile } from "./kycService";
 import { ProfilePhotoPicker } from "./ProfilePhotoPicker";
 import { useKycStore } from "./useKycStore";
 import {
+  EARLIEST_BIRTH_DATE,
   GENDERS,
   latestBirthDate,
   profileSchema,
@@ -129,7 +130,7 @@ export function FillProfileScreen() {
             label="Date of birth"
             type="date"
             max={latestBirthDate()}
-            min="1900-01-01"
+            min={EARLIEST_BIRTH_DATE}
             autoComplete="bday"
             icon={<CalendarIcon />}
             error={errors.dateOfBirth?.message}

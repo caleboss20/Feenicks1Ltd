@@ -9,11 +9,17 @@
 
 export type MomoNetwork = "mtn" | "telecel" | "at";
 
-export const MOMO_NETWORKS: Record<MomoNetwork, { name: string; short: string; className: string }> = {
-  // Brand-neutral marks (a coloured circle with initials), not the networks' logos.
-  mtn: { name: "MTN MoMo", short: "MTN", className: "bg-yellow-400 text-neutral-900" },
-  telecel: { name: "Telecel Cash", short: "T", className: "bg-red-600 text-white" },
-  at: { name: "AT Money", short: "AT", className: "bg-blue-600 text-white" },
+/**
+ * `logo`: the network's own logo, as a small square icon in `public/images/momo/`
+ * (shown round by MomoNetworkLogo). The logos belong to MTN, Telecel and AT;
+ * they're shown only to say which network a payment goes through.
+ * TODO(launch): swap in the official assets from the payment provider or the
+ * networks, following their brand guidelines.
+ */
+export const MOMO_NETWORKS: Record<MomoNetwork, { name: string; logo: string }> = {
+  mtn: { name: "MTN MoMo", logo: "/images/momo/mtn.webp" },
+  telecel: { name: "Telecel Cash", logo: "/images/momo/telecel.webp" },
+  at: { name: "AT Money", logo: "/images/momo/at.webp" },
 };
 
 /** Prefixes (after the leading 0) for each network. */

@@ -35,6 +35,7 @@ import type { InvestmentPackage } from "@/features/packages/investmentPackages";
 import { formatLocalNumber, MOMO_NETWORKS, type MomoNetwork } from "@/lib/mobileMoney";
 import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import { MomoNetworkLogo } from "./MomoNetworkLogo";
 import { PAYMENT_FEE } from "./paymentModel";
 import { requestMomoPayment } from "./paymentService";
 
@@ -88,8 +89,7 @@ export function ConfirmPaymentSheet({
       label: "To",
       value: (
         <>
-          {pkg.name}
-          <span className="block text-xs font-normal text-neutral-500 dark:text-neutral-400">{pkg.ticker}</span>
+          {pkg.name} <span className="font-normal text-neutral-500 dark:text-neutral-400">· {pkg.ticker}</span>
         </>
       ),
     },
@@ -99,48 +99,48 @@ export function ConfirmPaymentSheet({
 
   return (
     <BottomSheet open={open} onClose={onClose} labelledBy={titleId} canClose={!isPaying}>
-      <h2 id={titleId} className="mt-5 text-center text-[1.0625rem] font-semibold tracking-tight">
+      <h2 id={titleId} className="mt-4 text-center text-base font-semibold tracking-tight">
         Confirm payment
       </h2>
 
       {/* The amount, big: what this is all about. */}
-      <div className="mt-6 text-center">
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+      <div className="mt-4 text-center">
+        <p className="text-[0.8125rem] text-neutral-500 dark:text-neutral-400">
           {isTopUp ? "You're adding" : "You're investing"}
         </p>
-        <p className="mt-2 flex items-start justify-center gap-1.5 font-semibold tracking-tight tabular-nums">
-          <span className="mt-1 text-lg text-neutral-400 dark:text-neutral-500">{CEDI_SYMBOL}</span>
-          <span className="text-[2.75rem] leading-none max-[360px]:text-[2.375rem]">
+        <p className="mt-1.5 flex items-start justify-center gap-1.5 font-semibold tracking-tight tabular-nums">
+          <span className="mt-0.5 text-base text-neutral-400 dark:text-neutral-500">{CEDI_SYMBOL}</span>
+          <span className="text-[2.25rem] leading-none max-[360px]:text-[2rem]">
             {formatCedisNumber(amount, { exact: true })}
           </span>
         </p>
       </div>
 
-      <dl className="mt-7 rounded-3xl bg-neutral-50 px-5 dark:bg-white/5">
+      <dl className="mt-5 rounded-3xl bg-neutral-50 px-4 dark:bg-white/5">
         {rows.map((row) => (
           <div
             key={row.label}
-            className="flex items-start justify-between gap-4 border-b border-neutral-200/70 py-3.5 text-sm dark:border-white/10"
+            className="flex items-baseline justify-between gap-4 border-b border-neutral-200/70 py-2.5 text-[0.8125rem] dark:border-white/10"
           >
             <dt className="text-neutral-500 dark:text-neutral-400">{row.label}</dt>
             <dd className="text-right font-medium">{row.value}</dd>
           </div>
         ))}
-        <div className="flex items-baseline justify-between gap-4 py-4">
-          <dt className="text-sm font-semibold">Total</dt>
-          <dd className="text-base font-semibold tabular-nums">{formatCedis(total, { exact: true })}</dd>
+        <div className="flex items-baseline justify-between gap-4 py-3">
+          <dt className="text-[0.8125rem] font-semibold">Total</dt>
+          <dd className="text-[0.9375rem] font-semibold tabular-nums">{formatCedis(total, { exact: true })}</dd>
         </div>
       </dl>
 
       {/* The network: real radio buttons (arrow keys, screen readers), drawn as tiles. */}
-      <fieldset className="mt-6" disabled={isPaying}>
-        <legend className="text-sm font-semibold">Pay with</legend>
-        <div className="mt-2.5 grid grid-cols-3 gap-2">
+      <fieldset className="mt-4" disabled={isPaying}>
+        <legend className="text-[0.8125rem] font-semibold">Pay with</legend>
+        <div className="mt-2 grid grid-cols-3 gap-2">
           {(Object.keys(MOMO_NETWORKS) as MomoNetwork[]).map((id) => (
             <label
               key={id}
               className={cn(
-                "flex cursor-pointer flex-col items-center gap-2 rounded-2xl bg-neutral-50 px-1 py-3 text-center ring-inset transition-colors dark:bg-white/5",
+                "flex cursor-pointer flex-col items-center gap-1.5 rounded-2xl bg-neutral-50 px-1 py-2.5 text-center ring-inset transition-colors dark:bg-white/5",
                 "has-checked:bg-brand-50 has-checked:ring-2 has-checked:ring-brand-600 dark:has-checked:bg-brand-500/10 dark:has-checked:ring-brand-500",
                 "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-brand-400",
               )}
@@ -154,22 +154,14 @@ export function ConfirmPaymentSheet({
                 onChange={() => setNetwork(id)}
                 className="sr-only"
               />
-              <span
-                aria-hidden
-                className={cn(
-                  "grid size-8 place-items-center rounded-full text-[0.625rem] font-bold",
-                  MOMO_NETWORKS[id].className,
-                )}
-              >
-                {MOMO_NETWORKS[id].short}
-              </span>
-              <span className="text-xs leading-tight font-medium">{MOMO_NETWORKS[id].name}</span>
+              <MomoNetworkLogo network={id} className="size-8" />
+              <span className="text-[0.6875rem] leading-tight font-medium">{MOMO_NETWORKS[id].name}</span>
             </label>
           ))}
         </div>
       </fieldset>
 
-      <p className="mt-5 text-center text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
+      <p className="mt-3.5 text-center text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
         {network ? (
           <>
             We&apos;ll send a prompt to <span className="font-medium text-foreground tabular-nums">{number}</span>.
@@ -180,7 +172,7 @@ export function ConfirmPaymentSheet({
         )}
       </p>
 
-      <div className="mt-5 flex flex-col gap-3">
+      <div className="mt-4 flex flex-col gap-3">
         <FormErrorMessage message={error} />
         <Button
           size="lg"

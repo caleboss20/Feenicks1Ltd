@@ -1,14 +1,18 @@
 import type { Transaction } from "@/features/transactions/transactionModel";
-import { formatCedis } from "@/lib/money";
 import { INVESTMENT_PACKAGES, type PackageId } from "./investmentPackages";
 
 /**
  * Package holding rules: how many packages one investor can be in at a time.
  *
- * ┌ Business rule (confirmed by the CEO, October 2026) ─────────────────────┐
+ * ┌ Business rules (confirmed by the CEO, October 2026) ─────────────────────┐
  * │ ONE INVESTOR, ONE PACKAGE. Once someone has invested in a package, they │
- * │ can add money to that same package (a top-up, keeping their total       │
- * │ within its minimum–maximum), but can't invest in a second package.      │
+ * │ can add money to that same package (a top-up) as often as they like,    │
+ * │ but can't invest in a second package.                                   │
+ * │                                                                         │
+ * │ THE RANGE IS PER PAYMENT. A package's minimum–maximum applies to each   │
+ * │ payment, first or top-up, NOT to the total. InvestWise (GH₵ 500 –       │
+ * │ 2,999.99): 500 now, 2,999.99 next month, 1,000 after… a total of        │
+ * │ GH₵ 10,000 is fine; a single payment of 300 or 3,000 isn't.             │
  * └─────────────────────────────────────────────────────────────────────────┘
  *
  * The rule is expected to change. To let investors hold more packages, raise
@@ -16,15 +20,17 @@ import { INVESTMENT_PACKAGES, type PackageId } from "./investmentPackages";
  * file and never assumes "one", so the app needs no other change. The server
  * must enforce the same rule, because the app's checks are only for guidance.
  * TODO(api): reject an investment in a new package once the investor holds
- * MAX_PACKAGES_PER_INVESTOR packages, and a top-up past the package maximum.
+ * MAX_PACKAGES_PER_INVESTOR packages, and any payment outside the package's
+ * minimum–maximum (isWithinPaymentRange).
  *
  * Where the rule shows up:
  *   - Invest list (RecommendedPackagesScreen): the investor's package first,
  *     marked "Your package"; the others can be browsed but not invested in
  *   - Package details: "Add money" on their package; elsewhere, why not
  *   - Terms (investmentService.acceptPackageTerms): refused when not allowed
- *   - Demo sample year (demo/sampleActivity.ts): one package, topped up
- *     within its maximum
+ *   - Amount screen and payments (paymentService): each payment in range
+ *   - Demo sample year (demo/sampleActivity.ts): one package, every
+ *     payment within its range
  */
 export const MAX_PACKAGES_PER_INVESTOR = 1;
 
@@ -68,21 +74,21 @@ export function amountInvestedIn(transactions: Transaction[], packageId: Package
 export type InvestOption =
   /** A package they're not in, and they have room for one more. */
   | { kind: "new" }
-  /** Their own package: they can add up to `roomLeft` more. */
-  | { kind: "top-up"; invested: number; roomLeft: number }
-  /** Their own package, already at its maximum. */
-  | { kind: "at-maximum"; invested: number }
+  /** Their own package: they can add more (each payment within its range; no cap on the total). */
+  | { kind: "top-up"; invested: number }
   /** Another package, but they're already in as many as allowed. */
   | { kind: "limit-reached"; held: PackageId[] };
 
 export function investOptionFor(transactions: Transaction[], packageId: PackageId): InvestOption {
   const held = heldPackageIds(transactions);
-  if (held.includes(packageId)) {
-    const invested = amountInvestedIn(transactions, packageId);
-    const roomLeft = Math.round((INVESTMENT_PACKAGES[packageId].maximum - invested) * 100) / 100;
-    return roomLeft > 0 ? { kind: "top-up", invested, roomLeft } : { kind: "at-maximum", invested };
-  }
+  if (held.includes(packageId)) return { kind: "top-up", invested: amountInvestedIn(transactions, packageId) };
   return held.length >= MAX_PACKAGES_PER_INVESTOR ? { kind: "limit-reached", held } : { kind: "new" };
+}
+
+/** True when one payment of `amount` GH₵ is within the package's minimum–maximum (first or top-up alike). */
+export function isWithinPaymentRange(packageId: PackageId, amount: number): boolean {
+  const { minimum, maximum } = INVESTMENT_PACKAGES[packageId];
+  return amount >= minimum && amount <= maximum;
 }
 
 /** True when money can go into the package now (a first investment or a top-up). */
@@ -100,12 +106,10 @@ function packageNames(ids: PackageId[]): string {
 export const PACKAGE_LIMIT_SENTENCE = `For now, you can invest in ${LIMIT_IN_WORDS} at a time.`;
 
 /** Why money can't go into the package, in words; null when it can. */
-export function investBlockedReason(option: InvestOption, packageId: PackageId): string | null {
+export function investBlockedReason(option: InvestOption): string | null {
   switch (option.kind) {
     case "limit-reached":
       return `You're invested in ${packageNames(option.held)}. ${PACKAGE_LIMIT_SENTENCE}`;
-    case "at-maximum":
-      return `You've reached the maximum for ${INVESTMENT_PACKAGES[packageId].name} (${formatCedis(INVESTMENT_PACKAGES[packageId].maximum, { exact: true })}).`;
     default:
       return null;
   }

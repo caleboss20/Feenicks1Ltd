@@ -27,10 +27,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, PlusIcon, SearchIcon } from "@/components/icons";
 import { ROUTES } from "@/config/routes";
-import { chosenDashboardColor } from "@/features/dashboard/dashboardTheme";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { cn } from "@/lib/utils";
-import { useThemeStore } from "@/stores/useThemeStore";
 import { searchFaqs, wordMatch, wordsOf, type Faq } from "./faqs";
 
 /** White page in light mode, black in dark (the phone's status bar matches). */
@@ -39,11 +37,6 @@ const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
 export function SupportScreen() {
   useStatusBarColor(PAGE_COLORS);
   const router = useRouter();
-  // The button takes their dashboard colour (green by default), like the rest of the app.
-  const color = chosenDashboardColor(
-    useThemeStore((state) => state.dashboardColor),
-    useThemeStore((state) => state.customDashboardColor),
-  );
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -116,8 +109,7 @@ export function SupportScreen() {
         <p className="text-[0.9375rem] font-medium">Still stuck? Help is a message away</p>
         <Link
           href={ROUTES.supportMessage}
-          className="mt-3 flex h-12 w-full items-center justify-center rounded-full text-[0.9375rem] font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: color.top }}
+          className="mt-3 flex h-12 w-full items-center justify-center rounded-full bg-brand-600 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700"
         >
           Send a message
         </Link>

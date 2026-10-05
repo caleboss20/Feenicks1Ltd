@@ -79,7 +79,7 @@ export const FAQS: Faq[] = [
     category: "investing",
     question: "Can I invest in more than one package?",
     answer: [
-      `${PACKAGE_LIMIT_SENTENCE} You can add money to the package you're in, as long as your total stays within its maximum.`,
+      `${PACKAGE_LIMIT_SENTENCE} You can add money to the package you're in as often as you like: each payment just needs to be within the package's minimum and maximum.`,
     ],
   },
   {

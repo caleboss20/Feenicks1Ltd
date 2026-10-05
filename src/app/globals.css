@@ -420,3 +420,16 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+/*
+ * No scrollbars: pages (the amount screen, transaction details…) and sheets
+ * still scroll by touch, wheel and keyboard, but the bar down the right edge
+ * isn't drawn, like a native app. Firefox: scrollbar-width; Chrome, Edge,
+ * Safari: the ::-webkit-scrollbar pseudo-element.
+ */
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}

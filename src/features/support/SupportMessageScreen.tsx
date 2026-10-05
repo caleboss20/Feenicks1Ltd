@@ -24,14 +24,12 @@ import { ArrowLeft, ChevronDownIcon } from "@/components/icons";
 import { AnimatedCheck } from "@/components/ui/AnimatedCheck";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { ROUTES } from "@/config/routes";
-import { chosenDashboardColor } from "@/features/dashboard/dashboardTheme";
 import { formatWhen, transactionTitle } from "@/features/transactions/transactionFormat";
 import type { Transaction } from "@/features/transactions/transactionModel";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
-import { useThemeStore } from "@/stores/useThemeStore";
 import {
   MESSAGE_MAX_LENGTH,
   MESSAGE_MIN_LENGTH,
@@ -56,10 +54,6 @@ export function SupportMessageScreen() {
   useStatusBarColor(PAGE_COLORS);
   const router = useRouter();
   const transactions = useTransactions();
-  const color = chosenDashboardColor(
-    useThemeStore((state) => state.dashboardColor),
-    useThemeStore((state) => state.customDashboardColor),
-  );
 
   const searchParams = useSearchParams();
   const [chosenTopic, setTopic] = useState<SupportTopic | null>(null);
@@ -106,8 +100,7 @@ export function SupportMessageScreen() {
         <button
           type="button"
           onClick={() => router.replace(ROUTES.support)}
-          className="mt-8 flex h-12 w-full max-w-xs cursor-pointer items-center justify-center rounded-full text-[0.9375rem] font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: color.top }}
+          className="mt-8 flex h-12 w-full max-w-xs cursor-pointer items-center justify-center rounded-full bg-brand-600 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700"
         >
           Back to help
         </button>
@@ -152,10 +145,9 @@ export function SupportMessageScreen() {
                 className={cn(
                   "flex h-9 items-center rounded-full px-4 text-[0.8125rem] font-medium transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-brand-400",
                   topic === item.id
-                    ? "text-white"
+                    ? "bg-brand-600 text-white"
                     : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/15",
                 )}
-                style={topic === item.id ? { backgroundColor: color.top } : undefined}
               >
                 {item.label}
               </span>
@@ -230,8 +222,7 @@ export function SupportMessageScreen() {
           onClick={send}
           disabled={isSending}
           aria-busy={isSending || undefined}
-          className="flex h-12 w-full cursor-pointer items-center justify-center rounded-full text-[0.9375rem] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-          style={{ backgroundColor: color.top }}
+          className="flex h-12 w-full cursor-pointer items-center justify-center rounded-full bg-brand-600 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
         >
           {isSending ? "Sending…" : "Send message"}
         </button>

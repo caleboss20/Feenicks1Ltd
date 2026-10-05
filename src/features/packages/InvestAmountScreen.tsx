@@ -26,10 +26,10 @@
  * (features/payments/ConfirmPaymentSheet), and Pay there sends the prompt
  * to their phone.
  *
- * Limits (packagePolicy.ts): a first investment within the package's
- * minimum–maximum; a top-up anything up to what's left before the maximum
- * (no minimum per top-up). Only for their own package: anything else goes
- * back to Invest.
+ * Limits (packagePolicy.ts): every payment, first or top-up, within the
+ * package's minimum–maximum. The range is per payment, not a cap on the
+ * total, so they can keep adding. Only for their own package: anything else
+ * goes back to Invest.
  */
 
 import { useEffect, useState } from "react";
@@ -43,12 +43,13 @@ import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { ConfirmPaymentSheet } from "@/features/payments/ConfirmPaymentSheet";
+import { MomoNetworkLogo } from "@/features/payments/MomoNetworkLogo";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { formatLocalNumber, MOMO_NETWORKS, networkForNumber } from "@/lib/mobileMoney";
 import { CEDI_SYMBOL, formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { roiRangeLabel, type InvestmentPackage } from "./investmentPackages";
-import { canInvest, heldPackageIds, investOptionFor } from "./packagePolicy";
+import { canInvest, heldPackageIds, investOptionFor, isWithinPaymentRange } from "./packagePolicy";
 
 /** What can be typed: digits and one decimal point, at most 2 decimals, no leading zeros. */
 function cleanAmount(raw: string): string {
@@ -95,26 +96,17 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
   if (current.status !== "signed-in" || !option || !isAllowed) return null;
 
   const isTopUp = option.kind === "top-up";
-  // A top-up has no minimum, only what's left before the package maximum.
-  const minimum = isTopUp ? 0.01 : pkg.minimum;
-  const maximum = isTopUp ? option.roomLeft : pkg.maximum;
   const amount = Number(amountText) || 0;
   // Checked as they type, both ways: red the moment it's below the minimum or above the maximum.
   const error = !amountText
     ? null
-    : amount < minimum
-      ? isTopUp
-        ? "Enter an amount"
-        : `The minimum is ${formatCedis(pkg.minimum)}`
-      : amount > maximum
-        ? isTopUp
-          ? `You can add up to ${formatCedis(maximum, { exact: true })}`
-          : `The maximum is ${formatCedis(pkg.maximum, { exact: true })}`
+    : amount < pkg.minimum
+      ? `The minimum is ${formatCedis(pkg.minimum)}`
+      : amount > pkg.maximum
+        ? `The maximum per payment is ${formatCedis(pkg.maximum, { exact: true })}`
         : null;
-  const isValid = amountText !== "" && amount >= minimum && amount <= maximum;
-  const hint = isTopUp
-    ? `You can add up to ${formatCedis(maximum, { exact: true })}`
-    : `Between ${formatCedis(pkg.minimum)} and ${formatCedis(pkg.maximum, { exact: true })}`;
+  const isValid = amountText !== "" && isWithinPaymentRange(pkg.id, amount);
+  const hint = `Between ${formatCedis(pkg.minimum)} and ${formatCedis(pkg.maximum, { exact: true })}`;
 
   // From: their registered MoMo number, with the network worked out from it.
   const phone = current.account.phone;
@@ -160,17 +152,7 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
           <div className={cn(card, "flex min-h-16 items-center gap-4")}>
             <span className="w-10 shrink-0 text-sm text-neutral-500 dark:text-neutral-400">From</span>
             <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-1">
-              {network && (
-                <span
-                  aria-hidden
-                  className={cn(
-                    "grid size-6 shrink-0 place-items-center rounded-full text-[0.5625rem] font-bold",
-                    MOMO_NETWORKS[network].className,
-                  )}
-                >
-                  {MOMO_NETWORKS[network].short}
-                </span>
-              )}
+              {network && <MomoNetworkLogo network={network} className="size-7" />}
               <span className="text-[0.9375rem] font-medium">
                 {network ? MOMO_NETWORKS[network].name : "Mobile Money"}
               </span>

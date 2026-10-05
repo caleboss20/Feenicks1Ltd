@@ -62,6 +62,7 @@ import { ROUTES } from "@/config/routes";
 import { logOut } from "@/features/auth/authService";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
+import { UnreadBadge } from "@/features/notifications/UnreadBadge";
 import { useUnreadNotificationCount } from "@/features/notifications/useNotifications";
 import { InviteCarousel } from "@/features/referrals/InviteCarousel";
 import { disableBiometricUnlock, enableBiometricUnlock } from "@/features/security/securityService";
@@ -113,12 +114,7 @@ export function AccountScreen() {
           className={cn(circleButton, "relative")}
         >
           <BellIcon className="size-5" />
-          {unreadNotifications > 0 && (
-            <span
-              aria-hidden
-              className="absolute top-2 right-2 size-2.5 rounded-full bg-red-500 ring-2 ring-neutral-100 dark:ring-background"
-            />
-          )}
+          <UnreadBadge count={unreadNotifications} className="ring-neutral-100 dark:ring-background" />
         </Link>
       </header>
 
