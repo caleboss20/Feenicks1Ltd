@@ -113,7 +113,7 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
   const card = "rounded-3xl bg-white px-5 py-4 dark:bg-white/5";
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-neutral-100 px-4 pt-[max(2.75rem,calc(env(safe-area-inset-top)+1.75rem))] pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-background">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-neutral-100 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-background">
       <header className="grid grid-cols-[2.75rem_1fr_2.75rem] items-center">
         <Link
           href={ROUTES.invest}
@@ -132,7 +132,7 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
         </div>
       </header>
 
-      <div className="mt-10 flex flex-col gap-5">
+      <div className="mt-14 flex flex-col gap-5">
         {/* From: the MoMo wallet the money comes from. */}
         <div className={cn(card, "flex min-h-16 items-center gap-4")}>
           <span className="w-10 shrink-0 text-sm text-neutral-500 dark:text-neutral-400">From</span>
@@ -208,7 +208,7 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
         </div>
       </div>
 
-      <p className="mt-8 px-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <p className="mt-10 px-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         By proceeding, you authorize this payment and agree to the terms of {pkg.name}.
       </p>
       <Link
@@ -218,17 +218,21 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
         Read Terms and Conditions
       </Link>
 
-      {/* Off until the payment step exists (TODO(invest)). */}
-      <Button size="lg" fullWidth disabled className="mt-10">
-        {amount >= minimum && amount <= maximum
-          ? `${isTopUp ? "Add" : "Invest"} ${formatCedis(amount, { exact: true })}`
-          : isTopUp
-            ? "Add money"
-            : "Invest"}
-      </Button>
-      <p className="mt-3 text-center text-xs text-neutral-500 dark:text-neutral-400">
-        Paying with Mobile Money is the next step.
-      </p>
+      {/* The button sits at the bottom of the screen (as in the reference),
+          and never closer than 3rem to the text above on short screens. */}
+      <div className="mt-auto pt-12">
+        {/* Off until the payment step exists (TODO(invest)). */}
+        <Button size="lg" fullWidth disabled>
+          {amount >= minimum && amount <= maximum
+            ? `${isTopUp ? "Add" : "Invest"} ${formatCedis(amount, { exact: true })}`
+            : isTopUp
+              ? "Add money"
+              : "Invest"}
+        </Button>
+        <p className="mt-3 text-center text-xs text-neutral-500 dark:text-neutral-400">
+          Paying with Mobile Money is the next step.
+        </p>
+      </div>
     </div>
   );
 }
