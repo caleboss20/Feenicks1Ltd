@@ -69,6 +69,7 @@ export function FillProfileScreen() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ProfileInput, unknown, ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -80,7 +81,9 @@ export function FillProfileScreen() {
     setFormError(null);
     const result = await saveProfile(values, photo?.file ?? null);
     if (!result.ok) {
-      setFormError(result.message);
+      // About one field (e.g. the number is on another account): show it under that field.
+      if (result.field) setError(result.field, { message: result.message }, { shouldFocus: true });
+      else setFormError(result.message);
       return;
     }
     saveProfileInStore(values);

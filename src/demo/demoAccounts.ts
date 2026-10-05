@@ -144,6 +144,20 @@ export function findAccountByPhone(phone: string): DemoAccount | null {
   return Object.values(readAccounts()).find((account) => account.phone === digits) ?? null;
 }
 
+/**
+ * One phone number, one account: true if a DIFFERENT account already has
+ * this number. The account's own number doesn't count, so saving the
+ * profile again with the same number is fine.
+ *
+ * Why: the number identifies a person (SMS codes, Mobile Money), and one
+ * person gets one account; several accounts on one number would also get
+ * round the one-package rule (packagePolicy.ts) and referral rewards.
+ */
+export function isPhoneTakenByAnother(phone: string, email: string): boolean {
+  const owner = findAccountByPhone(phone);
+  return owner !== null && owner.email !== normaliseEmail(email);
+}
+
 function saveAccount(account: DemoAccount) {
   writeJson(local(), ACCOUNTS_KEY, { ...readAccounts(), [account.email]: account });
   notifySessionChange();
@@ -201,6 +215,13 @@ export function updateAccount(
     >
   >,
 ) {
+  // The store's own guard on one number, one account (the "unique" rule a
+  // real database puts on the phone column). Callers check first and show a
+  // proper message (kycService.saveProfile); this only stops a bug from ever
+  // writing a duplicate.
+  if (details.phone && isPhoneTakenByAnother(details.phone, email)) {
+    throw new Error("This phone number is already registered to another account.");
+  }
   const account = findAccount(email);
   if (account) saveAccount({ ...account, ...details });
 }

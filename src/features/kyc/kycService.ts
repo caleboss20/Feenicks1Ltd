@@ -16,7 +16,12 @@ import type { ProfileValues } from "./profileValidation";
  * progress itself as it receives each step.
  */
 
-export type KycResult = { ok: true } | { ok: false; message: string };
+/** `field`: the form field the problem is about, so the screen can show it there. */
+export type KycResult = { ok: true } | { ok: false; message: string; field?: "phone" };
+
+/** One phone number, one account (demoAccounts.isPhoneTakenByAnother). */
+export const PHONE_TAKEN_MESSAGE =
+  "This number is already registered to another account. Use a different number.";
 
 const SOMETHING_WENT_WRONG: KycResult = {
   ok: false,
@@ -132,8 +137,15 @@ export async function saveProfile(
   // TODO(api): PUT /api/profile (multipart: profile fields + optional photo).
   //   Phone is stored with the +233 prefix; legal name and date of birth are
   //   checked against the verified ID document on the server.
+  //   One number, one account: a UNIQUE index on the phone column, and a
+  //   409 { field: "phone" } when another account has it (checked on the
+  //   server, never trusted from the browser).
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
+    const email = demo.getSessionEmail();
+    if (email && demo.isPhoneTakenByAnother(profile.phone, email)) {
+      return { ok: false, field: "phone", message: PHONE_TAKEN_MESSAGE };
+    }
     // Keep a small thumbnail of the photo for the dashboard avatar.
     const avatarDataUrl = photo ? await makeSquareThumbnail(photo) : null;
     demo.updateSessionAccount({
