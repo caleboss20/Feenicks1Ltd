@@ -65,7 +65,7 @@ export type CurrentAccountState =
  * accounts from before it was saved, the package of their latest terms
  * acceptance (that's what they chose at sign-up).
  */
-function chosenPackageOf(account: ReturnType<typeof findAccount>): PackageId | null {
+export function chosenPackageOf(account: ReturnType<typeof findAccount>): PackageId | null {
   const id = account?.chosenPackageId ?? account?.termsAcceptances?.at(-1)?.packageId;
   return id && isPackageId(id) ? id : null;
 }

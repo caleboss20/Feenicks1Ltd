@@ -18,6 +18,7 @@ import { isStepAfter, type AccountStep } from "@/features/auth/accountProgress";
 import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
 import type { AppNotification } from "@/features/notifications/notificationModel";
 import type { PackageId } from "@/features/packages/investmentPackages";
+import type { MomoPayment } from "@/features/payments/paymentModel";
 import type { SupportRequest } from "@/features/support/supportService";
 import type { Transaction } from "@/features/transactions/transactionModel";
 
@@ -69,6 +70,8 @@ export type DemoAccount = {
   supportRequests?: SupportRequest[];
   /** Real events on the account, newest first (demo/demoNotifications.ts). */
   notifications?: AppNotification[];
+  /** Mobile Money payments into their package, any status (features/payments). */
+  payments?: MomoPayment[];
   createdAt: string;
 };
 
@@ -212,6 +215,7 @@ export function updateAccount(
       | "sampleActivityVersion"
       | "supportRequests"
       | "notifications"
+      | "payments"
     >
   >,
 ) {

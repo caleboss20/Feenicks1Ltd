@@ -91,6 +91,11 @@ export function transactionDetailsHref(id: string): string {
   return `${ROUTES.transactions}/${encodeURIComponent(id)}`;
 }
 
+/** Waiting for a Mobile Money payment to be approved on the phone, e.g. `/invest/payment/PAY48291736`. */
+export function investPaymentHref(paymentId: string): string {
+  return `${ROUTES.invest}/payment/${encodeURIComponent(paymentId)}`;
+}
+
 /** Help & support › Send a message, with a transaction already picked ("Need help with this?"). */
 export function supportMessageAboutHref(transactionId: string): string {
   return `${ROUTES.supportMessage}?transaction=${encodeURIComponent(transactionId)}`;
