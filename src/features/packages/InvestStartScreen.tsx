@@ -14,6 +14,8 @@
  *   ╰─────────────────────────────────────────╯
  *   For now, you can invest in one package at a time. You can change your
  *   choice until you invest.
+ *   (             Continue             )          ← "Add money" once invested;
+ *                                                    none at the maximum
  *   (          Change package          )          ← not once invested
  *             See package details
  *
@@ -25,8 +27,8 @@
  *   - invested: this screen, locked (no Change package)
  *   - never chose: straight to the packages list, to choose one
  *
- * TODO(invest): Continue / Add money → amount → payment, once built. Left
- * out until then, so there's no button that leads nowhere.
+ * Continue / Add money opens the amount screen (InvestAmountScreen).
+ * TODO(invest): then the payment step, once built.
  */
 
 import { useEffect } from "react";
@@ -35,13 +37,13 @@ import { useRouter } from "next/navigation";
 import { LockIcon } from "@/components/icons";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { ButtonLink } from "@/components/ui/Button";
-import { packageDetailsHref } from "@/config/investingFlow";
+import { investAmountHref, packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { formatCedis } from "@/lib/money";
 import { INVESTMENT_PACKAGES, roiRangeLabel, withdrawalLabel, type InvestmentPackage } from "./investmentPackages";
-import { heldPackageIds, investOptionFor, PACKAGE_LIMIT_SENTENCE, type InvestOption } from "./packagePolicy";
+import { canInvest, heldPackageIds, investOptionFor, PACKAGE_LIMIT_SENTENCE, type InvestOption } from "./packagePolicy";
 import { PackageIcon } from "./PackageCard";
 
 export function InvestStartScreen() {
@@ -83,6 +85,12 @@ export function InvestStartScreen() {
         </p>
 
         <div className="mt-8 flex flex-col items-center gap-3">
+          {/* Money in: the first investment, or more on top (none once it's at the maximum). */}
+          {canInvest(option) && (
+            <ButtonLink href={investAmountHref(pkg.id)} size="lg" fullWidth>
+              {isInvested ? "Add money" : "Continue"}
+            </ButtonLink>
+          )}
           {!isInvested && (
             <ButtonLink href={ROUTES.investPackages} variant="soft" size="lg" fullWidth>
               Change package

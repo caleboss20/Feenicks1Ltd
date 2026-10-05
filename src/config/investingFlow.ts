@@ -49,6 +49,11 @@ export function packageDetailsHref(packageId: string, flow: InvestingFlow = "app
   return `${INVESTING_ROUTES[flow].packageBase}/${packageId}`;
 }
 
+/** How much to invest in a package (or add to it), in the app. */
+export function investAmountHref(packageId: string): string {
+  return `${ROUTES.invest}/${packageId}/amount`;
+}
+
 /** A package's Terms & Conditions (the first step of investing in it). */
 export function packageTermsHref(packageId: string, flow: InvestingFlow = "app"): string {
   return `${packageDetailsHref(packageId, flow)}/terms`;
