@@ -133,7 +133,7 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
         </div>
       </header>
 
-      <div className="mt-8 flex flex-col gap-3">
+      <div className="mt-10 flex flex-col gap-5">
         {/* From: the MoMo wallet the money comes from. */}
         <div className={cn(card, "flex min-h-16 items-center gap-4")}>
           <span className="w-10 shrink-0 text-sm text-neutral-500 dark:text-neutral-400">From</span>
@@ -171,53 +171,58 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
           </span>
         </div>
 
-        {/* The amount: big, with the phone's number pad. */}
-        <label
-          className={cn(
-            card,
-            "flex items-baseline gap-3 py-5 ring-inset focus-within:ring-2",
-            error ? "ring-2 ring-red-500" : "focus-within:ring-brand-600/40",
-          )}
-        >
-          <span aria-hidden className="text-xl font-semibold text-neutral-500 dark:text-neutral-400">
-            {CEDI_SYMBOL}
-          </span>
-          <input
-            aria-label={`Amount to ${isTopUp ? "add" : "invest"}, in cedis`}
-            value={withCommas(amountText)}
-            onChange={(event) => setAmountText(cleanAmount(event.target.value))}
-            onFocus={() => setIsTyping(true)}
-            onBlur={() => setIsTyping(false)}
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="0"
-            autoFocus
-            aria-invalid={error ? true : undefined}
-            aria-describedby="amount-hint"
-            className="w-0 min-w-0 flex-1 bg-transparent text-[2.75rem] leading-none font-semibold tracking-tight tabular-nums outline-none placeholder:text-neutral-300 dark:placeholder:text-neutral-600"
-          />
-        </label>
-        <p
-          id="amount-hint"
-          role={error ? "alert" : undefined}
-          className={cn("px-2 text-xs", error ? "text-red-600 dark:text-red-400" : "text-neutral-500 dark:text-neutral-400")}
-        >
-          {error ?? hint}
-        </p>
+        {/* The amount: big, with the phone's number pad; its hint sits close under it. */}
+        <div>
+          <label
+            className={cn(
+              card,
+              "flex items-baseline gap-3 py-5 ring-inset focus-within:ring-2",
+              error ? "ring-2 ring-red-500" : "focus-within:ring-brand-600/40",
+            )}
+          >
+            <span aria-hidden className="text-xl font-semibold text-neutral-500 dark:text-neutral-400">
+              {CEDI_SYMBOL}
+            </span>
+            <input
+              aria-label={`Amount to ${isTopUp ? "add" : "invest"}, in cedis`}
+              value={withCommas(amountText)}
+              onChange={(event) => setAmountText(cleanAmount(event.target.value))}
+              onFocus={() => setIsTyping(true)}
+              onBlur={() => setIsTyping(false)}
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="0"
+              autoFocus
+              aria-invalid={error ? true : undefined}
+              aria-describedby="amount-hint"
+              className="w-0 min-w-0 flex-1 bg-transparent text-[2.75rem] leading-none font-semibold tracking-tight tabular-nums outline-none placeholder:text-neutral-300 dark:placeholder:text-neutral-600"
+            />
+          </label>
+          <p
+            id="amount-hint"
+            role={error ? "alert" : undefined}
+            className={cn(
+              "mt-2.5 px-2 text-xs",
+              error ? "text-red-600 dark:text-red-400" : "text-neutral-500 dark:text-neutral-400",
+            )}
+          >
+            {error ?? hint}
+          </p>
+        </div>
       </div>
 
-      <p className="mt-6 px-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <p className="mt-8 px-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         By proceeding, you authorize this payment and agree to the terms of {pkg.name}.
       </p>
       <Link
         href={packageTermsHref(pkg.id)}
-        className="mt-1 w-fit px-1 text-sm font-medium text-brand-700 hover:underline dark:text-brand-400"
+        className="mt-1.5 w-fit px-1 text-sm font-medium text-brand-700 hover:underline dark:text-brand-400"
       >
         Read Terms and Conditions
       </Link>
 
       {/* Off until the payment step exists (TODO(invest)). */}
-      <Button size="lg" fullWidth disabled className="mt-8">
+      <Button size="lg" fullWidth disabled className="mt-10">
         {amount >= minimum && amount <= maximum
           ? `${isTopUp ? "Add" : "Invest"} ${formatCedis(amount, { exact: true })}`
           : isTopUp
