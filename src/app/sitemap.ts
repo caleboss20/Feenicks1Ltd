@@ -1,12 +1,15 @@
 import type { MetadataRoute } from "next";
+import { IS_PUBLIC_LAUNCH } from "@/config/launch";
 import { siteConfig } from "@/config/site";
 
 /**
  * sitemap.xml, served at `/sitemap.xml`.
  * Lists the public pages we want search engines to index.
  * Add new public routes here as they're built (never private/logged-in pages).
+ * Empty until the public launch (config/launch.ts): nothing to list yet.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
+  if (!IS_PUBLIC_LAUNCH) return [];
   return [
     {
       url: siteConfig.url,

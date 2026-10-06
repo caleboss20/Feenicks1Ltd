@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import { IS_PUBLIC_LAUNCH } from "@/config/launch";
 import { siteConfig } from "@/config/site";
 import { themeInitScript } from "@/config/theme";
 import "./globals.css";
@@ -63,7 +64,8 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
   },
-  robots: { index: true, follow: true },
+  // Test version (config/launch.ts): no page may be listed by search engines.
+  robots: IS_PUBLIC_LAUNCH ? { index: true, follow: true } : { index: false, follow: false },
   // Makes "Add to Home Screen" on iOS open like a native app (no Safari bars).
   appleWebApp: {
     capable: true,
