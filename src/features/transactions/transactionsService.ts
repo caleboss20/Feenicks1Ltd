@@ -2,6 +2,7 @@ import { IS_DEMO_MODE } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
 import { SAMPLE_ID_PREFIX, SAMPLE_VERSION, sampleYearOfActivity } from "@/demo/sampleActivity";
 import { settleDemoPayments } from "@/features/payments/paymentService";
+import { settleDemoWithdrawals } from "@/features/withdraw/withdrawalService";
 import type { Transaction } from "./transactionModel";
 
 /**
@@ -17,6 +18,8 @@ export async function getTransactions(): Promise<Transaction[]> {
   if (IS_DEMO_MODE) {
     // A Mobile Money payment approved since the last look becomes an investment first.
     settleDemoPayments();
+    // …and a withdrawal approved or paid since then moves on.
+    settleDemoWithdrawals();
     const email = demo.getSessionEmail();
     const account = email ? demo.findAccount(email) : null;
     let saved = account?.transactions ?? [];

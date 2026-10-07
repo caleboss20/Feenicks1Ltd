@@ -20,6 +20,7 @@ import type { AppNotification } from "@/features/notifications/notificationModel
 import type { PackageId } from "@/features/packages/investmentPackages";
 import type { MomoPayment } from "@/features/payments/paymentModel";
 import type { PackageWallet } from "@/features/wallets/walletModel";
+import type { WithdrawalRequest } from "@/features/withdraw/withdrawalModel";
 import type { SupportRequest } from "@/features/support/supportService";
 import type { Transaction } from "@/features/transactions/transactionModel";
 
@@ -75,6 +76,8 @@ export type DemoAccount = {
   payments?: MomoPayment[];
   /** One wallet per chosen package (features/wallets). */
   wallets?: PackageWallet[];
+  /** Requests to withdraw profit (features/withdraw). */
+  withdrawals?: WithdrawalRequest[];
   createdAt: string;
 };
 
@@ -220,6 +223,7 @@ export function updateAccount(
       | "notifications"
       | "payments"
       | "wallets"
+      | "withdrawals"
     >
   >,
 ) {

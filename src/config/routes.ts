@@ -112,6 +112,11 @@ export function transactionReceiptHref(id: string,
   return `${transactionDetailsHref(id)}/receipt${isNewPayment ? "?new=1" : ""}`;
 }
 
+/** A withdrawal request's progress (Requested → Approved → Paid), e.g. `/withdraw/WD48291736`. */
+export function withdrawalStatusHref(withdrawalId: string): string {
+  return `${ROUTES.withdraw}/${encodeURIComponent(withdrawalId)}`;
+}
+
 /** Waiting for a Mobile Money payment to be approved on the 
  * phone, e.g. `/invest/payment/PAY48291736`. */
 export function investPaymentHref(paymentId: string): string {

@@ -43,8 +43,9 @@ export const SAMPLE_ID_PREFIX = "SMP";
  *   2: one package, topped up within its maximum
  *   3: every payment within the package's range (the range is per payment),
  *      and Telecel Cash (formerly Vodafone Cash)
+ *   4: withdrawals linked to the package (so the wallet card counts them)
  */
-export const SAMPLE_VERSION = 3;
+export const SAMPLE_VERSION = 4;
 
 /** The one package the sample investor is in (one investor, one package). */
 const SAMPLE_PACKAGE: PackageId = "investwise";
@@ -128,10 +129,10 @@ export function sampleYearOfActivity(now = Date.now()): Transaction[] {
   // Withdrawals, of profit already paid: two paid out, one that failed, one
   // still pending.
   list.push(
-    { type: "withdrawal", amount: 400, channel: "MTN MoMo", status: "completed", createdAt: at(6 * MONTH + 2 * DAY) },
-    { type: "withdrawal", amount: 500, channel: "MTN MoMo", status: "completed", createdAt: at(2 * MONTH + 5 * DAY) },
-    { type: "withdrawal", amount: 300, channel: "MTN MoMo", status: "failed", createdAt: at(45 * DAY) },
-    { type: "withdrawal", amount: 400, channel: "MTN MoMo", status: "pending", createdAt: at(2 * DAY + 4 * HOUR) },
+    { type: "withdrawal", amount: 400, packageId: SAMPLE_PACKAGE, channel: "MTN MoMo", status: "completed", createdAt: at(6 * MONTH + 2 * DAY) },
+    { type: "withdrawal", amount: 500, packageId: SAMPLE_PACKAGE, channel: "MTN MoMo", status: "completed", createdAt: at(2 * MONTH + 5 * DAY) },
+    { type: "withdrawal", amount: 300, packageId: SAMPLE_PACKAGE, channel: "MTN MoMo", status: "failed", createdAt: at(45 * DAY) },
+    { type: "withdrawal", amount: 400, packageId: SAMPLE_PACKAGE, channel: "MTN MoMo", status: "pending", createdAt: at(2 * DAY + 4 * HOUR) },
   );
 
   // Referral rewards: friends who signed up (100 points = GH₵ 100 each).

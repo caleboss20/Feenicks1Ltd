@@ -27,7 +27,7 @@
  * the payment.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
@@ -37,48 +37,11 @@ import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { WalletCard } from "@/features/wallets/WalletCard";
-import { walletBalance, type PackageWallet } from "@/features/wallets/walletModel";
-import { getWallet } from "@/features/wallets/walletService";
-import { INVESTMENT_PACKAGES, type PackageId } from "./investmentPackages";
+import { useWallet } from "@/features/wallets/useWallet";
+import { walletBalance } from "@/features/wallets/walletModel";
+import { useHideAmounts } from "@/hooks/useHideAmounts";
+import { INVESTMENT_PACKAGES } from "./investmentPackages";
 import { canInvest, heldPackageIds, investOptionFor } from "./packagePolicy";
-
-/**
- * "Hide amounts", shared with the dashboard (DashboardScreen uses the same
- * key): hidden there, hidden here. A convenience on this device, not security.
- */
-const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
-
-function readHideAmounts(): boolean {
-  try {
-    return window.localStorage.getItem(HIDE_AMOUNTS_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function saveHideAmounts(hidden: boolean) {
-  try {
-    window.localStorage.setItem(HIDE_AMOUNTS_KEY, hidden ? "1" : "0");
-  } catch {
-    // Storage blocked: it just won't be remembered.
-  }
-}
-
-/** The wallet for a package (created on first look if it predates wallets). Null while loading. */
-function useWallet(packageId: PackageId | null): PackageWallet | null {
-  const [wallet, setWallet] = useState<PackageWallet | null>(null);
-  useEffect(() => {
-    if (!packageId) return;
-    let cancelled = false;
-    void getWallet(packageId).then((found) => {
-      if (!cancelled) setWallet(found);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [packageId]);
-  return wallet && wallet.packageId === packageId ? wallet : null;
-}
 
 export function InvestStartScreen() {
   const router = useRouter();
@@ -91,12 +54,7 @@ export function InvestStartScreen() {
   const chosenId = current.status === "signed-in" ? current.account.chosenPackageId : null;
   const packageId = heldId ?? chosenId;
   const wallet = useWallet(packageId);
-  const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
-  const toggleHideAmounts = () =>
-    setHideAmounts((hidden) => {
-      saveHideAmounts(!hidden);
-      return !hidden;
-    });
+  const [hideAmounts, toggleHideAmounts] = useHideAmounts();
 
   // Never chose one: the list, to choose.
   useEffect(() => {
