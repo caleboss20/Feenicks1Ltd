@@ -6,9 +6,13 @@
  *
  *   "Preview with a sample year"   ← on empty screens (demo mode only)
  *   ┌ You're viewing sample data (demo), not real activity.  Remove ┐
+ *   ┌ Sample data                                          (   ●) ┐   ← Analytics: switch
+ *   │ Preview a year as an active investor. Your real…            │      between sample
+ *   └─────────────────────────────────────────────────────────────┘      and real any time
  */
 
 import { useState } from "react";
+import { Switch } from "@/components/ui/Switch";
 import type { Transaction } from "./transactionModel";
 import {
   CAN_PREVIEW_SAMPLE_ACTIVITY,
@@ -67,6 +71,43 @@ export function SampleDataNotice({ transactions }: { transactions: Transaction[]
       >
         {isRemoving ? "Removing…" : "Remove"}
       </button>
+    </div>
+  );
+}
+
+/**
+ * Analytics: a switch between the sample year and the real activity, always
+ * there in demo mode (unlike the empty-screen button, which disappears once
+ * real money is in). On: only the sample shows; off: the real activity again.
+ */
+export function SampleDataSwitch({ transactions }: { transactions: Transaction[] | null }) {
+  const [isBusy, setIsBusy] = useState(false);
+  if (!CAN_PREVIEW_SAMPLE_ACTIVITY || transactions === null) return null;
+  const isOn = transactions.some(isSampleTransaction);
+
+  const toggle = async (on: boolean) => {
+    setIsBusy(true);
+    await (on ? loadSampleActivity() : clearSampleActivity());
+    setIsBusy(false);
+  };
+
+  return (
+    <div
+      className={
+        isOn
+          ? "flex items-center gap-4 rounded-2xl bg-amber-50 px-4 py-3 text-amber-900 dark:bg-amber-500/10 dark:text-amber-200"
+          : "flex items-center gap-4 rounded-2xl bg-white px-4 py-3 dark:bg-white/5"
+      }
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold">Sample data (test mode)</p>
+        <p className={isOn ? "mt-0.5 text-xs leading-snug" : "mt-0.5 text-xs leading-snug text-neutral-500 dark:text-neutral-400"}>
+          {isOn
+            ? "Showing a sample year, not your real activity. Switch off to see your own."
+            : "Preview the app as an active investor. Your real activity is kept."}
+        </p>
+      </div>
+      <Switch checked={isOn} onChange={toggle} disabled={isBusy} label="Show sample data" />
     </div>
   );
 }

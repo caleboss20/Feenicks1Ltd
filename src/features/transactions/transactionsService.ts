@@ -30,7 +30,12 @@ export async function getTransactions(): Promise<Transaction[]> {
       demo.updateAccount(account.email, { transactions: saved, sampleActivityVersion: SAMPLE_VERSION });
     }
 
-    return [...saved].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    // Previewing the sample year (Analytics › Sample data): show it INSTEAD of
+    // the real activity, so the two never mix (e.g. two packages, double
+    // balances). The real transactions stay saved, untouched, and come back
+    // when the preview is switched off.
+    const shown = saved.some(isSampleTransaction) ? saved.filter(isSampleTransaction) : saved;
+    return [...shown].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
   return [];
 }
@@ -50,7 +55,10 @@ export function isSampleTransaction(transaction: Transaction): boolean {
   return transaction.id.startsWith(SAMPLE_ID_PREFIX);
 }
 
-/** Adds a year of sample activity to the account (replacing any earlier sample). */
+/**
+ * Turns on the sample-year preview (replacing any earlier sample). While it's
+ * on, getTransactions shows only the sample; real activity is kept aside.
+ */
 export async function loadSampleActivity(): Promise<void> {
   if (!IS_DEMO_MODE) return;
   const email = demo.getSessionEmail();
@@ -61,7 +69,7 @@ export async function loadSampleActivity(): Promise<void> {
   });
 }
 
-/** Removes the sample activity, keeping anything real. */
+/** Turns the preview off: removes the sample, and the real activity shows again. */
 export async function clearSampleActivity(): Promise<void> {
   if (!IS_DEMO_MODE) return;
   const email = demo.getSessionEmail();

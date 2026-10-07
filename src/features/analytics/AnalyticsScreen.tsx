@@ -34,7 +34,7 @@ import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { ROUTES } from "@/config/routes";
 import {
   PreviewSampleButton,
-  SampleDataNotice,
+  SampleDataSwitch,
 } from "@/features/transactions/SampleData";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
@@ -106,7 +106,8 @@ export function AnalyticsScreen() {
         <h1 className="text-xl font-bold tracking-tight">Analytics</h1>
       </header>
 
-      <SampleDataNotice transactions={transactions} />
+      {/* Test mode: switch between the sample year and the real activity. */}
+      <SampleDataSwitch transactions={transactions} />
 
       {/* Performance card: value, range and chart together, the focus of the page
           (white on the grey page, with a soft brand wash across the top). */}
