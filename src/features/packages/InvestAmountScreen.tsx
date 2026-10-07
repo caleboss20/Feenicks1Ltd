@@ -6,7 +6,7 @@
  * rounded cards, in our type.
  *
  *   (‹)                 Invest
- *              GH₵ 500 – GH₵ 2,999.99          ← top-up: "Invested: GH₵ 2,500.00"
+ *              GH₵ 500 – GH₵ 4,999.99          ← top-up: "Invested: GH₵ 2,500.00"
  *   ╭─────────────────────────────────────────╮
  *   │ From   (M) MTN MoMo  [024 123 4567]      │  ← their MoMo number; network
  *   ╰─────────────────────────────────────────╯    from its prefix
@@ -17,7 +17,7 @@
  *   ╭─────────────────────────────────────────╮
  *   │ GH₵  1,500|                              │  ← opens the phone's number pad
  *   ╰─────────────────────────────────────────╯
- *     Between GH₵ 500 and GH₵ 2,999.99           ← red when outside the limits
+ *     Between GH₵ 500 and GH₵ 4,999.99           ← red when outside the limits
  *   By proceeding, you authorize this payment and agree to the terms…
  *   Read Terms and Conditions
  *   (            Invest GH₵ 1,500            )   ← green once the amount is valid

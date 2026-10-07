@@ -7,7 +7,7 @@
  *   Agribusiness Capital (ABC) · Effective 1 October 2026
  *
  *   ┌ KEY POINTS ─────────────────────────┐   ← plain-words summary first
- *   │ • You can invest GH₵ 3,000 – 4,999.99 │
+ *   │ • You can invest GH₵ 5,000 – 9,999.99 │
  *   │ • Expected 7–10% a month, not guaranteed…
  *   └─────────────────────────────────────┘
  *   1. About these terms …                     ← the full terms (scrolls)

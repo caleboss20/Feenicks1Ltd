@@ -7,7 +7,7 @@
  *   Transactions
  *   (All) (Investments) (Returns) (Withdrawals) (Referrals)   ← filters, scroll sideways
  *   ╭─────────────────────────────────────────────╮
- *   │ 🗂  Agribusiness Capital          GH₵ 3,000.00 │  ← investment: plain amount
+ *   │ 🗂  Agribusiness Capital          GH₵ 5,000.00 │  ← investment: plain amount
  *   │     Investment                Today, 1:23 pm │     (when: under the amount)
  *   │ ↗  Agribusiness Capital        + GH₵ 240.00  │  ← return: green +
  *   │     Return paid           Yesterday, 9:00 am │

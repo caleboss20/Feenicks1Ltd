@@ -10,7 +10,7 @@
  *   │                                       │
  *   │ Expected return                       │
  *   │ 7–10% /month                          │   ← the headline number
- *   │ ( From GH₵ 3,000        ⏱ Every 3 mo )   ← pill: minimum + withdrawals
+ *   │ ( From GH₵ 5,000        ⏱ Every 3 mo )   ← pill: minimum + withdrawals
  *   ╰──────────────────────────────────────╯
  *
  * One look for every card (soft light grey, dark text: fintech-restrained).

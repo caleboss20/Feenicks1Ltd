@@ -13,23 +13,23 @@
  *   [ Suits Moderate investors ]
  *
  *   KEY FIGURES
- *   Minimum investment                 GH₵ 3,000
+ *   Minimum investment                 GH₵ 5,000
  *   ─────────────────────────────────────────────
- *   Maximum investment              GH₵ 4,999.99
+ *   Maximum investment              GH₵ 9,999.99
  *   …
  *
  *   ESTIMATE YOUR RETURNS
  *   Amount
- *   [ GH₵ 4000                                  ]
- *   Between GH₵ 3,000 and GH₵ 4,999.99
+ *   [ GH₵ 6000                                  ]
+ *   Between GH₵ 5,000 and GH₵ 9,999.99
  *   Period
  *   ( 1 mo ) ( 3 mo ) ( 6 mo ) ( 12 mo )
  *
  *   You could receive over 6 months
- *   GH₵ 1,612.80 – GH₵ 2,304                     ← after the fee
- *   About GH₵ 268.80 – GH₵ 384 a month
+ *   GH₵ … – GH₵ …                                ← after the fee
+ *   About GH₵ … – GH₵ … a month
  *
- *   Profit before fee             GH₵ 1,680 – 2,400
+ *   Profit before fee             GH₵ … – …
  *   Fee (4% of profit)               − GH₵ 67.20 – 96
  *   …not guaranteed…
  *

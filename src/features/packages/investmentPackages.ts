@@ -4,9 +4,31 @@ import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions
  * Feenicks1's investment packages: the single source of truth for every
  * package screen (recommendations, details, returns estimate).
  *
- * Figures come from the company's package sheet; which risk level each
- * package suits comes from the "Investor Risk Tolerance & Portfolio Match"
- * document. To change a package, change it here only.
+ * To change a package, change it here only: every screen, limit, check and
+ * explanation reads these values (nothing is copied elsewhere).
+ *
+ * SOURCE AND AUDIT
+ *   Figures: the CEO's portfolio definitions, October 2026. They replace the
+ *   September 2025 Telegram list (IC used to stop at GH₵ 2,999.99, ABC was
+ *   GH₵ 3,000 – 4,999.99 and REPF started at GH₵ 5,000).
+ *
+ *     Package                Code  Range (GH₵)             Cycle     Gross ROI    Fee
+ *     Mutual Fund Capital    MFC       140.00 –     499.99  28 days   5–10% / mo   2
+ *     InvestWise Capital     IC        500.00 –   4,999.99  28 days   5–10% / mo   4
+ *     Agribusiness Capital   ABC     5,000.00 –   9,999.99  3 months  7–10% / mo   4
+ *     Real Estate Pool Fund  REPF   10,000.00 – 100,000.00  6 months  8–12% / mo   4
+ *
+ *   Net ROI (the CEO's formula): the month's gross ROI MINUS the fee, in
+ *   percentage points, e.g. 7% − 4 = 3%.
+ *   TODO(fee): the returns estimate and the demo sample still take the fee
+ *   as a percentage of the profit; switch them to the CEO's formula.
+ *
+ *   A range change never re-classifies an existing investment (Core
+ *   Business & Product Architecture v1.1, §6): someone who invested under an
+ *   old range keeps their package.
+ *
+ * Which risk level each package suits comes from the "Investor Risk
+ * Tolerance & Portfolio Match" document.
  *
  * TODO(api): load these from the server so the business can update rates
  * without a new app release.
@@ -26,7 +48,6 @@ export type InvestmentPackage = {
   managementFeePercent: number;
   /** Expected monthly return on investment, in percent: [lowest, highest]. */
   monthlyRoiPercent: [number, number];
-  /** Returns can be withdrawn every N months. */
   /** Roughly how many months between payouts (for monthly figures like the sample year). */
   withdrawalEveryMonths: number;
   /**

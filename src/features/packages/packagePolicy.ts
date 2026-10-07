@@ -11,8 +11,8 @@ import { INVESTMENT_PACKAGES, type PackageId } from "./investmentPackages";
  * │                                                                         │
  * │ THE RANGE IS PER PAYMENT. A package's minimum–maximum applies to each   │
  * │ payment, first or top-up, NOT to the total. InvestWise (GH₵ 500 –       │
- * │ 2,999.99): 500 now, 2,999.99 next month, 1,000 after… a total of        │
- * │ GH₵ 10,000 is fine; a single payment of 300 or 3,000 isn't.             │
+ * │ 4,999.99): 500 now, 4,999.99 next month, 1,000 after… a total of        │
+ * │ GH₵ 10,000 is fine; a single payment of 300 or 5,000 isn't.             │
  * └─────────────────────────────────────────────────────────────────────────┘
  *
  * The rule is expected to change. To let investors hold more packages, raise

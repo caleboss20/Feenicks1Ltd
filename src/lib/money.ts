@@ -2,7 +2,7 @@
  * Money formatting for Ghana cedis, used everywhere amounts are shown.
  *
  *   formatCedis(140)        → "GH₵ 140"
- *   formatCedis(2999.99)    → "GH₵ 2,999.99"
+ *   formatCedis(4999.99)    → "GH₵ 4,999.99"
  *   formatCedis(100000)     → "GH₵ 100,000"
  *
  * Whole amounts drop the ".00" to stay compact (prices, limits), unless

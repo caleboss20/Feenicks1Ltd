@@ -89,8 +89,8 @@ export function sampleYearOfActivity(now = Date.now()): Transaction[] {
 
   // Money in, all into the one package: a first investment, a top-up two days
   // before the 7th payout (so it earns from the 8th), and one today (so "1D"
-  // moves too). 1,500 → 2,200 → 2,500: within InvestWise's GH₵ 500 –
-  // 2,999.99 at every step.
+  // moves too). 1,500 → 2,200 → 2,700: within InvestWise's GH₵ 500 –
+  // 4,999.99 at every step (CEO's range, October 2026).
   const deposits = [
     { amount: 1500, msAgo: start, channel: "MTN MoMo" },
     { amount: 700, msAgo: start - 7 * MONTH + 2 * DAY, channel: "MTN MoMo" },
