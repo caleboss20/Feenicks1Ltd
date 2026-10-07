@@ -80,7 +80,7 @@ export function WalletCard({
         </button>
       </div>
 
-      <div className="mt-auto flex items-end gap-5">
+      <div className="mt-auto flex items-end gap-4">
         <div className="min-w-0">
           <p className="text-[0.6875rem] text-white/65">Holder</p>
           <p className="mt-0.5 max-w-[8rem] truncate text-[0.8125rem] font-semibold">{holderName}</p>
@@ -91,7 +91,8 @@ export function WalletCard({
             {formatWalletId(wallet.id)}
           </p>
         </div>
-        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-white/20 px-2 py-1 text-[0.6875rem] font-semibold">
+        {/* Pinned to the corner, with room to breathe after the wallet ID. */}
+        <span className="ml-auto inline-flex shrink-0 translate-x-1 items-center gap-1 self-end rounded-full bg-white/20 px-2 py-0.5 text-[0.625rem] font-semibold">
           <LockIcon className="size-3" />
           {status}
         </span>
