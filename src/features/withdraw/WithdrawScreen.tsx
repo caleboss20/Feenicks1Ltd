@@ -10,10 +10,10 @@
  *   │ (MTN) MTN MoMo                     ⌄  │   ← their MoMo wallet; tap to change network
  *   │       024 ••• 4567                    │
  *   └───────────────────────────────────────┘
- *   ✓ Standard withdrawal: free until 13 Oct   ← or "Express: 1% fee added. Free from 3 Nov"
+ *   ✓ Standard withdrawal: free until 13 Oct   ← or "Express: 1% fee added. Free from 3 Nov", or
+ *                                                 in the first 72 h "Your money starts working on…"
  *              GH₵ 408|                        ← typed on the pad below
- *   (50) (100) (200) (500) (Max)              ← quick amounts
- *         Available  GH₵ 1,500.00
+ *     Available  GH₵ 1,500.00 · Max
  *   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
  *   ░  [1]  [2]  [3]                        ░   ← grey panel: the number pad
  *   ░  [4]  [5]  [6]                        ░
@@ -55,9 +55,6 @@ import {
   type WithdrawalTerms,
 } from "./withdrawalModel";
 import { getWithdrawals, requestWithdrawal, subscribeToWithdrawals } from "./withdrawalService";
-
-/** Quick amounts under the figure (only those they can actually take are shown). */
-const QUICK_AMOUNTS = [50, 100, 200, 500, 1000, 2000, 5000];
 
 /** "241234567" → "024 ••• 4567": enough to recognise, not to copy. */
 function maskedNumber(phone: string): string {
@@ -204,7 +201,7 @@ function WithdrawForm({
           <Link
             href={ROUTES.dashboard}
             aria-label="Back to home"
-            className="grid size-11 place-items-center rounded-full ring-1 ring-neutral-200 transition-colors hover:bg-neutral-50 dark:ring-white/15 dark:hover:bg-white/5"
+            className="-ml-2 grid size-11 place-items-center rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/10"
           >
             <ArrowLeft className="size-5" />
           </Link>
@@ -224,12 +221,12 @@ function WithdrawForm({
           </Link>
         )}
 
-        <p className="mt-5 text-[0.8125rem] text-neutral-500 dark:text-neutral-400">Send to</p>
+        <p className="mt-4 text-[0.8125rem] text-neutral-500 [@media(max-height:660px)]:mt-2 dark:text-neutral-400">Send to</p>
         <button
           type="button"
           onClick={() => setIsChoosingNetwork(true)}
           aria-label={`Send to ${MOMO_NETWORKS[network].name}, ${maskedNumber(phone)}. Change network`}
-          className="mt-2 flex w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left ring-1 ring-neutral-200 transition-colors hover:bg-neutral-50 dark:ring-white/15 dark:hover:bg-white/5"
+          className="mt-1.5 flex w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-2.5 text-left ring-1 ring-neutral-200 transition-colors hover:bg-neutral-50 dark:ring-white/15 dark:hover:bg-white/5"
         >
           <MomoNetworkLogo network={network} className="size-9" />
           <span className="min-w-0 flex-1">
@@ -245,41 +242,24 @@ function WithdrawForm({
 
         {/* The amount, typed on the pad below. */}
         <p
-          className="mt-6 flex items-baseline justify-center gap-2 font-bold tracking-tight text-brand-800 tabular-nums dark:text-brand-300"
+          className="mt-[clamp(0.75rem,3dvh,1.5rem)] flex items-baseline justify-center gap-2 font-bold tracking-tight text-brand-800 tabular-nums dark:text-brand-300"
           aria-live="polite"
         >
           <span className="text-[1.75rem]">{CEDI_SYMBOL}</span>
-          <span className={cn("text-[3rem] leading-none", !amountText && "text-neutral-300 dark:text-neutral-600")}>
+          <span
+            className={cn(
+              "text-[clamp(2.25rem,6dvh,3rem)] leading-none",
+              !amountText && "text-neutral-300 dark:text-neutral-600",
+            )}
+          >
             {withCommas(amountText)}
           </span>
-          <span aria-hidden className="h-11 w-0.5 animate-pulse self-center bg-brand-600 motion-reduce:animate-none" />
+          <span aria-hidden className="h-[clamp(2rem,5dvh,2.75rem)] w-0.5 animate-pulse self-center bg-brand-600 motion-reduce:animate-none" />
         </p>
-
-        <div className="-mx-5 mt-5 flex gap-2 overflow-x-auto px-5 pb-1">
-          {QUICK_AMOUNTS.filter((value) => value <= largest).map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setAmountText(String(value))}
-              className="shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-medium tabular-nums ring-1 ring-neutral-200 transition-colors hover:bg-neutral-50 dark:ring-white/15 dark:hover:bg-white/5"
-            >
-              {value.toLocaleString("en-GH")}
-            </button>
-          ))}
-          {largest > 0 && (
-            <button
-              type="button"
-              onClick={() => setAmountText(String(largest))}
-              className="shrink-0 cursor-pointer rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-300"
-            >
-              Max
-            </button>
-          )}
-        </div>
 
         <p
           className={cn(
-            "mt-3 mb-4 text-center text-[0.8125rem]",
+            "mt-3 mb-3 text-center text-[0.8125rem] [@media(max-height:660px)]:mt-2 [@media(max-height:660px)]:mb-2",
             error ? "text-red-600 dark:text-red-400" : "text-neutral-500 dark:text-neutral-400",
           )}
           role={error ? "alert" : undefined}
@@ -288,27 +268,41 @@ function WithdrawForm({
             <>
               Available{" "}
               <span className="font-semibold text-foreground tabular-nums">{formatCedis(balance, { exact: true })}</span>
+              {largest > 0 && (
+                <>
+                  {" · "}
+                  {/* The most they can ask for (with an express fee, a little under the balance). */}
+                  <button
+                    type="button"
+                    onClick={() => setAmountText(String(largest))}
+                    className="cursor-pointer font-semibold text-brand-700 hover:underline dark:text-brand-400"
+                  >
+                    Max
+                  </button>
+                </>
+              )}
             </>
           )}
         </p>
       </div>
 
       {/* The number pad and the button, on a grey panel at the bottom. */}
-      <div className="mt-auto rounded-t-[2rem] bg-neutral-100 px-5 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] dark:bg-white/5">
-        <div role="group" aria-label="Number pad" className="grid grid-cols-3 gap-2.5">
+      {/* Sized to the screen's height (dvh), so the button is always visible without scrolling. */}
+      <div className="mt-auto rounded-t-[2rem] bg-neutral-100 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] [@media(max-height:660px)]:pt-3 dark:bg-white/5">
+        <div role="group" aria-label="Number pad" className="grid grid-cols-3 gap-2">
           {["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "backspace"].map((key) => (
             <button
               key={key}
               type="button"
               onClick={() => setAmountText((text) => typeKey(text, key))}
               aria-label={key === "backspace" ? "Delete" : key === "." ? "Decimal point" : key}
-              className="grid h-13 cursor-pointer place-items-center rounded-2xl bg-white text-xl font-medium transition-colors active:bg-neutral-50 dark:bg-white/10 dark:active:bg-white/15 [@media(max-height:700px)]:h-11"
+              className="grid h-[clamp(2.5rem,6.5dvh,3.25rem)] cursor-pointer place-items-center rounded-2xl bg-white text-xl font-medium transition-colors active:bg-neutral-50 dark:bg-white/10 dark:active:bg-white/15"
             >
               {key === "backspace" ? <BackspaceIcon className="size-6" /> : key}
             </button>
           ))}
         </div>
-        <Button size="lg" fullWidth disabled={!isValid} onClick={() => setIsConfirming(true)} className="mt-4">
+        <Button size="lg" fullWidth disabled={!isValid} onClick={() => setIsConfirming(true)} className="mt-3 h-13 lg:h-13 [@media(max-height:660px)]:h-12">
           Withdraw now
         </Button>
       </div>
@@ -345,7 +339,7 @@ function KindLine({ terms }: { terms: WithdrawalTerms }) {
   return (
     <p
       className={cn(
-        "mt-4 flex items-start gap-2 rounded-xl px-3 py-2 text-[0.8125rem] leading-snug",
+        "mt-4 flex items-start gap-2 rounded-xl px-3 py-2 text-[0.8125rem] leading-snug [@media(max-height:660px)]:mt-2.5 [@media(max-height:660px)]:py-1.5 [@media(max-height:660px)]:text-xs",
         isFree
           ? "bg-brand-50 text-brand-800 dark:bg-brand-500/10 dark:text-brand-300"
           : "bg-amber-50 text-amber-900 dark:bg-amber-500/10 dark:text-amber-200",
@@ -353,7 +347,8 @@ function KindLine({ terms }: { terms: WithdrawalTerms }) {
     >
       {isFree ? <CheckIcon className="mt-px size-4 shrink-0" /> : <ClockIcon className="mt-px size-4 shrink-0" />}
       <span>
-        {terms.kind === "pre-investment" && `Not invested yet: withdraw free until ${shortDate(terms.investedFrom, true)}.`}
+        {terms.kind === "pre-investment" &&
+          `Your money starts working on ${shortDate(terms.investedFrom, true)}. Until then you can take it back free.`}
         {terms.kind === "standard" &&
           `Standard withdrawal: free${terms.freeUntil ? ` until ${shortDate(terms.freeUntil)}` : ""}.`}
         {terms.kind === "express" &&
