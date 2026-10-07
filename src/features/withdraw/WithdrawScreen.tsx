@@ -339,13 +339,13 @@ function KindLine({ terms }: { terms: WithdrawalTerms }) {
   return (
     <p
       className={cn(
-        "mt-4 flex items-start gap-2 rounded-xl px-3 py-2 text-[0.8125rem] leading-snug [@media(max-height:660px)]:mt-2.5 [@media(max-height:660px)]:py-1.5 [@media(max-height:660px)]:text-xs",
+        "mt-4 flex items-start gap-2 rounded-xl px-3 py-2 text-xs leading-snug [@media(max-height:660px)]:mt-2.5 [@media(max-height:660px)]:py-1.5 [@media(max-height:660px)]:text-[0.6875rem]",
         isFree
           ? "bg-brand-50 text-brand-800 dark:bg-brand-500/10 dark:text-brand-300"
           : "bg-amber-50 text-amber-900 dark:bg-amber-500/10 dark:text-amber-200",
       )}
     >
-      {isFree ? <CheckIcon className="mt-px size-4 shrink-0" /> : <ClockIcon className="mt-px size-4 shrink-0" />}
+      {isFree ? <CheckIcon className="mt-px size-3.5 shrink-0" /> : <ClockIcon className="mt-px size-3.5 shrink-0" />}
       <span>
         {terms.kind === "pre-investment" &&
           `Your money starts working on ${shortDate(terms.investedFrom, true)}. Until then you can take it back free.`}
