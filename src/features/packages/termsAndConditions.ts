@@ -24,7 +24,7 @@ export function keyPointsFor(pkg: InvestmentPackage): string[] {
     `You can invest between ${formatCedis(pkg.minimum)} and ${formatCedis(pkg.maximum)}.`,
     `Expected return: ${roiRangeLabel(pkg.monthlyRoiPercent)} a month. This is not guaranteed.`,
     `A ${pkg.managementFeePercent}% management fee is taken from your profit only, never from the amount you invest.`,
-    `Profit can be withdrawn ${withdrawalLabel(pkg.withdrawalEveryMonths).toLowerCase()}.`,
+    `Profit can be withdrawn ${withdrawalLabel(pkg).toLowerCase()}.`,
     "Like all investments, the value can go down as well as up, and you could lose money.",
   ];
 }
@@ -40,7 +40,7 @@ const PACKAGE_RISKS: Record<InvestmentPackage["id"], string> = {
 
 /** The full terms, with the package's own figures filled in. */
 export function termsFor(pkg: InvestmentPackage): TermsSection[] {
-  const withdrawals = withdrawalLabel(pkg.withdrawalEveryMonths).toLowerCase();
+  const withdrawals = withdrawalLabel(pkg).toLowerCase();
 
   return [
     {

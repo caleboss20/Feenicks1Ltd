@@ -195,7 +195,7 @@ export function PackageCard({
         >
           <ClockIcon className="size-3.5" />
           <span className="sr-only">Withdrawals: </span>
-          {shortWithdrawalLabel(pkg.withdrawalEveryMonths)}
+          {shortWithdrawalLabel(pkg)}
         </span>
       </div>
     </Link>

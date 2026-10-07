@@ -109,7 +109,7 @@ export const FAQS: Faq[] = [
     question: "When can I withdraw my profit?",
     answer: [
       "It depends on your package:",
-      ALL_PACKAGES.map((pkg) => `${pkg.name}: ${withdrawalLabel(pkg.withdrawalEveryMonths).toLowerCase()}`),
+      ALL_PACKAGES.map((pkg) => `${pkg.name}: ${withdrawalLabel(pkg).toLowerCase()}`),
     ],
   },
   {

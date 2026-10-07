@@ -147,7 +147,7 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
     { label: "Maximum investment", value: formatCedis(pkg.maximum) },
     { label: "Expected monthly return", value: roiRangeLabel(pkg.monthlyRoiPercent) },
     { label: "Management fee", value: `${pkg.managementFeePercent}% of profit` },
-    { label: "Withdrawals", value: withdrawalLabel(pkg.withdrawalEveryMonths) },
+    { label: "Withdrawals", value: withdrawalLabel(pkg) },
   ];
 
   const range = ([low, high]: [number, number]) => `${formatCedis(low)} – ${formatCedis(high)}`;

@@ -27,7 +27,14 @@ export type InvestmentPackage = {
   /** Expected monthly return on investment, in percent: [lowest, highest]. */
   monthlyRoiPercent: [number, number];
   /** Returns can be withdrawn every N months. */
+  /** Roughly how many months between payouts (for monthly figures like the sample year). */
   withdrawalEveryMonths: number;
+  /**
+   * The investment cycle, exactly (CEO, October 2026): 28 days for MFC and IC;
+   * 3 and 6 calendar months for ABC and REPF. Standard (free) withdrawals come
+   * at the end of a cycle (features/withdraw).
+   */
+  cycle: { days: number } | { months: number };
   /** Icon shown on cards and the details page (see PackageIcon). */
   icon: "briefcase" | "chart" | "sprout" | "building";
   /** Accent colour, matching the company's package graphics. */
@@ -46,6 +53,7 @@ export const INVESTMENT_PACKAGES: Record<PackageId, InvestmentPackage> = {
     managementFeePercent: 2,
     monthlyRoiPercent: [5, 10],
     withdrawalEveryMonths: 1,
+    cycle: { days: 28 },
     icon: "briefcase",
     accent: "teal",
   },
@@ -56,10 +64,11 @@ export const INVESTMENT_PACKAGES: Record<PackageId, InvestmentPackage> = {
     description:
       "A portfolio for investors seeking higher capital exposure and enhanced returns.",
     minimum: 500,
-    maximum: 2999.99,
+    maximum: 4999.99,
     managementFeePercent: 4,
     monthlyRoiPercent: [5, 10],
     withdrawalEveryMonths: 1,
+    cycle: { days: 28 },
     icon: "chart",
     accent: "green",
   },
@@ -69,11 +78,12 @@ export const INVESTMENT_PACKAGES: Record<PackageId, InvestmentPackage> = {
     ticker: "ABC",
     description:
       "Agriculture-backed investment opportunities focused on sustainability and profitability.",
-    minimum: 3000,
-    maximum: 4999.99,
+    minimum: 5000,
+    maximum: 9999.99,
     managementFeePercent: 4,
     monthlyRoiPercent: [7, 10],
     withdrawalEveryMonths: 3,
+    cycle: { months: 3 },
     icon: "sprout",
     accent: "lime",
   },
@@ -83,11 +93,12 @@ export const INVESTMENT_PACKAGES: Record<PackageId, InvestmentPackage> = {
     ticker: "REPF",
     description:
       "A premium real estate investment portfolio targeting long-term capital appreciation.",
-    minimum: 5000,
+    minimum: 10000,
     maximum: 100000,
     managementFeePercent: 4,
     monthlyRoiPercent: [8, 12],
     withdrawalEveryMonths: 6,
+    cycle: { months: 6 },
     icon: "building",
     accent: "amber",
   },
@@ -119,13 +130,21 @@ export function riskLevelsForPackage(id: PackageId): RiskLevel[] {
 }
 
 /** "Every month" / "Every 3 months". */
-export function withdrawalLabel(everyMonths: number): string {
-  return everyMonths === 1 ? "Every month" : `Every ${everyMonths} months`;
+export function withdrawalLabel(pkg: Pick<InvestmentPackage, "cycle">): string {
+  return "days" in pkg.cycle ? `Every ${pkg.cycle.days} days` : `Every ${pkg.cycle.months} months`;
 }
 
-/** Compact version for small spaces (cards): "Monthly" / "Every 3 mo". */
-export function shortWithdrawalLabel(everyMonths: number): string {
-  return everyMonths === 1 ? "Monthly" : `Every ${everyMonths} mo`;
+/** Compact version for small spaces (cards): "Every 28 days" / "Every 3 mo". */
+export function shortWithdrawalLabel(pkg: Pick<InvestmentPackage, "cycle">): string {
+  return "days" in pkg.cycle ? `Every ${pkg.cycle.days} days` : `Every ${pkg.cycle.months} mo`;
+}
+
+/** When cycle number `count` (1, 2…) ends, counted from `start`. */
+export function cycleEnd(pkg: Pick<InvestmentPackage, "cycle">, start: Date, count: number): Date {
+  const end = new Date(start);
+  if ("days" in pkg.cycle) end.setDate(end.getDate() + pkg.cycle.days * count);
+  else end.setMonth(end.getMonth() + pkg.cycle.months * count);
+  return end;
 }
 
 /** "5–10%". */
