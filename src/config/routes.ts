@@ -24,22 +24,28 @@ export const ROUTES = {
 
   // Account security
   createPin: "/security/create-pin",
+
   /** Choose a two-factor method (fingerprint, SMS, authenticator app), or skip. */
   twoFactor: "/security/two-factor",
+
   /** SMS 2FA setup: enter the code texted to the profile phone number. */
   twoFactorSms: "/security/two-factor/sms",
+
   /** Authenticator-app 2FA setup: scan the QR code, then enter the app's code. */
   twoFactorAuthenticator: "/security/two-factor/authenticator",
   twoFactorAuthenticatorConfirm: "/security/two-factor/authenticator/confirm",
+
   /** Returning users: unlock the app with their PIN after logging in. */
   enterPin: "/security/enter-pin",
+
   // Forgot PIN (3 steps, in order)
   forgotPin: "/security/forgot-pin",
   forgotPinVerifyCode: "/security/forgot-pin/verify-code",
-  forgotPinNewPin: "/security/forgot-pin/new-pin",
+  forgotPinNewPin: "/security/forgot-pin/new-pin",//create a new pin page//
 
   // The app (signed-in, fully registered users)
-  dashboard: "/dashboard",
+  dashboard: "/dashboard",  
+
   // Main tabs (with the dashboard)
   analytics: "/analytics",
   transactions: "/transactions",
@@ -56,6 +62,7 @@ export const ROUTES = {
   notifications: "/notifications",
   /** From the dashboard's Withdraw button. */
   withdraw: "/withdraw",
+
   /** Invite a friend: the user's referral QR code (the dashboard's scan button). */
   refer: "/refer",
   /**
@@ -64,9 +71,11 @@ export const ROUTES = {
    * packages list if they haven't chosen one (features/packages/InvestStartScreen).
    */
   invest: "/invest",
-  /** All packages (matched to the risk profile first): choose or change. Details at /invest/[id], terms at /invest/[id]/terms. */
+  /** All packages (matched to the risk profile first): 
+   * choose or change. Details at /invest/[id], terms at /invest/[id]/terms. */
   investPackages: "/invest/packages",
-  /** The investor risk profile inside the app (Account › Investor profile), and retaking it. */
+  /** The investor risk profile inside the app
+   *  (Account › Investor profile), and retaking it. */
   investorProfile: "/account/investor-profile",
   investorProfileQuestions: "/account/investor-profile/questions",
 
@@ -86,20 +95,25 @@ export const ROUTES = {
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
 
-/** One transaction's details (receipt), e.g. `/transactions/SMP1182137`: from Transactions and Recent activity. */
+/** One transaction's details (receipt), e.g. 
+ * `/transactions/SMP1182137`: from Transactions and Recent activity. */
 export function transactionDetailsHref(id: string): string {
   return `${ROUTES.transactions}/${encodeURIComponent(id)}`;
 }
 
 /**
- * A completed transaction's receipt (Share / Download), e.g. `/transactions/FX4991600/receipt`.
- * `isNewPayment`: straight after paying (Back then goes home, not back into the payment).
+ * A completed transaction's receipt (Share / Download), e.g.
+ *  `/transactions/FX4991600/receipt`.
+ * `isNewPayment`: straight after paying
+ *  (Back then goes home, not back into the payment).
  */
-export function transactionReceiptHref(id: string, { isNewPayment = false } = {}): string {
+export function transactionReceiptHref(id: string,
+   { isNewPayment = false } = {}): string {
   return `${transactionDetailsHref(id)}/receipt${isNewPayment ? "?new=1" : ""}`;
 }
 
-/** Waiting for a Mobile Money payment to be approved on the phone, e.g. `/invest/payment/PAY48291736`. */
+/** Waiting for a Mobile Money payment to be approved on the 
+ * phone, e.g. `/invest/payment/PAY48291736`. */
 export function investPaymentHref(paymentId: string): string {
   return `${ROUTES.invest}/payment/${encodeURIComponent(paymentId)}`;
 }

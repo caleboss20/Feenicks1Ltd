@@ -15,6 +15,10 @@ export const THEME_STORAGE_KEY = "feenicks1-theme";
  * to <html>. Anything missing or invalid → stays light (the default).
  * Running before paint means dark-mode users never see a white flash.
  */
-export const themeInitScript = `(function(){try{var s=JSON.parse(localStorage.getItem(${JSON.stringify(
-  THEME_STORAGE_KEY,
-)}));if(s&&s.state&&s.state.theme==="dark"){document.documentElement.classList.add("dark")}}catch(e){}})();`;
+export const themeInitScript = `(function(){
+try{
+var s=JSON.parse(localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY,
+)}));
+if(s&&s.state&&s.state.theme==="dark"){
+document.documentElement.classList.add("dark")}
+}catch(e){}})();`;

@@ -5,6 +5,7 @@ import type { NextConfig } from "next";
  * These tell the browser how to protect our users; they cost nothing and
  * are expected of any financial app (and checked in security audits).
  */
+
 const securityHeaders = [
   // Clickjacking protection: no other website may show our pages inside
   // an <iframe> (a classic trick to make users click hidden "Transfer" buttons).

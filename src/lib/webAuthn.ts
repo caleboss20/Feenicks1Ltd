@@ -77,7 +77,7 @@ export async function createDeviceCredential(options: {
           displayName: options.displayName,
         },
         // ES256 (most devices) and RS256 (Windows Hello).
-        pubKeyCredParams: [
+         pubKeyCredParams: [
           { type: "public-key", alg: -7 },
           { type: "public-key", alg: -257 },
         ],

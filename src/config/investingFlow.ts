@@ -25,7 +25,8 @@ type FlowRoutes = {
   profileResult: string;
   /** The packages list. */
   packages: string;
-  /** Where a package's pages live: details at `${packageBase}/[id]`, terms at `…/[id]/terms`. */
+  /** Where a package's pages live: details at `${packageBase}/[id]`,
+   *  terms at `…/[id]/terms`. */
   packageBase: string;
 };
 

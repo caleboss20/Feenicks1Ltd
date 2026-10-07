@@ -11,7 +11,7 @@
  *
  * Centred-title variant (`centeredTitle`), as in the 2FA mockup:
  *
- *   ←      Two-factor authentication      ◌    ← back · title · optional action
+ *   ←      Two-factor authentication          ← back · title · optional action
  *
  * Phones: fills the screen; the screen's content grows (flex-1) so its
  * button can sit at the bottom with `mt-auto`.

@@ -5,12 +5,15 @@
  * manifest, robots.txt, the sitemap and social share images all read from
  * here, so a change in this file updates every one of them.
  */
+
 export const siteConfig = {
   name: "Feenicks1",
   /** Short tagline, used in page titles and share cards. */
   // tagline: "Smart investing, simplified",
   description:
-    "Feenicks1 is a modern investment platform. Grow your wealth, track your portfolio and manage your money securely — all in one app.",
+    "Feenicks1 is a modern investment platform. " +
+    "Grow your wealth, track your portfolio and manage your money " +
+    "securely — all in one app.",
   /**
    * Canonical public URL, used to build absolute links for SEO
    * (Open Graph images, sitemap, canonical tags).
@@ -25,7 +28,11 @@ export const siteConfig = {
     "stocks",
     "fintech",
     "Feenicks1",
+    "asset management",
+    "Nicholas Owusu ceo Feenicks1",
+    "Caleb Dwamena Antwi",
   ],
+
   /** Browser UI / PWA colour. Keep in sync with `--color-brand-600` in globals.css. */
   themeColor: "#13934f",
   /** Splash background colour used by the installed PWA. */
