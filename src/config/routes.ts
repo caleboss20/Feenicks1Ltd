@@ -62,6 +62,8 @@ export const ROUTES = {
   notifications: "/notifications",
   /** From the dashboard's Withdraw button. */
   withdraw: "/withdraw",
+  /** The withdrawal rules explained (free first 72 h, standard, express), from Withdraw. */
+  withdrawGuide: "/withdraw/how-it-works",
 
   /** Invite a friend: the user's referral QR code (the dashboard's scan button). */
   refer: "/refer",

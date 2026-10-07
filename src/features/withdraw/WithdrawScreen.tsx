@@ -354,7 +354,10 @@ function KindLine({ terms }: { terms: WithdrawalTerms }) {
         {terms.kind === "express" &&
           `Express withdrawal: ${WITHDRAWAL_RULES.expressFeePercent}% fee added.${
             terms.nextStandardFrom ? ` Free from ${shortDate(terms.nextStandardFrom)}.` : ""
-          }`}
+          }`}{" "}
+        <Link href={ROUTES.withdrawGuide} className="font-semibold whitespace-nowrap underline underline-offset-2">
+          How it works
+        </Link>
       </span>
     </p>
   );

@@ -44,6 +44,7 @@ import {
   ArrowRight,
   BellIcon,
   CalculatorIcon,
+  ClockIcon,
   EyeIcon,
   EyeOffIcon,
   GiftIcon,
@@ -195,6 +196,17 @@ export function DashboardScreen() {
         label: "Invite for free",
         onClick: async () => ((await shareReferralLink(email)) === "copied" ? "copied" : "done"),
       },
+    },
+    {
+      id: "withdrawals",
+      icon: <ClockIcon />,
+      title: "How withdrawals work",
+      text: (
+        <>
+          Learn when taking money out is <strong>free</strong>, and when a small fee applies.
+        </>
+      ),
+      action: { label: "See how it works", href: ROUTES.withdrawGuide },
     },
     riskLevel
       ? {
