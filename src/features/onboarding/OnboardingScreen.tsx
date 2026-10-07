@@ -42,7 +42,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/Button";
-import { TestVersionBadge } from "@/components/ui/TestVersionBadge";
 import { ROUTES } from "@/config/routes";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
@@ -174,10 +173,6 @@ export function OnboardingScreen() {
                 </span>
               </button>
             ))}
-          </div>
-          {/* Not launched yet (config/launch.ts). */}
-          <div className="mt-2 flex justify-end">
-            <TestVersionBadge onPhoto />
           </div>
         </div>
       </div>
