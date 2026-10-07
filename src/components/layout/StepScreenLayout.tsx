@@ -51,6 +51,11 @@ type StepScreenLayoutProps = {
    * `stickyActionsClass` so the buttons stay pinned to the bottom too.
    */
   stickyHeader?: boolean;
+  /**
+   * Less space above the header and between it and the content, so the
+   * content starts higher (e.g. the wallet card right under its title).
+   */
+  compactTop?: boolean;
   children: React.ReactNode;
 };
 
@@ -64,6 +69,7 @@ export function StepScreenLayout({
   centeredTitle,
   headerAction,
   stickyHeader,
+  compactTop,
   children,
 }: StepScreenLayoutProps) {
   const backClassName = cn(
@@ -85,14 +91,16 @@ export function StepScreenLayout({
   return (
     <div
       className={cn(
-        "mx-auto flex w-full max-w-md flex-1 flex-col px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] sm:justify-center sm:py-8",
+        "mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-[max(2rem,env(safe-area-inset-bottom))] sm:justify-center sm:py-8",
+        compactTop ? "pt-[max(0.25rem,env(safe-area-inset-top))]" : "pt-[max(1rem,env(safe-area-inset-top))]",
         wide ? "lg:max-w-2xl" : "lg:max-w-sm",
       )}
     >
       <header
         className={cn(
           stickyHeader &&
-            "sticky top-0 z-20 -mx-6 bg-background px-6 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 sm:static sm:mx-0 sm:px-0 sm:pt-0 sm:pb-0",
+            "sticky top-0 z-20 -mx-6 bg-background px-6 pb-2 sm:static sm:mx-0 sm:px-0 sm:pt-0 sm:pb-0",
+          stickyHeader && (compactTop ? "pt-[max(0.25rem,env(safe-area-inset-top))]" : "pt-[max(0.5rem,env(safe-area-inset-top))]"),
         )}
       >
         {centeredTitle ? (
@@ -115,7 +123,7 @@ export function StepScreenLayout({
         )}
       </header>
 
-      <div className="mt-6 flex flex-1 flex-col sm:flex-none lg:mt-4">{children}</div>
+      <div className={cn("flex flex-1 flex-col sm:flex-none lg:mt-4", compactTop ? "mt-2" : "mt-6")}>{children}</div>
     </div>
   );
 }

@@ -5,7 +5,6 @@
  * package, after the user's bank-card reference.
  *
  *   ←          InvestWise Capital                 ← the package is the title
- *               (🔒 Your choice)                  ← status, locked in ("Invested" once paid)
  *   ╭──────────────────────────────────────╮
  *   │ IC                              [▦]  │      ← WalletCard (features/wallets): the
  *   │ GH₵ 0.00                         👁  │         balance, the eye (hides amounts, same
@@ -31,7 +30,6 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LockIcon } from "@/components/icons";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { ButtonLink } from "@/components/ui/Button";
 import { investAmountHref, packageDetailsHref } from "@/config/investingFlow";
@@ -72,18 +70,10 @@ export function InvestStartScreen() {
   const holderName = current.account.fullName ?? current.account.email;
 
   return (
-    // The package's name is the page title, so the card sits right at the top.
-    <StepScreenLayout title={pkg.name} centeredTitle stickyHeader backHref={ROUTES.dashboard}>
+    // The package's name is the title, high up (compactTop), with the card right under it.
+    <StepScreenLayout title={pkg.name} centeredTitle stickyHeader compactTop backHref={ROUTES.dashboard}>
       <div className="flex flex-1 flex-col sm:flex-none">
         {/* The card carries the balance (with the eye) and the status, like the reference card. */}
-        {/* The status, locked in, right under the package name at the top: their
-            choice (changeable until they invest), or invested (fixed). -mt-3 pulls
-            it up against the title (the layout leaves a gap under the header). */}
-        <span className="-mt-3 inline-flex items-center gap-1 self-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-500/15 dark:text-brand-300">
-          <LockIcon className="size-3.5" />
-          {isInvested ? "Invested" : "Your choice"}
-        </span>
-
         {wallet ? (
           <WalletCard
             wallet={wallet}
@@ -92,11 +82,11 @@ export function InvestStartScreen() {
             balance={balance}
             hideAmounts={hideAmounts}
             onToggleHideAmounts={toggleHideAmounts}
-            className="mt-4"
+            className="mt-0"
           />
         ) : (
           // Same size while the wallet loads, so nothing jumps.
-          <div aria-hidden className="mt-4 aspect-[1.75] w-full animate-pulse rounded-xl bg-brand-600/20" />
+          <div aria-hidden className="mt-0 aspect-[1.75] w-full animate-pulse rounded-xl bg-brand-600/20" />
         )}
 
         {/* Pinned low on the screen (-mb-4 trims the page's bottom padding), with a
