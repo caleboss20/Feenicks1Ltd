@@ -434,7 +434,7 @@ function ConfirmWithdrawalSheet({
   const fee = withdrawalFee(kind, amount);
   const debit = Math.round((amount + fee) * 100) / 100;
   const remaining = Math.round((balance - debit) * 100) / 100;
-  const tier = tierAfterWithdrawal(packageId, remaining);
+  const tier = tierAfterWithdrawal(packageId, balance, remaining);
   const pkg = INVESTMENT_PACKAGES[packageId];
 
   const send = async () => {

@@ -145,14 +145,21 @@ export function largestWithdrawal(kind: WithdrawalKind, balance: number): number
  * Where what's left would sit after the withdrawal: the same package, a
  * lower one (its range fits the remainder), or none (below every
  * minimum: "below-minimum"), or "emptied" when nothing is left.
+ *
+ * Only the withdrawal itself can cause a move: if the balance was already
+ * below the package minimum before it (the range changed after they
+ * invested, e.g. ABC's minimum went from GH₵ 3,000 to GH₵ 5,000), they keep
+ * their package. A range change never re-classifies an existing position
+ * (Core Business & Product Architecture v1.1, §6).
  */
 export function tierAfterWithdrawal(
   current: PackageId,
+  balanceBefore: number,
   remaining: number,
 ): { kind: "same" } | { kind: "moves"; to: InvestmentPackage } | { kind: "below-minimum" } | { kind: "emptied" } {
   if (remaining <= 0) return { kind: "emptied" };
   const pkg = INVESTMENT_PACKAGES[current];
-  if (remaining >= pkg.minimum) return { kind: "same" };
+  if (remaining >= pkg.minimum || balanceBefore < pkg.minimum) return { kind: "same" };
   const fits = Object.values(INVESTMENT_PACKAGES).find((item) => remaining >= item.minimum && remaining <= item.maximum);
   return fits ? { kind: "moves", to: fits } : { kind: "below-minimum" };
 }
