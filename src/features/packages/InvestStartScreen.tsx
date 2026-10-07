@@ -14,10 +14,6 @@
  *   │ F1 IC 4821 7365                      │
  *   │ Wallet holder            Opened      │
  *   ╰──────────────────────────────────────╯
- *   Wallet activity                               ← this package's money movements
- *   (No money in yet…)
- *   Per payment      GH₵ 500 – 2,999.99
- *   Withdrawals      Every month
  *   (             Continue             )          ← "Add money" once invested
  *   (          Change package          )          ← not once invested
  *             See package details
@@ -42,17 +38,15 @@ import { EyeIcon, EyeOffIcon, LockIcon } from "@/components/icons";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { ButtonLink } from "@/components/ui/Button";
 import { investAmountHref, packageDetailsHref } from "@/config/investingFlow";
-import { ROUTES, transactionDetailsHref } from "@/config/routes";
+import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
-import { formatWhen, transactionTitle } from "@/features/transactions/transactionFormat";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { WalletCard } from "@/features/wallets/WalletCard";
 import { walletBalance, type PackageWallet } from "@/features/wallets/walletModel";
 import { getWallet } from "@/features/wallets/walletService";
-import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
-import { cn } from "@/lib/utils";
-import { INVESTMENT_PACKAGES, withdrawalLabel, type PackageId } from "./investmentPackages";
-import { canInvest, heldPackageIds, investOptionFor, PACKAGE_LIMIT_SENTENCE } from "./packagePolicy";
+import { CEDI_SYMBOL, formatCedisNumber } from "@/lib/money";
+import { INVESTMENT_PACKAGES, type PackageId } from "./investmentPackages";
+import { canInvest, heldPackageIds, investOptionFor } from "./packagePolicy";
 
 /**
  * "Hide amounts", shared with the dashboard (DashboardScreen uses the same
@@ -75,9 +69,6 @@ function saveHideAmounts(hidden: boolean) {
     // Storage blocked: it just won't be remembered.
   }
 }
-
-/** How many of the wallet's latest movements to list here. */
-const ACTIVITY_SHOWN = 3;
 
 /** The wallet for a package (created on first look if it predates wallets). Null while loading. */
 function useWallet(packageId: PackageId | null): PackageWallet | null {
@@ -124,7 +115,6 @@ export function InvestStartScreen() {
   const option = investOptionFor(transactions, packageId);
   const isInvested = option.kind === "top-up";
   const balance = walletBalance(transactions, packageId);
-  const activity = transactions.filter((item) => item.packageId === packageId).slice(0, ACTIVITY_SHOWN);
   const holderName = current.account.fullName ?? current.account.email;
 
   return (
@@ -165,75 +155,6 @@ export function InvestStartScreen() {
           // Same size while the wallet loads, so nothing jumps.
           <div aria-hidden className="mt-6 aspect-[1.586] w-full animate-pulse rounded-xl bg-brand-600/20" />
         )}
-
-        {/* This wallet's money movements, newest first. */}
-        <section aria-labelledby="wallet-activity" className="mt-7">
-          <div className="flex items-baseline justify-between">
-            <h3 id="wallet-activity" className="text-[0.9375rem] font-semibold">
-              Wallet activity
-            </h3>
-            {activity.length > 0 && (
-              <Link href={ROUTES.transactions} className="text-[0.8125rem] font-semibold text-brand-700 dark:text-brand-400">
-                See all
-              </Link>
-            )}
-          </div>
-          {activity.length === 0 ? (
-            <p className="mt-3 rounded-2xl bg-neutral-50 px-4 py-4 text-sm leading-relaxed text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
-              No money in yet. Your first payment will show here.
-            </p>
-          ) : (
-            <ul className="mt-2 divide-y divide-neutral-100 dark:divide-white/10">
-              {activity.map((item) => {
-                const isOut = item.type === "withdrawal";
-                return (
-                  <li key={item.id}>
-                    <Link
-                      href={transactionDetailsHref(item.id)}
-                      className="flex items-center justify-between gap-4 py-3 text-sm"
-                    >
-                      <span className="min-w-0">
-                        <span className="block truncate font-medium">{transactionTitle(item)}</span>
-                        <span className="mt-0.5 block text-xs text-neutral-500 dark:text-neutral-400">
-                          {formatWhen(item.createdAt)}
-                          {item.status !== "completed" && ` · ${item.status === "pending" ? "Pending" : "Failed"}`}
-                        </span>
-                      </span>
-                      <span
-                        className={cn(
-                          "shrink-0 font-semibold tabular-nums",
-                          !isOut && item.status === "completed" && "text-brand-700 dark:text-brand-400",
-                          item.status === "failed" && "text-neutral-400 line-through",
-                        )}
-                      >
-                        {hideAmounts ? "••••" : `${isOut ? "−" : "+"}${formatCedis(item.amount, { exact: true })}`}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
-
-        <dl className="mt-6 flex flex-col gap-2.5 border-t border-neutral-100 pt-4 text-sm dark:border-white/10">
-          {[
-            { label: "Per payment", value: `${formatCedis(pkg.minimum)} – ${formatCedis(pkg.maximum)}` },
-            { label: "Withdrawals", value: withdrawalLabel(pkg.withdrawalEveryMonths) },
-          ].map((row) => (
-            <div key={row.label} className="flex items-baseline justify-between gap-4">
-              <dt className="text-neutral-500 dark:text-neutral-400">{row.label}</dt>
-              <dd className="text-right font-medium">{row.value}</dd>
-            </div>
-          ))}
-        </dl>
-
-        <p className="mt-5 text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
-          {PACKAGE_LIMIT_SENTENCE}{" "}
-          {isInvested
-            ? "This is the package your money is in."
-            : "This is the package you chose. You can change it until you invest."}
-        </p>
 
         <div className="mt-auto flex flex-col items-center gap-3 pt-8">
           {canInvest(option) && (
