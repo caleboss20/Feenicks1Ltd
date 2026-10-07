@@ -90,20 +90,22 @@ export function InvestStartScreen() {
           <div aria-hidden className="mt-2 aspect-[1.75] w-full animate-pulse rounded-xl bg-brand-600/20" />
         )}
 
-        <div className="mt-auto flex flex-col items-center gap-3 pt-8">
+        {/* Pinned low on the screen (-mb-4 trims the page's bottom padding), with a
+            slightly shorter button (h-13, 52px) than the standard large one. */}
+        <div className="mt-auto -mb-4 flex flex-col items-center gap-2.5 pt-8">
           {canInvest(option) && (
-            <ButtonLink href={investAmountHref(pkg.id)} size="lg" fullWidth>
+            <ButtonLink href={investAmountHref(pkg.id)} size="lg" fullWidth className="h-13!">
               {isInvested ? "Add money" : "Continue"}
             </ButtonLink>
           )}
           {!isInvested && (
-            <ButtonLink href={ROUTES.investPackages} variant="soft" size="lg" fullWidth>
+            <ButtonLink href={ROUTES.investPackages} variant="soft" size="lg" fullWidth className="h-13!">
               Change package
             </ButtonLink>
           )}
           <Link
             href={packageDetailsHref(pkg.id)}
-            className="px-3 py-2 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-800 dark:text-brand-400"
+            className="px-3 py-1.5 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-800 dark:text-brand-400"
           >
             See package details
           </Link>
