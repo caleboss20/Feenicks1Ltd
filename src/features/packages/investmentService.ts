@@ -2,6 +2,7 @@ import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import { ROUTES } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
 import { notify } from "@/demo/demoNotifications";
+import { ensureDemoWallet } from "@/features/wallets/walletService";
 import { INVESTMENT_PACKAGES, type PackageId } from "./investmentPackages";
 import { investBlockedReason, investOptionFor } from "./packagePolicy";
 import { TERMS_EFFECTIVE_DATE, TERMS_VERSION } from "./termsAndConditions";
@@ -46,6 +47,8 @@ export async function acceptPackageTerms(packageId: PackageId): Promise<Investme
         ],
         chosenPackageId: packageId,
       });
+      // Choosing a package opens its wallet (shown at GH₵ 0.00 until they pay).
+      ensureDemoWallet(email, packageId);
       const { name } = INVESTMENT_PACKAGES[packageId];
       notify(email, {
         kind: "investing",

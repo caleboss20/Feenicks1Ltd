@@ -8,7 +8,7 @@ import { InvestStartScreen } from "@/features/packages/InvestStartScreen";
  * Private, logged-in users only → hidden from search engines.
  */
 export const metadata: Metadata = {
-  title: "Invest",
+  title: "Wallet",
   robots: { index: false, follow: false },
 };
 

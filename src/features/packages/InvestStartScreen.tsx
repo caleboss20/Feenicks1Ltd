@@ -1,49 +1,99 @@
 "use client";
 
 /**
- * Invest (the dashboard's Invest button): opens the investor's package.
+ * Invest (the dashboard's Invest button): the wallet of the investor's
+ * package, after the user's bank-card reference.
  *
- *   ←              Invest
- *   YOUR PACKAGE
- *   ╭─────────────────────────────────────────╮   ← highlighted (green)
- *   │ (icon) IC  🔒 Your choice               │   ← "🔒 Invested" once money is in
- *   │        InvestWise Capital                │
- *   │ Expected return    5–10% /month          │
- *   │ Per payment        GH₵ 500 – 2,999.99    │   ← invested: also what's in
- *   │ Withdrawals        Monthly               │
- *   ╰─────────────────────────────────────────╯
- *   For now, you can invest in one package at a time. You can change your
- *   choice until you invest.
+ *   ←                 Wallet
+ *   InvestWise Capital         🔒 Your choice     ← "🔒 Invested" once money is in
+ *   Balance
+ *   GH₵ 0.00                              (👁)    ← what's in the wallet; the eye hides
+ *                                                    it (same setting as the dashboard)
+ *   ╭──────────────────────────────────────╮
+ *   │ FEENICKS1                         IC │      ← WalletCard (features/wallets)
+ *   │ F1 IC 4821 7365                      │
+ *   │ Wallet holder            Opened      │
+ *   ╰──────────────────────────────────────╯
+ *   Wallet activity                               ← this package's money movements
+ *   (No money in yet…)
+ *   Per payment      GH₵ 500 – 2,999.99
+ *   Withdrawals      Every month
  *   (             Continue             )          ← "Add money" once invested
  *   (          Change package          )          ← not once invested
  *             See package details
  *
+ * The wallet is created when the package is chosen (terms accepted), so a
+ * new investor sees it at GH₵ 0.00 before their first payment.
+ *
  * The three cases (one investor, one package: packagePolicy.ts):
- *   - chose a package at sign-up (agreed to its terms) but hasn't invested:
- *     this screen, with Change package. That opens the list with their choice
- *     marked; agreeing to another package's terms saves it as the new choice
- *     and comes back here. Changing is free until money goes in.
+ *   - chose a package at sign-up but hasn't invested: this screen, with
+ *     Change package (free until money goes in)
  *   - invested: this screen, locked (no Change package)
  *   - never chose: straight to the packages list, to choose one
  *
  * Continue / Add money opens the amount screen (InvestAmountScreen), then
- * the payment. The range is per payment, so they can always add more.
+ * the payment.
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LockIcon } from "@/components/icons";
+import { EyeIcon, EyeOffIcon, LockIcon } from "@/components/icons";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { ButtonLink } from "@/components/ui/Button";
 import { investAmountHref, packageDetailsHref } from "@/config/investingFlow";
-import { ROUTES } from "@/config/routes";
+import { ROUTES, transactionDetailsHref } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
+import { formatWhen, transactionTitle } from "@/features/transactions/transactionFormat";
 import { useTransactions } from "@/features/transactions/useTransactions";
-import { formatCedis } from "@/lib/money";
-import { INVESTMENT_PACKAGES, roiRangeLabel, withdrawalLabel, type InvestmentPackage } from "./investmentPackages";
-import { canInvest, heldPackageIds, investOptionFor, PACKAGE_LIMIT_SENTENCE, type InvestOption } from "./packagePolicy";
-import { PackageIcon } from "./PackageCard";
+import { WalletCard } from "@/features/wallets/WalletCard";
+import { walletBalance, type PackageWallet } from "@/features/wallets/walletModel";
+import { getWallet } from "@/features/wallets/walletService";
+import { CEDI_SYMBOL, formatCedis, formatCedisNumber } from "@/lib/money";
+import { cn } from "@/lib/utils";
+import { INVESTMENT_PACKAGES, withdrawalLabel, type PackageId } from "./investmentPackages";
+import { canInvest, heldPackageIds, investOptionFor, PACKAGE_LIMIT_SENTENCE } from "./packagePolicy";
+
+/**
+ * "Hide amounts", shared with the dashboard (DashboardScreen uses the same
+ * key): hidden there, hidden here. A convenience on this device, not security.
+ */
+const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
+
+function readHideAmounts(): boolean {
+  try {
+    return window.localStorage.getItem(HIDE_AMOUNTS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function saveHideAmounts(hidden: boolean) {
+  try {
+    window.localStorage.setItem(HIDE_AMOUNTS_KEY, hidden ? "1" : "0");
+  } catch {
+    // Storage blocked: it just won't be remembered.
+  }
+}
+
+/** How many of the wallet's latest movements to list here. */
+const ACTIVITY_SHOWN = 3;
+
+/** The wallet for a package (created on first look if it predates wallets). Null while loading. */
+function useWallet(packageId: PackageId | null): PackageWallet | null {
+  const [wallet, setWallet] = useState<PackageWallet | null>(null);
+  useEffect(() => {
+    if (!packageId) return;
+    let cancelled = false;
+    void getWallet(packageId).then((found) => {
+      if (!cancelled) setWallet(found);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [packageId]);
+  return wallet && wallet.packageId === packageId ? wallet : null;
+}
 
 export function InvestStartScreen() {
   const router = useRouter();
@@ -55,6 +105,13 @@ export function InvestStartScreen() {
   const heldId = transactions ? (heldPackageIds(transactions)[0] ?? null) : null;
   const chosenId = current.status === "signed-in" ? current.account.chosenPackageId : null;
   const packageId = heldId ?? chosenId;
+  const wallet = useWallet(packageId);
+  const [hideAmounts, setHideAmounts] = useState(readHideAmounts);
+  const toggleHideAmounts = () =>
+    setHideAmounts((hidden) => {
+      saveHideAmounts(!hidden);
+      return !hidden;
+    });
 
   // Never chose one: the list, to choose.
   useEffect(() => {
@@ -66,25 +123,119 @@ export function InvestStartScreen() {
   const pkg = INVESTMENT_PACKAGES[packageId];
   const option = investOptionFor(transactions, packageId);
   const isInvested = option.kind === "top-up";
+  const balance = walletBalance(transactions, packageId);
+  const activity = transactions.filter((item) => item.packageId === packageId).slice(0, ACTIVITY_SHOWN);
+  const holderName = current.account.fullName ?? current.account.email;
 
   return (
-    <StepScreenLayout title="Invest" centeredTitle stickyHeader backHref={ROUTES.dashboard}>
+    <StepScreenLayout title="Wallet" centeredTitle stickyHeader backHref={ROUTES.dashboard}>
       <div className="flex flex-1 flex-col sm:flex-none">
-        <h2 className="pt-2 text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-          {isInvested ? "You're invested in" : "Your package"}
-        </h2>
+        {/* Which wallet, and what's in it (the reference's "Bankie Visa / $821.99"). */}
+        <div className="flex items-center justify-between gap-3 pt-2">
+          <h2 className="min-w-0 text-[1.375rem] leading-tight font-bold tracking-tight">{pkg.name}</h2>
+          {/* Locked in: their choice (changeable until they invest), or invested (fixed). */}
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-600 px-2.5 py-1 text-[0.6875rem] font-semibold text-white">
+            <LockIcon className="size-3" />
+            {isInvested ? "Invested" : "Your choice"}
+          </span>
+        </div>
+        <p className="mt-4 text-[0.8125rem] font-semibold text-brand-700 dark:text-brand-400">Balance</p>
+        <div className="mt-1 flex items-center justify-between gap-4">
+          <p className="flex items-start gap-1.5 font-bold tracking-tight tabular-nums">
+            <span className="mt-1 text-lg text-neutral-400 dark:text-neutral-500">{CEDI_SYMBOL}</span>
+            <span className="text-[2.25rem] leading-none">
+              {hideAmounts ? "••••" : formatCedisNumber(balance, { exact: true })}
+            </span>
+            {hideAmounts && <span className="sr-only">Balance hidden</span>}
+          </p>
+          <button
+            type="button"
+            onClick={toggleHideAmounts}
+            aria-pressed={hideAmounts}
+            aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
+            className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full bg-neutral-100 text-neutral-600 transition-colors hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/15"
+          >
+            {hideAmounts ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
+          </button>
+        </div>
 
-        <YourPackageCard pkg={pkg} option={option} isInvested={isInvested} />
+        {wallet ? (
+          <WalletCard wallet={wallet} pkg={pkg} holderName={holderName} className="mt-6" />
+        ) : (
+          // Same size while the wallet loads, so nothing jumps.
+          <div aria-hidden className="mt-6 aspect-[1.586] w-full animate-pulse rounded-xl bg-brand-600/20" />
+        )}
 
-        <p className="mt-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        {/* This wallet's money movements, newest first. */}
+        <section aria-labelledby="wallet-activity" className="mt-7">
+          <div className="flex items-baseline justify-between">
+            <h3 id="wallet-activity" className="text-[0.9375rem] font-semibold">
+              Wallet activity
+            </h3>
+            {activity.length > 0 && (
+              <Link href={ROUTES.transactions} className="text-[0.8125rem] font-semibold text-brand-700 dark:text-brand-400">
+                See all
+              </Link>
+            )}
+          </div>
+          {activity.length === 0 ? (
+            <p className="mt-3 rounded-2xl bg-neutral-50 px-4 py-4 text-sm leading-relaxed text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+              No money in yet. Your first payment will show here.
+            </p>
+          ) : (
+            <ul className="mt-2 divide-y divide-neutral-100 dark:divide-white/10">
+              {activity.map((item) => {
+                const isOut = item.type === "withdrawal";
+                return (
+                  <li key={item.id}>
+                    <Link
+                      href={transactionDetailsHref(item.id)}
+                      className="flex items-center justify-between gap-4 py-3 text-sm"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium">{transactionTitle(item)}</span>
+                        <span className="mt-0.5 block text-xs text-neutral-500 dark:text-neutral-400">
+                          {formatWhen(item.createdAt)}
+                          {item.status !== "completed" && ` · ${item.status === "pending" ? "Pending" : "Failed"}`}
+                        </span>
+                      </span>
+                      <span
+                        className={cn(
+                          "shrink-0 font-semibold tabular-nums",
+                          !isOut && item.status === "completed" && "text-brand-700 dark:text-brand-400",
+                          item.status === "failed" && "text-neutral-400 line-through",
+                        )}
+                      >
+                        {hideAmounts ? "••••" : `${isOut ? "−" : "+"}${formatCedis(item.amount, { exact: true })}`}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        <dl className="mt-6 flex flex-col gap-2.5 border-t border-neutral-100 pt-4 text-sm dark:border-white/10">
+          {[
+            { label: "Per payment", value: `${formatCedis(pkg.minimum)} – ${formatCedis(pkg.maximum)}` },
+            { label: "Withdrawals", value: withdrawalLabel(pkg.withdrawalEveryMonths) },
+          ].map((row) => (
+            <div key={row.label} className="flex items-baseline justify-between gap-4">
+              <dt className="text-neutral-500 dark:text-neutral-400">{row.label}</dt>
+              <dd className="text-right font-medium">{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <p className="mt-5 text-[0.8125rem] leading-relaxed text-neutral-500 dark:text-neutral-400">
           {PACKAGE_LIMIT_SENTENCE}{" "}
           {isInvested
             ? "This is the package your money is in."
             : "This is the package you chose. You can change it until you invest."}
         </p>
 
-        <div className="mt-8 flex flex-col items-center gap-3">
-          {/* Money in: the first investment, or more on top (any time: the range is per payment). */}
+        <div className="mt-auto flex flex-col items-center gap-3 pt-8">
           {canInvest(option) && (
             <ButtonLink href={investAmountHref(pkg.id)} size="lg" fullWidth>
               {isInvested ? "Add money" : "Continue"}
@@ -104,57 +255,5 @@ export function InvestStartScreen() {
         </div>
       </div>
     </StepScreenLayout>
-  );
-}
-
-/** The package, highlighted and locked in: their choice, or the one they're invested in. */
-function YourPackageCard({
-  pkg,
-  option,
-  isInvested,
-}: {
-  pkg: InvestmentPackage;
-  option: InvestOption;
-  isInvested: boolean;
-}) {
-  const rows: { label: string; value: string }[] = [
-    { label: "Expected return", value: `${roiRangeLabel(pkg.monthlyRoiPercent)} a month` },
-    ...(option.kind === "top-up" ? [{ label: "Invested", value: formatCedis(option.invested, { exact: true }) }] : []),
-    // The range is for each payment (packagePolicy.ts), not a cap on the total.
-    { label: "Per payment", value: `${formatCedis(pkg.minimum)} – ${formatCedis(pkg.maximum)}` },
-    { label: "Withdrawals", value: withdrawalLabel(pkg.withdrawalEveryMonths) },
-  ];
-
-  return (
-    <section
-      aria-label={`${isInvested ? "Invested in" : "Your choice:"} ${pkg.name}`}
-      className="mt-3 rounded-3xl bg-brand-50 p-5 ring-2 ring-brand-600 ring-inset dark:bg-brand-500/10 dark:ring-brand-500"
-    >
-      <div className="flex items-center gap-3">
-        <PackageIcon pkg={pkg} className="size-11" />
-        <div className="min-w-0">
-          {/* The tag sits by the ticker (as on the package cards), so the name
-              has the full width and never gets cut off. */}
-          <p className="flex items-center gap-2 text-xs font-medium text-neutral-500">
-            {pkg.ticker}
-            {/* Locked in: their choice (changeable until they invest), or invested (fixed). */}
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-600 px-2 py-0.5 text-[0.6875rem] font-semibold text-white">
-              <LockIcon className="size-3" />
-              {isInvested ? "Invested" : "Your choice"}
-            </span>
-          </p>
-          <p className="mt-1 text-lg leading-snug font-semibold">{pkg.name}</p>
-        </div>
-      </div>
-
-      <dl className="mt-5 flex flex-col gap-2.5 border-t border-brand-600/15 pt-4 text-sm">
-        {rows.map((row) => (
-          <div key={row.label} className="flex items-baseline justify-between gap-4">
-            <dt className="text-neutral-600 dark:text-neutral-400">{row.label}</dt>
-            <dd className="text-right font-medium">{row.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
   );
 }
