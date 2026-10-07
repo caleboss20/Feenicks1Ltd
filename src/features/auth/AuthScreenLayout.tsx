@@ -18,7 +18,6 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "@/components/icons";
-import { TestVersionBadge } from "@/components/ui/TestVersionBadge";
 
 type AuthScreenLayoutProps = {
   /** Screen title. Use <br /> to control the line break, as in the design. */
@@ -33,17 +32,13 @@ type AuthScreenLayoutProps = {
 export function AuthScreenLayout({ title, backHref, footer, children }: AuthScreenLayoutProps) {
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] sm:justify-center sm:py-8 lg:max-w-sm">
-      <div className="flex items-center justify-between">
-        <Link
-          href={backHref}
-          aria-label="Back"
-          className="-ml-2 grid size-11 place-items-center rounded-full transition-colors hover:bg-foreground/5 sm:fixed sm:top-6 sm:left-6 sm:ml-0"
-        >
-          <ArrowLeft className="size-6" />
-        </Link>
-        {/* Not launched yet (config/launch.ts). */}
-        <TestVersionBadge className="sm:fixed sm:top-8 sm:right-6" />
-      </div>
+      <Link
+        href={backHref}
+        aria-label="Back"
+        className="-ml-2 grid size-11 place-items-center rounded-full transition-colors hover:bg-foreground/5 sm:fixed sm:top-6 sm:left-6 sm:ml-0"
+      >
+        <ArrowLeft className="size-6" />
+      </Link>
 
       {/* Capped at 40px on large screens so longer titles ("Log in to your")
           don't dominate the narrow form column. */}

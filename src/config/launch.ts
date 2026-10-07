@@ -7,8 +7,8 @@
  * SEC Directive Dir/001/06/2026). So while it's off:
  *   - search engines are told not to list any page (root layout `robots`,
  *     robots.txt without a sitemap, an empty sitemap)
- *   - the screens outsiders land on (welcome slides, log in, sign up) show a
- *     small "Test version" label (components/ui/TestVersionBadge)
+ *   - the welcome slides show a small "Test version" label
+ *     (components/ui/TestVersionBadge)
  *
  * ON: only at launch (the brief's "Gate E": licence on file, approved by the
  * owner and compliance). Set on the hosting provider:

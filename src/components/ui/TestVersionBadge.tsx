@@ -2,9 +2,9 @@ import { IS_PUBLIC_LAUNCH } from "@/config/launch";
 import { cn } from "@/lib/utils";
 
 /**
- * "Test version": a small label on the screens outsiders land on (welcome
- * slides, log in, sign up), so nobody mistakes this build for the launched
- * service. Gone automatically at launch (config/launch.ts).
+ * "Test version": a small label on the welcome slides (where outsiders
+ * land), so nobody mistakes this build for the launched service. Not on
+ * log in / sign up, by request. Gone automatically at launch (config/launch.ts).
  *
  * `onPhoto`: light text on a translucent dark pill, for the welcome slides'
  * photos; otherwise amber on the page.
