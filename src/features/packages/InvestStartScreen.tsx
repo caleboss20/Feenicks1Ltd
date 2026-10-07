@@ -4,11 +4,10 @@
  * Invest (the dashboard's Invest button): the wallet of the investor's
  * package, after the user's bank-card reference.
  *
- *   ←                 Wallet
- *   InvestWise Capital         🔒 Your choice     ← "🔒 Invested" once money is in
- *   Balance
- *   GH₵ 0.00                              (👁)    ← what's in the wallet; the eye hides
- *                                                    it (same setting as the dashboard)
+ *   ←          InvestWise Capital                 ← the package is the title
+ *   Balance 👁                  🔒 Your choice     ← small eye hides amounts (same setting
+ *   GH₵ 0.00                                         as the dashboard); "🔒 Invested" once
+ *                                                    money is in
  *   ╭──────────────────────────────────────╮
  *   │ FEENICKS1                         IC │      ← WalletCard (features/wallets)
  *   │ F1 IC 4821 7365                      │
@@ -118,42 +117,43 @@ export function InvestStartScreen() {
   const holderName = current.account.fullName ?? current.account.email;
 
   return (
-    <StepScreenLayout title="Wallet" centeredTitle stickyHeader backHref={ROUTES.dashboard}>
+    // The package's name is the page title, so the balance and card sit right at the top.
+    <StepScreenLayout title={pkg.name} centeredTitle stickyHeader backHref={ROUTES.dashboard}>
       <div className="flex flex-1 flex-col sm:flex-none">
-        {/* Which wallet, and what's in it (the reference's "Bankie Visa / $821.99"). */}
-        <div className="flex items-center justify-between gap-3 pt-2">
-          <h2 className="min-w-0 text-[1.375rem] leading-tight font-bold tracking-tight">{pkg.name}</h2>
+        {/* "Balance" with a small, quiet eye beside it; the status tag on the right. */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5">
+            <p className="text-[0.8125rem] font-semibold text-brand-700 dark:text-brand-400">Balance</p>
+            <button
+              type="button"
+              onClick={toggleHideAmounts}
+              aria-pressed={hideAmounts}
+              aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
+              // Small and quiet, with a bigger invisible tap area (p-1.5, -m-1.5).
+              className="-m-1.5 cursor-pointer p-1.5 text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+            >
+              {hideAmounts ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
+            </button>
+          </div>
           {/* Locked in: their choice (changeable until they invest), or invested (fixed). */}
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-600 px-2.5 py-1 text-[0.6875rem] font-semibold text-white">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[0.6875rem] font-semibold text-brand-700 dark:bg-brand-500/15 dark:text-brand-300">
             <LockIcon className="size-3" />
             {isInvested ? "Invested" : "Your choice"}
           </span>
         </div>
-        <p className="mt-4 text-[0.8125rem] font-semibold text-brand-700 dark:text-brand-400">Balance</p>
-        <div className="mt-1 flex items-center justify-between gap-4">
-          <p className="flex items-start gap-1.5 font-bold tracking-tight tabular-nums">
-            <span className="mt-1 text-lg text-neutral-400 dark:text-neutral-500">{CEDI_SYMBOL}</span>
-            <span className="text-[2.25rem] leading-none">
-              {hideAmounts ? "••••" : formatCedisNumber(balance, { exact: true })}
-            </span>
-            {hideAmounts && <span className="sr-only">Balance hidden</span>}
-          </p>
-          <button
-            type="button"
-            onClick={toggleHideAmounts}
-            aria-pressed={hideAmounts}
-            aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
-            className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full bg-neutral-100 text-neutral-600 transition-colors hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/15"
-          >
-            {hideAmounts ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
-          </button>
-        </div>
+        <p className="mt-1.5 flex items-start gap-1.5 font-bold tracking-tight tabular-nums">
+          <span className="mt-1 text-lg text-neutral-400 dark:text-neutral-500">{CEDI_SYMBOL}</span>
+          <span className="text-[2.25rem] leading-none">
+            {hideAmounts ? "••••" : formatCedisNumber(balance, { exact: true })}
+          </span>
+          {hideAmounts && <span className="sr-only">Balance hidden</span>}
+        </p>
 
         {wallet ? (
-          <WalletCard wallet={wallet} pkg={pkg} holderName={holderName} className="mt-6" />
+          <WalletCard wallet={wallet} pkg={pkg} holderName={holderName} className="mt-5" />
         ) : (
           // Same size while the wallet loads, so nothing jumps.
-          <div aria-hidden className="mt-6 aspect-[1.586] w-full animate-pulse rounded-xl bg-brand-600/20" />
+          <div aria-hidden className="mt-5 aspect-[1.586] w-full animate-pulse rounded-xl bg-brand-600/20" />
         )}
 
         <div className="mt-auto flex flex-col items-center gap-3 pt-8">
