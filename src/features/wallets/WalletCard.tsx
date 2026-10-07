@@ -1,4 +1,4 @@
-import { EyeIcon, EyeOffIcon, LockIcon } from "@/components/icons";
+import { EyeIcon, EyeOffIcon } from "@/components/icons";
 import type { InvestmentPackage } from "@/features/packages/investmentPackages";
 import { CEDI_SYMBOL, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -13,8 +13,8 @@ import { formatWalletId, type PackageWallet } from "./walletModel";
  *   │                                    ((( │
  *   │ GH₵ 1,500.00                        👁  ((│   ← the balance; the eye hides amounts
  *   │                                    ((( │      (rings: background decoration)
- *   │ Holder        Wallet ID       🔒 Invested │   ← like Exp / Number; the status where
- *   │ Ama Mensah    F1 IC 4821 7365            │      the reference has its switch
+ *   │ Holder        Wallet ID                  │   ← like Exp / Number
+ *   │ Ama Mensah    F1 IC 4821 7365            │
  *   ╰──────────────────────────────────────────╯
  *
  * The holder is the full name from Fill your profile. The wallet ID starts
@@ -27,7 +27,6 @@ export function WalletCard({
   balance,
   hideAmounts,
   onToggleHideAmounts,
-  status,
   className,
 }: {
   wallet: PackageWallet;
@@ -37,8 +36,6 @@ export function WalletCard({
   balance: number;
   hideAmounts: boolean;
   onToggleHideAmounts: () => void;
-  /** "Invested" once money is in, else "Your choice". */
-  status: string;
   className?: string;
 }) {
   return (
@@ -80,7 +77,7 @@ export function WalletCard({
         </button>
       </div>
 
-      <div className="mt-auto flex items-end gap-4">
+      <div className="mt-auto flex items-end gap-6">
         <div className="min-w-0">
           <p className="text-[0.6875rem] text-white/65">Holder</p>
           <p className="mt-0.5 max-w-[8rem] truncate text-[0.8125rem] font-semibold">{holderName}</p>
@@ -91,11 +88,6 @@ export function WalletCard({
             {formatWalletId(wallet.id)}
           </p>
         </div>
-        {/* Pinned to the corner, with room to breathe after the wallet ID. */}
-        <span className="ml-auto inline-flex shrink-0 translate-x-1 items-center gap-1 self-end rounded-full bg-white/20 px-2 py-0.5 text-[0.625rem] font-semibold">
-          <LockIcon className="size-3" />
-          {status}
-        </span>
       </div>
     </section>
   );
