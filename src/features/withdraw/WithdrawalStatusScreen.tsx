@@ -66,7 +66,7 @@ const HEADLINES: Record<WithdrawalRequest["status"], string> = {
 const KIND_LABELS: Record<WithdrawalRequest["kind"], string> = {
   standard: "Standard",
   express: "Express",
-  "pre-investment": "Before investing",
+  "pre-investment": "Free (first 72 hours)",
 };
 
 export function WithdrawalStatusScreen({ id }: { id: string }) {

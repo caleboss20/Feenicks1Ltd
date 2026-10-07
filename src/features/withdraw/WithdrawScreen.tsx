@@ -447,7 +447,7 @@ function ConfirmWithdrawalSheet({
   };
 
   const rows = [
-    { label: "Type", value: kind === "express" ? "Express" : kind === "standard" ? "Standard" : "Before investing" },
+    { label: "Type", value: kind === "express" ? "Express" : kind === "standard" ? "Standard" : "Free (first 72 hours)" },
     { label: "To", value: `${MOMO_NETWORKS[network].name} · ${maskedNumber(phone)}` },
     {
       label: kind === "express" ? `Fee (${WITHDRAWAL_RULES.expressFeePercent}%)` : "Fee",
