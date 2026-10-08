@@ -1,8 +1,9 @@
 "use client";
 
 /**
- * Withdraw (the dashboard's Withdraw button), after the user's "Money
- * withdraw" reference, with the CEO's withdrawal rules (withdrawalModel.ts).
+ * Withdraw, step 2: how much and where to (after "Withdraw money" on the
+ * wallet screen, WithdrawWalletScreen), after the user's "Money withdraw"
+ * reference, with the CEO's withdrawal rules (withdrawalModel.ts).
  *
  *   (‹)  Withdraw
  *   Send to
@@ -128,7 +129,8 @@ export function WithdrawScreen() {
   );
 }
 
-function NothingToWithdraw({ needsPhone }: { needsPhone: boolean }) {
+/** Shown by both withdraw steps when there's no investment (or no phone number) yet. */
+export function NothingToWithdraw({ needsPhone }: { needsPhone: boolean }) {
   return (
     <StepScreenLayout title="Withdraw" centeredTitle backHref={ROUTES.dashboard}>
       <div className="mt-12 flex flex-col items-center text-center [@media(max-height:700px)]:mt-8">
@@ -199,8 +201,8 @@ function WithdrawForm({
       <div className="px-5 pt-[max(1rem,env(safe-area-inset-top))]">
         <header className="flex items-center gap-3">
           <Link
-            href={ROUTES.dashboard}
-            aria-label="Back to home"
+            href={ROUTES.withdraw}
+            aria-label="Back to your wallet"
             className="-ml-2 grid size-11 place-items-center rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/10"
           >
             <ArrowLeft className="size-5" />

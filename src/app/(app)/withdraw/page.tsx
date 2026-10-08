@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { WithdrawScreen } from "@/features/withdraw/WithdrawScreen";
+import { WithdrawWalletScreen } from "@/features/withdraw/WithdrawWalletScreen";
 
 /**
- * Route: `/withdraw` (withdraw returns), from the dashboard.
+ * Route: `/withdraw`: Withdraw, step 1, from the dashboard's Withdraw button:
+ * the wallet card, then "Withdraw money" → `/withdraw/amount`.
  * Private, logged-in users only → hidden from search engines.
  */
 export const metadata: Metadata = {
@@ -11,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function WithdrawPage() {
-  return <WithdrawScreen />;
+  return <WithdrawWalletScreen />;
 }

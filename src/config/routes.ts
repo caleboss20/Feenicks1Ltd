@@ -62,6 +62,8 @@ export const ROUTES = {
   notifications: "/notifications",
   /** From the dashboard's Withdraw button. */
   withdraw: "/withdraw",
+  /** Withdraw, step 2: how much and where to (after the wallet's "Withdraw money"). */
+  withdrawAmount: "/withdraw/amount",
   /** The withdrawal rules explained (free first 72 h, standard, express), from Withdraw. */
   withdrawGuide: "/withdraw/how-it-works",
 
