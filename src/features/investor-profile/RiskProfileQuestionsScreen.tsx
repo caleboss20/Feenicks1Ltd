@@ -1,8 +1,10 @@
 "use client";
 
 /**
- * Investor risk profile: 6 questions in 3 short steps of 2 (each step fits
- * one phone screen, no scrolling). Layout inspired by a clean survey mockup:
+ * Investor profile: first "Which best describes you?" (Student, Investor or
+ * Business owner, laid out after the CEO's portfolio guide: SegmentGuide),
+ * then 6 risk questions in 3 short steps of 2 (each step fits one phone
+ * screen, no scrolling). Layout inspired by a clean survey mockup:
  * numbered questions, simple answer lists, a slim progress line.
  *
  *   ←           Investor profile
@@ -34,6 +36,8 @@ import { INVESTING_ROUTES, type InvestingFlow } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { saveRiskProfile } from "./investorProfileService";
+import type { InvestorSegment } from "./investorSegments";
+import { SegmentPicker } from "./SegmentGuide";
 import { RISK_PROFILE_STEPS, RISK_QUESTIONS, type RiskAnswers, type RiskQuestion } from "./riskProfileQuestions";
 import { useLeaveFinishedOnboarding } from "./useLeaveFinishedOnboarding";
 
@@ -49,12 +53,18 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
 
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<RiskAnswers>({});
+  const [segment, setSegment] = useState<InvestorSegment | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const step = RISK_PROFILE_STEPS[stepIndex];
-  const isLastStep = stepIndex === RISK_PROFILE_STEPS.length - 1;
-  const isStepComplete = step.questions.every((question) => answers[question.id] !== undefined);
+  // Step 0: who you are. Steps 1–3: the risk questions.
+  const totalSteps = RISK_PROFILE_STEPS.length + 1;
+  const isSegmentStep = stepIndex === 0;
+  const step = isSegmentStep ? null : RISK_PROFILE_STEPS[stepIndex - 1];
+  const isLastStep = stepIndex === totalSteps - 1;
+  const isStepComplete = step
+    ? step.questions.every((question) => answers[question.id] !== undefined)
+    : segment !== undefined;
 
   const goToStep = (index: number) => {
     setStepIndex(index);
@@ -67,7 +77,7 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
 
     setError(null);
     setIsSaving(true);
-    const result = await saveRiskProfile(answers);
+    const result = await saveRiskProfile(answers, segment);
     if (!result.ok) {
       setIsSaving(false);
       setError(result.message);
@@ -88,9 +98,9 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
       onBack={stepIndex > 0 ? () => goToStep(stepIndex - 1) : undefined}
     >
       <div className="flex flex-1 flex-col sm:flex-none">
-        <StepProgress current={stepIndex + 1} total={RISK_PROFILE_STEPS.length} className="mt-1" />
+        <StepProgress current={stepIndex + 1} total={totalSteps} className="mt-1" />
         <p className="mt-4 text-xs font-semibold tracking-wider text-neutral-500 uppercase [@media(max-height:700px)]:mt-3">
-          Step {stepIndex + 1} of {RISK_PROFILE_STEPS.length} · {step.title}
+          Step {stepIndex + 1} of {totalSteps} · {step ? step.title : "Who you are"}
         </p>
 
         {/* Re-keyed per step, so each step fades in fresh. */}
@@ -98,7 +108,16 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
           key={stepIndex}
           className="mt-5 flex animate-fade-up flex-col gap-7 [animation-duration:0.4s] motion-reduce:animate-none [@media(max-height:700px)]:mt-3 [@media(max-height:700px)]:gap-5"
         >
-          {step.questions.map((question) => (
+          {isSegmentStep && (
+            <div>
+              <h2 className="text-xl leading-snug font-bold tracking-tight">Which best describes you?</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                Each profile has portfolios designed for it. You can still choose any portfolio later.
+              </p>
+              <SegmentPicker selected={segment} onSelect={setSegment} className="mt-5" />
+            </div>
+          )}
+          {step?.questions.map((question) => (
             <QuestionField
               key={question.id}
               number={RISK_QUESTIONS.indexOf(question) + 1}

@@ -2,6 +2,7 @@ import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import { ROUTES } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
 import { notifySessionAccount } from "@/demo/demoNotifications";
+import type { InvestorSegment } from "./investorSegments";
 import {
   RISK_LEVELS,
   RISK_QUESTIONS,
@@ -28,10 +29,13 @@ export type SaveRiskProfileResult =
  *   - recalculate the score ON THE SERVER; never trust the browser's result
  *   - ask the user to review their profile periodically (e.g. yearly)
  */
-export async function saveRiskProfile(answers: RiskAnswers): Promise<SaveRiskProfileResult> {
-  // TODO(api): POST /api/investor-profile  { answers } → { level, score }
+export async function saveRiskProfile(
+  answers: RiskAnswers,
+  segment: InvestorSegment | undefined,
+): Promise<SaveRiskProfileResult> {
+  // TODO(api): POST /api/investor-profile  { segment, answers } → { level, score }
   const isComplete = RISK_QUESTIONS.every((question) => answers[question.id] !== undefined);
-  if (!isComplete) return { ok: false, message: "Please answer every question." };
+  if (!isComplete || !segment) return { ok: false, message: "Please answer every question." };
 
   const score = scoreAnswers(answers);
   const level = riskLevelForScore(score);
@@ -39,7 +43,7 @@ export async function saveRiskProfile(answers: RiskAnswers): Promise<SaveRiskPro
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
     demo.updateSessionAccount({
-      riskProfile: { level, score, answeredAt: new Date().toISOString() },
+      riskProfile: { level, score, answeredAt: new Date().toISOString(), segment },
     });
     notifySessionAccount({
       kind: "investing",

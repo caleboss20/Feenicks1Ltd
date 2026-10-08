@@ -58,13 +58,14 @@ import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
+import { recommendedPortfolioIds } from "@/features/investor-profile/investorSegments";
 import {
   currentValue,
   hasCompletedInvestment,
   totalProfit,
 } from "@/features/analytics/portfolioHistory";
 import { markOnboardingFinished } from "@/features/investor-profile/investorProfileService";
-import { INVESTMENT_PACKAGES, PACKAGES_FOR_RISK_LEVEL } from "@/features/packages/investmentPackages";
+import { INVESTMENT_PACKAGES } from "@/features/packages/investmentPackages";
 import {
   REFERRAL_POINTS_LABEL,
   REFERRAL_REWARD_LABEL,
@@ -167,9 +168,9 @@ export function DashboardScreen() {
   // Always signed in here (AppLockGuard); this just narrows the type.
   if (current.status !== "signed-in") return null;
 
-  const { email, firstName, riskLevel, avatarUrl, unlockedAt } = current.account;
+  const { email, firstName, riskLevel, investorSegment, avatarUrl, unlockedAt } = current.account;
   const initials = (firstName ?? "F1").slice(0, 2).toUpperCase();
-  const bestMatch = INVESTMENT_PACKAGES[riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : "mfc"];
+  const bestMatch = INVESTMENT_PACKAGES[riskLevel ? recommendedPortfolioIds(riskLevel, investorSegment)[0] : "mfc"];
   const [lowestRoi, highestRoi] = bestMatch.monthlyRoiPercent;
   // The returns calculator lives on each package: open the best match.
   const calculatorHref = packageDetailsHref(bestMatch.id);

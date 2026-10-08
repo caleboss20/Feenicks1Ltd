@@ -15,6 +15,7 @@
  */
 
 import { isStepAfter, type AccountStep } from "@/features/auth/accountProgress";
+import type { InvestorSegment } from "@/features/investor-profile/investorSegments";
 import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
 import type { AppNotification } from "@/features/notifications/notificationModel";
 import type { PackageId } from "@/features/packages/investmentPackages";
@@ -53,7 +54,8 @@ export type DemoAccount = {
   /** Authenticator-app secret (Base32). In production: server-side, encrypted. */
   totpSecret?: string;
   /** Investor risk profile result (see investor-profile/riskProfileQuestions.ts). */
-  riskProfile?: { level: RiskLevel; score: number; answeredAt: string };
+  /** `segment`: Student / Investor / Business owner (absent on profiles answered before it existed). */
+  riskProfile?: { level: RiskLevel; score: number; answeredAt: string; segment?: InvestorSegment };
   /** Every Terms & Conditions acceptance: which package, which version, when. */
   termsAcceptances?: { packageId: string; version: string; acceptedAt: string }[];
   /**

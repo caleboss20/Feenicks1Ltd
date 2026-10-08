@@ -48,13 +48,13 @@ import { INVESTING_ROUTES, type InvestingFlow } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { RISK_LEVELS } from "@/features/investor-profile/riskProfileQuestions";
+import { recommendedPortfolioIds, segmentInfo } from "@/features/investor-profile/investorSegments";
 import { useLeaveFinishedOnboarding } from "@/features/investor-profile/useLeaveFinishedOnboarding";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import {
   ALL_PACKAGES,
   INVESTMENT_PACKAGES,
   isPackageId,
-  PACKAGES_FOR_RISK_LEVEL,
   type PackageId,
 } from "./investmentPackages";
 import { PackageCard, packageCardId } from "./PackageCard";
@@ -85,6 +85,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
   const router = useRouter();
   const current = useCurrentAccount();
   const riskLevel = current.status === "signed-in" ? current.account.riskLevel : null;
+  const segment = current.status === "signed-in" ? current.account.investorSegment : null;
   const isLeaving = useLeaveFinishedOnboarding(ROUTES.investPackages, flow === "onboarding");
   const isApp = flow === "app";
   // The package they chose (at sign-up or since): marked "Your choice" until they invest.
@@ -124,8 +125,10 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
   if (isLeaving) return null;
 
   // The top recommendation keeps its label even if listed lower down.
-  const bestMatchId = riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel][0] : null;
-  const matchedIds = (riskLevel ? PACKAGES_FOR_RISK_LEVEL[riskLevel] : []).filter(
+  // Student / Investor / Business owner narrows it; the risk level orders it.
+  const recommendedIds = riskLevel ? recommendedPortfolioIds(riskLevel, segment) : [];
+  const bestMatchId = recommendedIds[0] ?? null;
+  const matchedIds = recommendedIds.filter(
     (id) => !heldIds.includes(id),
   );
   const matched = matchedIds.map((id) => INVESTMENT_PACKAGES[id]);
@@ -175,7 +178,14 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
             </>
           ) : riskLevel ? (
             <>
-              Based on your{" "}
+              {segment ? (
+                <>
+                  As {segment === "investor" ? "an" : "a"}{" "}
+                  <span className="font-semibold text-foreground">{segmentInfo(segment).name.toLowerCase()}</span> with a{" "}
+                </>
+              ) : (
+                "Based on your "
+              )}
               {isApp ? (
                 // In the app the profile is a link: view it (and retake it from there).
                 <Link

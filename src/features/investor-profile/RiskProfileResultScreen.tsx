@@ -15,6 +15,9 @@
  *   Returns             Medium to high
  *   Growth from         Tangible assets
  *
+ *   DESIGNED FOR YOU
+ *   [02 INVESTOR] [IC … · ABC …]            ← their profile, as in the CEO's guide
+ *
  *   We'll use this to recommend packages… not financial advice…
  *   (            Continue            )      ← in the app: "See matching packages"
  *          Retake questions
@@ -34,13 +37,16 @@ import { INVESTING_ROUTES, type InvestingFlow } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { cn } from "@/lib/utils";
+import { segmentInfo } from "./investorSegments";
 import { RISK_LEVEL_ORDER, RISK_LEVELS, type RiskLevel } from "./riskProfileQuestions";
+import { SegmentRow } from "./SegmentGuide";
 import { useLeaveFinishedOnboarding } from "./useLeaveFinishedOnboarding";
 
 export function RiskProfileResultScreen({ flow }: { flow: InvestingFlow }) {
   const router = useRouter();
   const current = useCurrentAccount();
   const level = current.status === "signed-in" ? current.account.riskLevel : null;
+  const segment = current.status === "signed-in" ? current.account.investorSegment : null;
   const routes = INVESTING_ROUTES[flow];
   const isLeaving = useLeaveFinishedOnboarding(ROUTES.investorProfile, flow === "onboarding");
 
@@ -84,6 +90,14 @@ export function RiskProfileResultScreen({ flow }: { flow: InvestingFlow }) {
             </div>
           ))}
         </dl>
+
+        {/* Student / Investor / Business owner, with the portfolios designed for it. */}
+        {segment && (
+          <section className="mt-8 [@media(max-height:700px)]:mt-5">
+            <h3 className="text-xs font-semibold tracking-wider text-neutral-500 uppercase">Designed for you</h3>
+            <SegmentRow segment={segmentInfo(segment)} className="mt-3" />
+          </section>
+        )}
 
         <p className="mt-6 text-xs leading-relaxed text-neutral-400 [@media(max-height:700px)]:mt-4">
           We&apos;ll use this profile to recommend portfolios that suit you. It&apos;s a guide based

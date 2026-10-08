@@ -7,6 +7,7 @@ import {
   getUnlockedAt,
   subscribeToSession,
 } from "@/demo/demoAccounts";
+import type { InvestorSegment } from "@/features/investor-profile/investorSegments";
 import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions";
 import { isPackageId, type PackageId } from "@/features/packages/investmentPackages";
 import type { AccountStep } from "./accountProgress";
@@ -38,6 +39,8 @@ export type CurrentAccount = {
   hasBiometrics: boolean;
   /** Investor risk profile, once the questions are answered. */
   riskLevel: RiskLevel | null;
+  /** Student / Investor / Business owner, from the investor profile (null if not answered). */
+  investorSegment: InvestorSegment | null;
   /**
    * The package they've chosen to invest in (agreed to its terms, at sign-up
    * or later), or null if they haven't chosen. Invest opens it.
@@ -85,6 +88,7 @@ function readSnapshot() {
     account?.step ?? "",
     account?.biometricCredentialId ? 1 : 0,
     account?.riskProfile?.level ?? "",
+    account?.riskProfile?.segment ?? "",
     // Changes when a picture is added (its length is a cheap fingerprint).
     account?.avatarDataUrl?.length ?? 0,
     account?.username ?? "",
@@ -117,6 +121,7 @@ export function useCurrentAccount(): CurrentAccountState {
         avatarUrl: account.avatarDataUrl ?? null,
         hasBiometrics: Boolean(account.biometricCredentialId),
         riskLevel: account.riskProfile?.level ?? null,
+        investorSegment: account.riskProfile?.segment ?? null,
         chosenPackageId: chosenPackageOf(account),
         step: account.step,
         hasFinishedOnboarding: Boolean(account.onboardingFinishedAt),
