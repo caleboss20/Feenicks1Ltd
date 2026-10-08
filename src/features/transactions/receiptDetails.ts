@@ -83,7 +83,7 @@ export function receiptDetails(
         {
           title: "Investment details",
           rows: [
-            ...(pkg ? [{ label: "Package", value: `${pkg.name} (${pkg.ticker})` }] : []),
+            ...(pkg ? [{ label: "Portfolio", value: `${pkg.name} (${pkg.ticker})` }] : []),
             { label: "Type", value: first?.id === transaction.id ? "First investment" : "Top-up" },
             ...(pkg ? [{ label: "Expected return", value: `${roiRangeLabel(pkg.monthlyRoiPercent)} a month` }] : []),
           ],
@@ -112,7 +112,7 @@ export function receiptDetails(
       {
         title: "Details",
         rows: [
-          ...(pkg ? [{ label: "Package", value: `${pkg.name} (${pkg.ticker})` }] : []),
+          ...(pkg ? [{ label: "Portfolio", value: `${pkg.name} (${pkg.ticker})` }] : []),
           ...(wallet ? [{ label: isMoneyOut ? "Paid to" : "From", value: wallet }] : []),
         ],
       },
@@ -147,7 +147,7 @@ function withdrawalReceipt(transaction: Transaction, withdrawal: WithdrawalReque
         title: "Withdrawal details",
         rows: [
           { label: "Type", value: WITHDRAWAL_KIND_LABELS[withdrawal.kind] },
-          { label: "Package", value: `${pkg.name} (${pkg.ticker})` },
+          { label: "Portfolio", value: `${pkg.name} (${pkg.ticker})` },
           { label: "Paid to", value: `${MOMO_NETWORKS[withdrawal.network].name} · ${formatLocalNumber(withdrawal.phone)}` },
           { label: "Requested", value: receiptDate(withdrawal.createdAt) },
           ...(withdrawal.paidAt ? [{ label: "Paid", value: receiptDate(withdrawal.paidAt) }] : []),

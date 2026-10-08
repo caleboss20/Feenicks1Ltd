@@ -53,7 +53,7 @@ export async function acceptPackageTerms(packageId: PackageId): Promise<Investme
       notify(email, {
         kind: "investing",
         title: wasChosen ? `Terms accepted: ${name}` : `You chose ${name}`,
-        body: `You agreed to the ${name} terms (effective ${TERMS_EFFECTIVE_DATE}).${wasChosen ? "" : " It's your package: Invest opens it."}`,
+        body: `You agreed to the ${name} terms (effective ${TERMS_EFFECTIVE_DATE}).${wasChosen ? "" : " It's your portfolio: Invest opens it."}`,
         href: ROUTES.invest,
       });
     }

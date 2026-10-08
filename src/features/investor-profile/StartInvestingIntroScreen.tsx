@@ -75,7 +75,7 @@ export function StartInvestingIntroScreen() {
           <span className="block text-brand-700 dark:text-brand-400">your investment plan</span>
         </h1>
         <p className="mt-3 text-[0.9375rem] leading-relaxed text-neutral-500 lg:text-sm dark:text-neutral-400 [@media(max-height:700px)]:mt-2 [@media(max-height:700px)]:text-sm">
-          A few quick questions to match you with the right packages.
+          A few quick questions to match you with the right portfolios.
         </p>
 
         {/* The picture fills the free space on phones, centred. Its size

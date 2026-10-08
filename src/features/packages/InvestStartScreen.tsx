@@ -101,14 +101,14 @@ export function InvestStartScreen() {
           )}
           {!isInvested && (
             <ButtonLink href={ROUTES.investPackages} variant="soft" size="lg" fullWidth className="h-13!">
-              Change package
+              Change portfolio
             </ButtonLink>
           )}
           <Link
             href={packageDetailsHref(pkg.id)}
             className="px-3 py-1.5 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-800 dark:text-brand-400"
           >
-            See package details
+            See portfolio details
           </Link>
         </div>
       </div>

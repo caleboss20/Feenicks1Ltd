@@ -34,7 +34,7 @@ function finishSetup() {
     notify(email, {
       kind: "account",
       title: "Welcome to Feenicks1",
-      body: "Your account is set up. Take a look at the packages when you're ready to invest.",
+      body: "Your account is set up. Take a look at the portfolios when you're ready to invest.",
       href: ROUTES.invest,
     });
   }

@@ -161,7 +161,7 @@ export function AccountScreen() {
           // In-app versions (never the sign-up screens); without a profile it opens the questions.
           href={ROUTES.investorProfile}
         />
-        <LinkRow icon={<GridIcon />} label="Investment packages" href={ROUTES.investPackages} />
+        <LinkRow icon={<GridIcon />} label="Investment portfolios" href={ROUTES.investPackages} />
         <LinkRow icon={<ArrowRight className="rotate-90" />} label="Withdraw" href={ROUTES.withdraw} />
       </RowGroup>
 

@@ -132,7 +132,7 @@ function Receipt({ transaction }: { transaction: Transaction }) {
     { label: "Date", value: fullDate(transaction.createdAt) },
     { label: "Reference", value: <CopyableReference id={transaction.id} /> },
     { label: "Type", value: TYPE_LABELS[transaction.type] },
-    ...(pkg ? [{ label: "Package", value: `${pkg.name} (${pkg.ticker})` }] : []),
+    ...(pkg ? [{ label: "Portfolio", value: `${pkg.name} (${pkg.ticker})` }] : []),
     // "To" / "From", not "Paid to": a pending or failed one hasn't been paid.
     ...(transaction.channel ? [{ label: isOut ? "To" : "From", value: transaction.channel }] : []),
     ...(transaction.type === "referral" ? [{ label: "Reward", value: REFERRAL_POINTS_LABEL }] : []),
@@ -286,7 +286,7 @@ function Progress({ transaction }: { transaction: Transaction }) {
   const pkg = transaction.packageId ? INVESTMENT_PACKAGES[transaction.packageId] : null;
   const destination = isOut
     ? `Paid to ${transaction.channel ?? "your account"}`
-    : `Invested in ${pkg?.name ?? "your package"}`;
+    : `Invested in ${pkg?.name ?? "your portfolio"}`;
 
   type Step = { label: string; detail?: string; state: "done" | "current" | "failed" | "todo" };
   const steps: Step[] =

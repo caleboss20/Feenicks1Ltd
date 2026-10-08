@@ -493,7 +493,7 @@ function ConfirmWithdrawalSheet({
         <p className="mt-3 rounded-2xl bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
           {tier.kind === "moves"
             ? `What's left is below the ${pkg.name} minimum (${formatCedis(pkg.minimum)}), so it moves to ${tier.to.name} and earns its rates from the next cycle.`
-            : "What's left is below the smallest package minimum, so it won't earn returns. Consider withdrawing everything."}
+            : "What's left is below the smallest portfolio minimum, so it won't earn returns. Consider withdrawing everything."}
         </p>
       )}
       <p className="mt-3 text-center text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">

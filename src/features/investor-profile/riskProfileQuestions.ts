@@ -148,7 +148,7 @@ export const RISK_LEVELS: Record<
     name: "Conservative",
     meterLabel: "Low",
     summary:
-      "You value protecting your money and predictable outcomes. Low-risk packages with steady returns suit you best.",
+      "You value protecting your money and predictable outcomes. Low-risk portfolios with steady returns suit you best.",
     facts: [
       { label: "Volatility", value: "Low" },
       { label: "Returns", value: "Lower, steadier" },
@@ -159,7 +159,7 @@ export const RISK_LEVELS: Record<
     name: "Moderate",
     meterLabel: "Balanced",
     summary:
-      "You want a balance of stability and growth, and accept some ups and downs. Packages backed by real, tangible assets suit you best.",
+      "You want a balance of stability and growth, and accept some ups and downs. Portfolios backed by real, tangible assets suit you best.",
     facts: [
       { label: "Volatility", value: "Moderate" },
       { label: "Returns", value: "Medium to high" },
@@ -170,7 +170,7 @@ export const RISK_LEVELS: Record<
     name: "Aggressive",
     meterLabel: "High",
     summary:
-      "You're comfortable with market ups and downs and focus on building long-term wealth. Higher-return packages suit you best.",
+      "You're comfortable with market ups and downs and focus on building long-term wealth. Higher-return portfolios suit you best.",
     facts: [
       { label: "Volatility", value: "High" },
       { label: "Returns", value: "Higher" },

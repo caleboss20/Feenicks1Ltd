@@ -36,7 +36,7 @@ export const MAX_PACKAGES_PER_INVESTOR = 1;
 
 /** "one package" / "3 packages", for sentences about the rule. */
 const LIMIT_IN_WORDS =
-  MAX_PACKAGES_PER_INVESTOR === 1 ? "one package" : `${MAX_PACKAGES_PER_INVESTOR} packages`;
+  MAX_PACKAGES_PER_INVESTOR === 1 ? "one portfolio" : `${MAX_PACKAGES_PER_INVESTOR} portfolios`;
 
 /**
  * Does this transaction put money into a package? Investments that are paid

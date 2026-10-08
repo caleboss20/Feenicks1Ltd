@@ -113,7 +113,7 @@ export function PackageCard({
   isLocked?: boolean;
 }) {
   const [lowRoi, highRoi] = pkg.monthlyRoiPercent;
-  const label = isYours ? "Your package" : isChosen ? "Your choice" : isBestMatch ? "Best match" : null;
+  const label = isYours ? "Your portfolio" : isChosen ? "Your choice" : isBestMatch ? "Best match" : null;
 
   return (
     <Link

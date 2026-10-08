@@ -107,7 +107,7 @@ function amountProblem(
   amount: number,
 ): string | null {
   const theirs = heldPackageIds(transactions)[0] ?? chosenId;
-  if (theirs !== packageId) return "You can only pay into your own package.";
+  if (theirs !== packageId) return "You can only pay into your own portfolio.";
   const pkg = INVESTMENT_PACKAGES[packageId];
   const blocked = investBlockedReason(investOptionFor(transactions, packageId));
   if (blocked) return blocked;

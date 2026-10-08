@@ -61,7 +61,7 @@ const FILTERS = [
     id: "investment",
     label: "Investments",
     emptyTitle: "No investments yet",
-    emptyText: "Choose a package to make your first investment.",
+    emptyText: "Choose a portfolio to make your first investment.",
   },
   {
     id: "return",

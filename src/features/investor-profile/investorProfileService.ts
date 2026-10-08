@@ -44,7 +44,7 @@ export async function saveRiskProfile(answers: RiskAnswers): Promise<SaveRiskPro
     notifySessionAccount({
       kind: "investing",
       title: `Your investor profile: ${RISK_LEVELS[level].name}`,
-      body: "The packages that suit you are marked Best match.",
+      body: "The portfolios that suit you are marked Best match.",
       href: ROUTES.investorProfile,
     });
     return { ok: true, level, score };

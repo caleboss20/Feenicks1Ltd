@@ -8,7 +8,7 @@ import { RecommendedPackagesScreen } from "@/features/packages/RecommendedPackag
  * Private, logged-in users only → hidden from search engines.
  */
 export const metadata: Metadata = {
-  title: "Packages for you",
+  title: "Portfolios for you",
   robots: { index: false, follow: false },
 };
 

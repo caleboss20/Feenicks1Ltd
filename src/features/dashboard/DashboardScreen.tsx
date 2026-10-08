@@ -222,16 +222,16 @@ export function DashboardScreen() {
               .
             </>
           ),
-          action: { label: "View package", href: packageDetailsHref(bestMatch.id) },
+          action: { label: "View portfolio", href: packageDetailsHref(bestMatch.id) },
         }
       : {
           id: "best-match",
           icon: <TargetIcon />,
-          title: "Find your package",
+          title: "Find your portfolio",
           text: (
             <>
               Answer a few quick questions and we&apos;ll <strong>match you</strong> to the right
-              package.
+              portfolio.
             </>
           ),
           action: { label: "Get matched", href: ROUTES.investorProfileQuestions },

@@ -160,7 +160,7 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
   return (
     <StepScreenLayout
       // Generic title: the package name is shown just below (never twice).
-      title="Package details"
+      title="Portfolio details"
       centeredTitle
       stickyHeader
       // Back to the packages list of the same flow.
@@ -310,19 +310,19 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
 
           {isChosenHere && (
             <p className="mb-3 text-center text-[0.8125rem] text-neutral-600 dark:text-neutral-400">
-              This is your chosen package.
+              This is your chosen portfolio.
             </p>
           )}
 
           {option?.kind === "limit-reached" ? (
             // Can't invest here: point them to the package they're in.
             <Button size="lg" fullWidth onClick={() => router.push(ROUTES.invest)}>
-              View your package
+              View your portfolio
             </Button>
           ) : isYourPackage ? (
             // Already their package (chosen, or invested): nothing to choose.
             <Button size="lg" fullWidth onClick={() => router.push(ROUTES.invest)}>
-              Back to your package
+              Back to your portfolio
             </Button>
           ) : (
             // Choosing it starts with its Terms; agreeing saves it as their package.

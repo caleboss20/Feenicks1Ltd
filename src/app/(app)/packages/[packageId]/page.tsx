@@ -15,7 +15,7 @@ type Props = { params: Promise<{ packageId: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { packageId } = await params;
   return {
-    title: isPackageId(packageId) ? INVESTMENT_PACKAGES[packageId].name : "Package",
+    title: isPackageId(packageId) ? INVESTMENT_PACKAGES[packageId].name : "Portfolio",
     robots: { index: false, follow: false },
   };
 }

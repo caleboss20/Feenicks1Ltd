@@ -67,7 +67,7 @@ export function termsFor(pkg: InvestmentPackage): TermsSection[] {
     {
       title: "4. Returns",
       paragraphs: [
-        `The expected return is ${roiRangeLabel(pkg.monthlyRoiPercent)} a month. This range is an estimate based on the expected performance of the package. It is not a promise or a guarantee.`,
+        `The expected return is ${roiRangeLabel(pkg.monthlyRoiPercent)} a month. This range is an estimate based on the expected performance of the portfolio. It is not a promise or a guarantee.`,
         "Actual returns may be higher or lower than expected, and in some periods there may be no return at all. Past performance does not guarantee future results.",
       ],
     },
@@ -81,7 +81,7 @@ export function termsFor(pkg: InvestmentPackage): TermsSection[] {
     {
       title: "6. Withdrawals",
       paragraphs: [
-        `Profit from this package can be withdrawn ${withdrawals}. Withdrawals are paid to the mobile money wallet or bank account registered in your name, normally within a few business days of your request.`,
+        `Profit from this portfolio can be withdrawn ${withdrawals}. Withdrawals are paid to the mobile money wallet or bank account registered in your name, normally within a few business days of your request.`,
         "Requests to withdraw your invested amount before the end of a withdrawal period may be subject to approval and may reduce or cancel the profit for that period.",
         "For your security, we may ask you to confirm withdrawals with your PIN, fingerprint or a verification code.",
       ],

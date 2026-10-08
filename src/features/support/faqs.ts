@@ -39,7 +39,7 @@ export const FAQS: Faq[] = [
     category: "start",
     question: "What is Feenicks1?",
     answer: [
-      "Feenicks1 Solutions Ltd is a Ghanaian investment company. In this app you choose an investment package, invest in cedis, and follow your portfolio, returns and withdrawals in one place.",
+      "Feenicks1 Solutions Ltd is a Ghanaian investment company. In this app you choose an investment portfolio, invest in cedis, and follow your investments, returns and withdrawals in one place.",
     ],
   },
   {
@@ -47,8 +47,8 @@ export const FAQS: Faq[] = [
     category: "start",
     question: "How do I make my first investment?",
     answer: [
-      "Tap Invest on Home and choose a package (your best match is marked if you've answered the investor profile). Read its terms, agree, and pay in from your Mobile Money (MoMo) wallet or bank account.",
-      "Each package has its own minimum and maximum amount: see “Which packages can I invest in?”.",
+      "Tap Invest on Home and choose a portfolio (your best match is marked if you've answered the investor profile). Read its terms, agree, and pay in from your Mobile Money (MoMo) wallet or bank account.",
+      "Each portfolio has its own minimum and maximum amount: see “Which portfolios can I invest in?”.",
     ],
   },
   {
@@ -56,7 +56,7 @@ export const FAQS: Faq[] = [
     category: "start",
     question: "What is the investor profile?",
     answer: [
-      "A few quick questions about your goals and how comfortable you are with risk. Your answers suggest the packages that suit you best. You can see or retake it any time in Account › Investor profile.",
+      "A few quick questions about your goals and how comfortable you are with risk. Your answers suggest the portfolios that suit you best. You can see or retake it any time in Account › Investor profile.",
     ],
   },
 
@@ -64,7 +64,7 @@ export const FAQS: Faq[] = [
   {
     id: "packages",
     category: "investing",
-    question: "Which packages can I invest in?",
+    question: "Which portfolios can I invest in?",
     answer: [
       "There are four, each with its own amounts and expected return:",
       ALL_PACKAGES.map(
@@ -77,9 +77,9 @@ export const FAQS: Faq[] = [
   {
     id: "one-package",
     category: "investing",
-    question: "Can I invest in more than one package?",
+    question: "Can I invest in more than one portfolio?",
     answer: [
-      `${PACKAGE_LIMIT_SENTENCE} You can add money to the package you're in as often as you like: each payment just needs to be within the package's minimum and maximum.`,
+      `${PACKAGE_LIMIT_SENTENCE} You can add money to the portfolio you're in as often as you like: each payment just needs to be within the portfolio's minimum and maximum.`,
     ],
   },
   {
@@ -87,7 +87,7 @@ export const FAQS: Faq[] = [
     category: "investing",
     question: "How are my returns worked out?",
     answer: [
-      "Each package has an expected monthly return. Your profit for a period is the amount invested × the monthly rate × the number of months.",
+      "Each portfolio has an expected monthly return. Your profit for a period is the amount invested × the monthly rate × the number of months.",
       "The management fee then comes off that return: the return you receive is the gross return minus the fee (e.g. 7% − 4% = 3%). It's never more than the period's profit. Every return in Transactions shows its own calculation.",
     ],
   },
@@ -108,7 +108,7 @@ export const FAQS: Faq[] = [
     category: "withdrawals",
     question: "When can I withdraw my profit?",
     answer: [
-      "It depends on your package:",
+      "It depends on your portfolio:",
       ALL_PACKAGES.map((pkg) => `${pkg.name}: ${withdrawalLabel(pkg).toLowerCase()}`),
     ],
   },

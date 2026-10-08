@@ -150,7 +150,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
     />
   );
 
-  const title = isApp ? "Investment packages" : riskLevel ? "Packages for you" : "Our packages";
+  const title = isApp ? "Investment portfolios" : riskLevel ? "Portfolios for you" : "Our portfolios";
   // In the app: back to their package (Invest) if they have one, else Home.
   const backHref = isApp
     ? yours.length > 0 || chosenId
@@ -170,8 +170,8 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
               You&apos;re invested in{" "}
               <span className="font-semibold text-foreground">{yourNames}</span>.{" "}
               {isAtLimit
-                ? `Add money to ${yours.length === 1 ? "it" : "them"} any time, up to the package maximum.`
-                : "You can add money to it, or invest in another package too."}
+                ? `Add money to ${yours.length === 1 ? "it" : "them"} any time, up to the portfolio maximum.`
+                : "You can add money to it, or invest in another portfolio too."}
             </>
           ) : riskLevel ? (
             <>
@@ -189,16 +189,16 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
                   {RISK_LEVELS[riskLevel].name}
                 </span>
               )}{" "}
-              profile, {matched.length === 1 ? "this package suits" : "these packages suit"} you
+              profile, {matched.length === 1 ? "this portfolio suits" : "these portfolios suit"} you
               best.
             </>
           ) : (
-            "Choose the package that fits your goals. Tap one to see its details."
+            "Choose the portfolio that fits your goals. Tap one to see its details."
           )}
         </p>
         {isChoosing && (
           <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Your choice is marked. To change it, open another package and choose it: you can
+            Your choice is marked. To change it, open another portfolio and choose it: you can
             change until you invest.
           </p>
         )}
@@ -229,7 +229,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
                 (best matches first), locked once they're at the limit. */}
             <section aria-labelledby="your-package-title" className="mt-6">
               <h2 id="your-package-title" className={SECTION_TITLE}>
-                {yours.length === 1 ? "Your package" : "Your packages"}
+                {yours.length === 1 ? "Your portfolio" : "Your portfolios"}
               </h2>
               <div className="mt-4 flex flex-col gap-5">
                 {yours.map((pkg) =>
@@ -241,7 +241,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
             {matched.length + others.length > 0 && (
               <section aria-labelledby="other-packages-title" className="mt-12">
                 <h2 id="other-packages-title" className={SECTION_TITLE}>
-                  Other packages
+                  Other portfolios
                 </h2>
                 {isAtLimit && (
                   <div className="mt-4">
@@ -265,7 +265,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
 
             {others.length > 0 && (
               <section className={matched.length > 0 ? "mt-12" : "mt-6"}>
-                {matched.length > 0 && <h2 className={SECTION_TITLE}>Other packages</h2>}
+                {matched.length > 0 && <h2 className={SECTION_TITLE}>Other portfolios</h2>}
                 <div className={matched.length > 0 ? "mt-4 flex flex-col gap-5" : "flex flex-col gap-5"}>
                   {others.map((pkg) => card(pkg))}
                 </div>

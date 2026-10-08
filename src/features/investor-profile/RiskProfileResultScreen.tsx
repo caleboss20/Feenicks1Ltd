@@ -86,14 +86,14 @@ export function RiskProfileResultScreen({ flow }: { flow: InvestingFlow }) {
         </dl>
 
         <p className="mt-6 text-xs leading-relaxed text-neutral-400 [@media(max-height:700px)]:mt-4">
-          We&apos;ll use this profile to recommend packages that suit you. It&apos;s a guide based
+          We&apos;ll use this profile to recommend portfolios that suit you. It&apos;s a guide based
           on your answers, not financial advice, and you can retake it anytime.
         </p>
 
         <div className={stickyActionsClass}>
           {isApp ? (
             <ButtonLink href={routes.packages} size="lg" fullWidth>
-              See matching packages
+              See matching portfolios
             </ButtonLink>
           ) : (
             // The next step of the journey (replace: Back shouldn't return here).

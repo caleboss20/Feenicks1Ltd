@@ -136,7 +136,7 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
         <header className="grid grid-cols-[2.75rem_1fr_2.75rem] items-center">
           <Link
             href={ROUTES.invest}
-            aria-label="Back to your package"
+            aria-label="Back to your portfolio"
             className="grid size-11 place-items-center rounded-full bg-white transition-colors hover:bg-white/70 dark:bg-white/10 dark:hover:bg-white/15"
           >
             <ArrowLeft className="size-5" />
@@ -217,8 +217,8 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
             {afterTopUp.kind !== "same" && (
               <p className="mt-2 rounded-2xl bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
                 {afterTopUp.kind === "moves"
-                  ? `Your total becomes ${formatCedis(total, { exact: true })}, above the ${pkg.name} maximum. From your next cycle, your money moves up to ${afterTopUp.to.name} and earns its rates.`
-                  : `Your total becomes ${formatCedis(total, { exact: true })}, above every package's maximum. Our team will review it before it's invested.`}
+                  ? `Your total becomes ${formatCedis(total, { exact: true })}, above the ${pkg.name} maximum. Once your current cycle completes, your money moves up to ${afterTopUp.to.name} and earns its rates.`
+                  : `Your total becomes ${formatCedis(total, { exact: true })}, above every portfolio's maximum. Our team will review it before it's invested.`}
               </p>
             )}
           </div>

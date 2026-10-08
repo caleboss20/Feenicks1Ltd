@@ -87,7 +87,7 @@ export function WithdrawalGuideScreen() {
             Your funds are invested for fixed periods, each known as an <Key>investment cycle</Key>. Returns are
             calculated at the end of every cycle, after which a new cycle begins automatically.
           </p>
-          <p>The length of a cycle depends on your package:</p>
+          <p>The length of a cycle depends on your portfolio:</p>
           <dl className="overflow-hidden rounded-2xl bg-neutral-50 dark:bg-white/5">
             {Object.values(INVESTMENT_PACKAGES).map((pkg, index) => (
               <div
@@ -159,10 +159,10 @@ export function WithdrawalGuideScreen() {
           </div>
         </Section>
 
-        <Section title="Minimum balance and package changes">
+        <Section title="Minimum balance and portfolio changes">
           <p>
-            Each package has a <Key>minimum balance</Key>. If a withdrawal leaves your balance below that minimum, the
-            remaining funds move to the package whose range fits the new balance, and that package&apos;s rates apply.
+            Each portfolio has a <Key>minimum balance</Key>. If a withdrawal leaves your balance below that minimum, the
+            remaining funds move to the portfolio whose range fits the new balance, and that portfolio&apos;s rates apply.
           </p>
           <p>
             For example, you hold {formatCedis(1500, { exact: true })} in {INVESTMENT_PACKAGES.investwise.name} and withdraw
@@ -171,7 +171,7 @@ export function WithdrawalGuideScreen() {
             below the {INVESTMENT_PACKAGES.investwise.name} minimum of{" "}
             {formatCedis(INVESTMENT_PACKAGES.investwise.minimum)}, your balance moves to {INVESTMENT_PACKAGES.mfc.name}.
           </p>
-          <p>The app shows any package change before you confirm a withdrawal.</p>
+          <p>The app shows any portfolio change before you confirm a withdrawal.</p>
         </Section>
 
         <Section title="Processing your withdrawal">
