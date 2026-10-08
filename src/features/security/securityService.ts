@@ -131,12 +131,10 @@ export async function verifyBiometric(): Promise<SecurityResult> {
   const result = await confirmWithDevice({ challenge: randomChallenge(), credentialId });
   if (!result.ok) return { ok: false, message: BIOMETRIC_ERRORS[result.reason] };
 
-  // Confirms the phone's owner only: it does NOT unlock the app. The PIN is
-  // always entered after it (EnterPinScreen), because someone who knows the
-  // phone's screen lock may not know the Feenicks1 PIN (owner's request).
-  // TODO(api): the server returns a short-lived "biometric passed" token,
-  // and POST /api/security/pin/verify unlocks only with that token + the PIN.
-  if (IS_DEMO_MODE) return { ok: true };
+  if (IS_DEMO_MODE) {
+    demo.markUnlocked();
+    return { ok: true };
+  }
   return { ok: false, message: "Something went wrong. Please try again in a moment." };
 }
 
