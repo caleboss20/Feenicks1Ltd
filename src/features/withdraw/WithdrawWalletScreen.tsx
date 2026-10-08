@@ -19,7 +19,7 @@
  * "Nothing to withdraw yet" screen as the amount step.
  */
 
-import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
+import { StepScreenLayout, walletActionsClass } from "@/components/layout/StepScreenLayout";
 import { ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -68,9 +68,9 @@ export function WithdrawWalletScreen() {
           <div aria-hidden className="aspect-[1.75] w-full animate-pulse rounded-xl bg-brand-600/20" />
         )}
 
-        {/* The one action, low on the screen (-mb-4 trims the page's bottom padding):
-            there's no link under it here, so it sits lower than on Invest. */}
-        <div className="mt-auto -mb-4 pt-8">
+        {/* The one action, at the bottom of the screen and always in view on
+            first load (stuck there even on short screens: no scrolling to find it). */}
+        <div className={walletActionsClass}>
           <ButtonLink href={ROUTES.withdrawAmount} size="lg" fullWidth className="h-13!">
             Withdraw money
           </ButtonLink>

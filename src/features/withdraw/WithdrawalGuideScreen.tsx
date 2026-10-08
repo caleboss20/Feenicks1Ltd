@@ -23,21 +23,12 @@
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
-import {
-  cycleEnd,
-  INVESTMENT_PACKAGES,
-  withdrawalLabel,
-} from "@/features/packages/investmentPackages";
+import { cycleEnd, INVESTMENT_PACKAGES, withdrawalLabel } from "@/features/packages/investmentPackages";
 import { heldPackageIds } from "@/features/packages/packagePolicy";
 import { useTransactions } from "@/features/transactions/useTransactions";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
-import {
-  firstDeposit,
-  WITHDRAWAL_RULES,
-  withdrawalFee,
-  withdrawalTerms,
-} from "./withdrawalModel";
+import { firstDeposit, WITHDRAWAL_RULES, withdrawalFee, withdrawalTerms } from "./withdrawalModel";
 
 const DAY = 86_400_000;
 const FREE_DAYS = WITHDRAWAL_RULES.standardWindowDays;
@@ -46,23 +37,12 @@ const WAIT_HOURS = WITHDRAWAL_RULES.activationHours;
 
 /** "28 Oct" / "28 Oct, 3:02 pm". */
 function day(date: Date, withTime = false): string {
-  const text = date.toLocaleDateString("en-GH", {
-    day: "numeric",
-    month: "short",
-  });
-  return withTime
-    ? `${text}, ${date.toLocaleTimeString("en-GH", { hour: "numeric", minute: "2-digit" })}`
-    : text;
+  const text = date.toLocaleDateString("en-GH", { day: "numeric", month: "short" });
+  return withTime ? `${text}, ${date.toLocaleTimeString("en-GH", { hour: "numeric", minute: "2-digit" })}` : text;
 }
 
 /** A section: a clear heading, then roomy text. */
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-12">
       <h2 className="text-lg leading-snug font-bold tracking-tight">{title}</h2>
@@ -83,12 +63,7 @@ export function WithdrawalGuideScreen() {
   const exampleFee = withdrawalFee("express", example);
 
   return (
-    <StepScreenLayout
-      title="How withdrawals work"
-      centeredTitle
-      stickyHeader
-      backHref={ROUTES.withdraw}
-    >
+    <StepScreenLayout title="How withdrawals work" centeredTitle stickyHeader backHref={ROUTES.withdraw}>
       <div className="pb-12">
         {/* The short answer, first. */}
         <div className="mt-2 rounded-3xl bg-neutral-50 p-6 dark:bg-white/5">
@@ -99,10 +74,9 @@ export function WithdrawalGuideScreen() {
             You may withdraw from your wallet <Key>at any time</Key>.
           </p>
           <p className="mt-3 text-[0.9375rem] leading-7 text-neutral-600 dark:text-neutral-400">
-            Withdrawals made in the first {WAIT_HOURS} hours, or at the end of
-            an investment cycle, are <Key>free of charge</Key>. Withdrawals made
-            at any other time carry a <Key>{FEE}% fee</Key>. This page explains
-            when each applies.
+            Withdrawals made in the first {WAIT_HOURS} hours, or at the end of an investment cycle, are{" "}
+            <Key>free of charge</Key>. Withdrawals made at any
+            other time carry a <Key>{FEE}% fee</Key>. This page explains when each applies.
           </p>
         </div>
 
@@ -110,9 +84,8 @@ export function WithdrawalGuideScreen() {
 
         <Section title="Investment cycles">
           <p>
-            Your funds are invested for fixed periods, each known as an{" "}
-            <Key>investment cycle</Key>. Returns are calculated at the end of
-            every cycle, after which a new cycle begins automatically.
+            Your funds are invested for fixed periods, each known as an <Key>investment cycle</Key>. Returns are
+            calculated at the end of every cycle, after which a new cycle begins automatically.
           </p>
           <p>The length of a cycle depends on your package:</p>
           <dl className="overflow-hidden rounded-2xl bg-neutral-50 dark:bg-white/5">
@@ -121,8 +94,7 @@ export function WithdrawalGuideScreen() {
                 key={pkg.id}
                 className={cn(
                   "flex items-center justify-between gap-4 px-5 py-4",
-                  index > 0 &&
-                    "border-t border-neutral-200/70 dark:border-white/10",
+                  index > 0 && "border-t border-neutral-200/70 dark:border-white/10",
                 )}
               >
                 <dt className="text-foreground">{pkg.name}</dt>
@@ -172,17 +144,11 @@ export function WithdrawalGuideScreen() {
 
         <Section title={`Fees: an example of ${formatCedis(example)}`}>
           <p>
-            You always receive <Key>the full amount you request</Key> on Mobile
-            Money. Any fee is added on top and deducted from your wallet
-            balance.
+            You always receive <Key>the full amount you request</Key> on Mobile Money. Any fee is added on top and
+            deducted from your wallet balance.
           </p>
           <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
-            <CostCard
-              title="Standard"
-              received={example}
-              taken={example}
-              note="No fee."
-            />
+            <CostCard title="Standard" received={example} taken={example} note="No fee." />
             <CostCard
               title="Express"
               received={example}
@@ -195,38 +161,25 @@ export function WithdrawalGuideScreen() {
 
         <Section title="Minimum balance and package changes">
           <p>
-            Each package has a <Key>minimum balance</Key>. If a withdrawal
-            leaves your balance below that minimum, the remaining funds move to
-            the package whose range fits the new balance, and that
-            package&apos;s rates apply.
+            Each package has a <Key>minimum balance</Key>. If a withdrawal leaves your balance below that minimum, the
+            remaining funds move to the package whose range fits the new balance, and that package&apos;s rates apply.
           </p>
           <p>
-            For example, you hold {formatCedis(1500, { exact: true })} in{" "}
-            {INVESTMENT_PACKAGES.investwise.name} and withdraw
-            {formatCedis(1100, { exact: true })} during a cycle. Including the{" "}
-            {FEE}% fee, {formatCedis(1111, { exact: true })} is deducted,
-            leaving {formatCedis(389, { exact: true })}. As this is below the{" "}
-            {INVESTMENT_PACKAGES.investwise.name} minimum of{" "}
-            {formatCedis(INVESTMENT_PACKAGES.investwise.minimum)}, your balance
-            moves to {INVESTMENT_PACKAGES.mfc.name}.
+            For example, you hold {formatCedis(1500, { exact: true })} in {INVESTMENT_PACKAGES.investwise.name} and withdraw
+            {formatCedis(1100, { exact: true })} during a cycle. Including the {FEE}% fee,{" "}
+            {formatCedis(1111, { exact: true })} is deducted, leaving {formatCedis(389, { exact: true })}. As this is
+            below the {INVESTMENT_PACKAGES.investwise.name} minimum of{" "}
+            {formatCedis(INVESTMENT_PACKAGES.investwise.minimum)}, your balance moves to {INVESTMENT_PACKAGES.mfc.name}.
           </p>
-          <p>
-            The app shows any package change before you confirm a withdrawal.
-          </p>
+          <p>The app shows any package change before you confirm a withdrawal.</p>
         </Section>
 
         <Section title="Processing your withdrawal">
           <ol className="flex flex-col gap-4">
             {[
-              [
-                "Requested",
-                "Your request is received. It can be cancelled until it is approved.",
-              ],
+              ["Requested", "Your request is received. It can be cancelled until it is approved."],
               ["Approved", "Our team reviews and approves the request."],
-              [
-                "Paid",
-                `The funds are sent to your Mobile Money wallet within ${WITHDRAWAL_RULES.processingDays} working days.`,
-              ],
+              ["Paid", `The funds are sent to your Mobile Money wallet within ${WITHDRAWAL_RULES.processingDays} working days.`],
             ].map(([title, text], index) => (
               <li key={title} className="flex gap-4">
                 <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-600 text-sm font-semibold text-white">
@@ -238,30 +191,23 @@ export function WithdrawalGuideScreen() {
               </li>
             ))}
           </ol>
-          <p>
-            You will receive a notification at each stage, and a receipt once
-            the payment is made.
-          </p>
+          <p>You will receive a notification at each stage, and a receipt once the payment is made.</p>
         </Section>
 
         <Section title="Frequently asked questions">
           <Answer question="Can I withdraw at any time?">
-            Yes. Your funds are always available. The timing only determines
-            whether the {FEE}% fee applies.
+            Yes. Your funds are always available. The timing only determines whether the {FEE}% fee applies.
           </Answer>
           <Answer question="Why is there a fee during a cycle?">
-            During a cycle your funds are actively invested. A withdrawal before
-            the cycle ends is treated as an express (early) withdrawal, which
-            carries a {FEE}% fee.
+            During a cycle your funds are actively invested. A withdrawal before the cycle ends is treated as an
+            express (early) withdrawal, which carries a {FEE}% fee.
           </Answer>
           <Answer question="How can I avoid the fee?">
-            Withdraw during the {FREE_DAYS} fee-free days after a cycle ends.
-            Your withdrawal schedule above, and the Withdraw screen, show the
-            exact dates.
+            Withdraw during the {FREE_DAYS} fee-free days after a cycle ends. Your withdrawal schedule above, and the
+            Withdraw screen, show the exact dates.
           </Answer>
           <Answer question="Can I withdraw my full balance?">
-            Yes. During the fee-free days you may withdraw any amount, up to
-            your full balance, at no charge.
+            Yes. During the fee-free days you may withdraw any amount, up to your full balance, at no charge.
           </Answer>
         </Section>
       </div>
@@ -299,12 +245,8 @@ function YourDates() {
 
   return (
     <section className="mt-8 rounded-3xl bg-brand-50 p-6 dark:bg-brand-500/10">
-      <h2 className="text-lg font-bold tracking-tight">
-        Your withdrawal schedule
-      </h2>
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        {pkg.name}
-      </p>
+      <h2 className="text-lg font-bold tracking-tight">Your withdrawal schedule</h2>
+      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{pkg.name}</p>
 
       <p
         className={cn(
@@ -323,9 +265,7 @@ function YourDates() {
         {windows.map((window, index) => (
           <DateRow
             key={window.from.toISOString()}
-            label={
-              index === 0 ? "Next fee-free window" : "Following fee-free window"
-            }
+            label={index === 0 ? "Next fee-free window" : "Following fee-free window"}
             value={`${day(window.from)} – ${day(window.until)}`}
           />
         ))}
@@ -337,9 +277,7 @@ function YourDates() {
 function DateRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="text-sm text-neutral-600 dark:text-neutral-400">
-        {label}
-      </dt>
+      <dt className="text-sm text-neutral-600 dark:text-neutral-400">{label}</dt>
       <dd className="font-semibold text-foreground">{value}</dd>
     </div>
   );
@@ -362,10 +300,7 @@ function Step({
   return (
     <li className={cn("relative flex gap-4", !isLast && "pb-8")}>
       {!isLast && (
-        <span
-          aria-hidden
-          className="absolute top-10 bottom-1 left-[1.1875rem] w-0.5 rounded-full bg-neutral-200 dark:bg-white/15"
-        />
+        <span aria-hidden className="absolute top-10 bottom-1 left-[1.1875rem] w-0.5 rounded-full bg-neutral-200 dark:bg-white/15" />
       )}
       <span
         aria-hidden
@@ -373,8 +308,7 @@ function Step({
           "relative grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold",
           tone === "free" && "bg-brand-600 text-white",
           tone === "fee" && "bg-amber-500 text-white",
-          tone === "neutral" &&
-            "bg-neutral-200 text-neutral-700 dark:bg-white/15 dark:text-neutral-200",
+          tone === "neutral" && "bg-neutral-200 text-neutral-700 dark:bg-white/15 dark:text-neutral-200",
         )}
       >
         {number}
@@ -401,35 +335,18 @@ function CostCard({
   isFee?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-2xl p-5",
-        isFee
-          ? "bg-amber-50 dark:bg-amber-500/10"
-          : "bg-brand-50 dark:bg-brand-500/10",
-      )}
-    >
+    <div className={cn("rounded-2xl p-5", isFee ? "bg-amber-50 dark:bg-amber-500/10" : "bg-brand-50 dark:bg-brand-500/10")}>
       <p className="font-semibold text-foreground">{title}</p>
       <p className="mt-3 text-sm">You receive</p>
-      <p className="text-lg font-bold text-foreground tabular-nums">
-        {formatCedis(received, { exact: true })}
-      </p>
+      <p className="text-lg font-bold text-foreground tabular-nums">{formatCedis(received, { exact: true })}</p>
       <p className="mt-2 text-sm">Leaves your wallet</p>
-      <p className="text-lg font-bold text-foreground tabular-nums">
-        {formatCedis(taken, { exact: true })}
-      </p>
+      <p className="text-lg font-bold text-foreground tabular-nums">{formatCedis(taken, { exact: true })}</p>
       <p className="mt-2 text-sm">{note}</p>
     </div>
   );
 }
 
-function Answer({
-  question,
-  children,
-}: {
-  question: string;
-  children: React.ReactNode;
-}) {
+function Answer({ question, children }: { question: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl bg-neutral-50 p-5 dark:bg-white/5">
       <p className="font-semibold text-foreground">{question}</p>

@@ -145,3 +145,13 @@ export const stepActionsClass = "mt-auto pt-6 sm:mt-8 sm:pt-0 lg:mt-6";
  */
 export const stickyActionsClass =
   "sticky bottom-0 z-20 -mx-6 mt-auto bg-background px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:mt-8 sm:px-0 sm:pt-0 sm:pb-0 lg:mt-6";
+
+/**
+ * The wallet screens (Invest, Withdraw): their buttons sit at the very bottom
+ * of the phone screen and stay in view on first load, even when the browser
+ * bar or a large text size makes the screen shorter (no scrolling to find
+ * them). Keeps the roomy gap above them (pt-8) and cancels the page's own
+ * bottom padding, so they sit as low as before. Normal flow on tablets and desktop.
+ */
+export const walletActionsClass =
+  "sticky bottom-0 z-20 -mx-6 mt-auto -mb-[max(2rem,env(safe-area-inset-bottom))] bg-background px-6 pt-8 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:-mb-4 sm:px-0 sm:pb-0";
