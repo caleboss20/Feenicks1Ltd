@@ -20,8 +20,9 @@ import type { RiskLevel } from "@/features/investor-profile/riskProfileQuestions
  *
  *   Net ROI (the CEO's formula): the month's gross ROI MINUS the fee, in
  *   percentage points, e.g. 7% − 4 = 3%.
- *   TODO(fee): the returns estimate and the demo sample still take the fee
- *   as a percentage of the profit; switch them to the CEO's formula.
+ *   Applied everywhere by managementFee (estimate, demo sample, receipts),
+ *   never more than the period's profit (Core Business & Product
+ *   Architecture v1.1, decision D2: fee = min(fee, gross profit)).
  *
  *   A range change never re-classifies an existing investment (Core
  *   Business & Product Architecture v1.1, §6): someone who invested under an
@@ -44,7 +45,10 @@ export type InvestmentPackage = {
   /** Smallest and largest amount that can be invested, in GH₵. */
   minimum: number;
   maximum: number;
-  /** Management fee, in percent. */
+  /**
+   * Management fee, in percentage points taken off the month's gross return
+   * (CEO's net ROI formula: gross ROI − fee, e.g. 7% − 4 = 3%). See managementFee.
+   */
   managementFeePercent: number;
   /** Expected monthly return on investment, in percent: [lowest, highest]. */
   monthlyRoiPercent: [number, number];
@@ -174,10 +178,25 @@ export function roiRangeLabel([low, high]: [number, number]): string {
 }
 
 /**
+ * The management fee on `amount` over `months`, in GH₵, by the CEO's
+ * formula: net ROI = gross ROI − fee, so the fee is the fee's percentage
+ * points of the amount, per month (GH₵ 1,000, 4 points, 1 month = GH₵ 40).
+ * Never more than the gross profit (no fee eats into the amount invested),
+ * and nothing when there's no profit.
+ *
+ *   GH₵ 1,000 at 7% gross, fee 4:  gross 70, fee 40, paid 30  (net 3%)
+ *   GH₵ 1,000 at 3% gross, fee 4:  gross 30, fee 30, paid 0   (capped)
+ */
+export function managementFee(amount: number, feePoints: number, months: number, grossProfit: number): number {
+  if (grossProfit <= 0) return 0;
+  return Math.min((amount * feePoints * months) / 100, grossProfit);
+}
+
+/**
  * Estimated profit for an amount over a number of months, as a [low, high]
- * range from the expected monthly ROI. The management fee is a percentage
- * of the PROFIT (not of the amount invested), so "after fee" is what the
- * investor actually receives.
+ * range from the expected monthly ROI, before and after the management fee
+ * (managementFee: gross ROI − fee), so "after fee" is what the investor
+ * would receive.
  */
 export function estimateProfit(pkg: InvestmentPackage, amount: number, months: number) {
   const [lowRoi, highRoi] = pkg.monthlyRoiPercent;
@@ -186,8 +205,8 @@ export function estimateProfit(pkg: InvestmentPackage, amount: number, months: n
     (amount * highRoi * months) / 100,
   ];
   const fee: [number, number] = [
-    (beforeFee[0] * pkg.managementFeePercent) / 100,
-    (beforeFee[1] * pkg.managementFeePercent) / 100,
+    managementFee(amount, pkg.managementFeePercent, months, beforeFee[0]),
+    managementFee(amount, pkg.managementFeePercent, months, beforeFee[1]),
   ];
   const afterFee: [number, number] = [beforeFee[0] - fee[0], beforeFee[1] - fee[1]];
   const afterFeePerMonth: [number, number] = [afterFee[0] / months, afterFee[1] / months];

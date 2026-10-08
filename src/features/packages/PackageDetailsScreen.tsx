@@ -30,7 +30,7 @@
  *   About GH₵ … – GH₵ … a month
  *
  *   Profit before fee             GH₵ … – …
- *   Fee (4% of profit)               − GH₵ 67.20 – 96
+ *   Fee (4% a month)                 − GH₵ …
  *   …not guaranteed…
  *
  *   (            Choose ABC            )         ← pinned; opens the Terms
@@ -49,8 +49,8 @@
  * Everything else (figures, calculator) stays readable for every package.
  *
  * Estimate (estimateProfit): amount × monthly ROI × months, using the low
- * and high ends of the expected range; then the management fee, a % of the
- * PROFIT, is deducted.
+ * and high ends of the expected range; then the management fee comes off by
+ * the CEO's formula (gross ROI − fee points, never more than the profit).
  *
  * Two flows, same screen (config/investingFlow.ts): Back and "Invest" stay in
  * the flow it was opened from: /invest/… in the app, /packages/… during onboarding.
@@ -146,7 +146,7 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
     { label: "Minimum investment", value: formatCedis(pkg.minimum) },
     { label: "Maximum investment", value: formatCedis(pkg.maximum) },
     { label: "Expected monthly return", value: roiRangeLabel(pkg.monthlyRoiPercent) },
-    { label: "Management fee", value: `${pkg.managementFeePercent}% of profit` },
+    { label: "Management fee", value: `${pkg.managementFeePercent}% a month, off the return` },
     { label: "Withdrawals", value: withdrawalLabel(pkg) },
   ];
 
@@ -274,7 +274,7 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
                 <dl className="mt-5 divide-y divide-neutral-100 border-t border-neutral-100 dark:divide-white/10 dark:border-white/10">
                   <Row label="Profit before fee" value={shortRange(estimate.beforeFee)} />
                   <Row
-                    label={`Fee (${pkg.managementFeePercent}% of profit)`}
+                    label={`Fee (${pkg.managementFeePercent}% a month)`}
                     value={`− ${shortRange(estimate.fee)}`}
                   />
                 </dl>
@@ -283,8 +283,9 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
           </div>
 
           <p className="mt-4 text-xs leading-relaxed text-neutral-400">
-            Based on the expected monthly return. The management fee is taken from the profit
-            only, never from the amount you invest. Returns are not guaranteed.
+            Based on the expected monthly return. The management fee comes off that return: a 7%
+            month with a {pkg.managementFeePercent}% fee pays {7 - pkg.managementFeePercent}%. It&apos;s never more than the
+            month&apos;s profit. Returns are not guaranteed.
           </p>
         </section>
 

@@ -49,7 +49,7 @@ import { formatLocalNumber, MOMO_NETWORKS, networkForNumber } from "@/lib/mobile
 import { CEDI_SYMBOL, formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { roiRangeLabel, type InvestmentPackage } from "./investmentPackages";
-import { canInvest, heldPackageIds, investOptionFor, isWithinPaymentRange } from "./packagePolicy";
+import { canInvest, heldPackageIds, investOptionFor, isWithinPaymentRange, packageAfterTopUp } from "./packagePolicy";
 
 /** What can be typed: digits and one decimal point, at most 2 decimals, no leading zeros. */
 function cleanAmount(raw: string): string {
@@ -107,6 +107,10 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
         : null;
   const isValid = amountText !== "" && isWithinPaymentRange(pkg.id, amount);
   const hint = `Between ${formatCedis(pkg.minimum)} and ${formatCedis(pkg.maximum, { exact: true })}`;
+  // A top-up that takes the total over the package's maximum moves the money up a
+  // package from the next cycle (packageAfterTopUp): say so before they pay.
+  const total = isTopUp ? Math.round((option.invested + amount) * 100) / 100 : amount;
+  const afterTopUp = isTopUp && isValid ? packageAfterTopUp(pkg.id, total) : { kind: "same" as const };
 
   // From: their registered MoMo number, with the network worked out from it.
   const phone = current.account.phone;
@@ -210,6 +214,13 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
             >
               {error ?? hint}
             </p>
+            {afterTopUp.kind !== "same" && (
+              <p className="mt-2 rounded-2xl bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
+                {afterTopUp.kind === "moves"
+                  ? `Your total becomes ${formatCedis(total, { exact: true })}, above the ${pkg.name} maximum. From your next cycle, your money moves up to ${afterTopUp.to.name} and earns its rates.`
+                  : `Your total becomes ${formatCedis(total, { exact: true })}, above every package's maximum. Our team will review it before it's invested.`}
+              </p>
+            )}
           </div>
         </div>
 

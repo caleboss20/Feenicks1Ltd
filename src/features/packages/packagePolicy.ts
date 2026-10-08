@@ -91,6 +91,29 @@ export function isWithinPaymentRange(packageId: PackageId, amount: number): bool
   return amount >= minimum && amount <= maximum;
 }
 
+/**
+ * Where a total would sit after a top-up (CEO, October 2026: every package
+ * has a minimum and a maximum, so the total decides the package):
+ *   - "same"   still within the package's range
+ *   - "moves"  above its maximum: from the next cycle the money moves UP to
+ *              the package whose range fits the total (e.g. InvestWise with
+ *              GH₵ 5,300 → Agribusiness Capital)
+ *   - "review" above every package (over GH₵ 100,000): the team reviews it,
+ *              never automatic (Core Business & Product Architecture v1.1, §6)
+ * The move happens at the end of the cycle (top-ups made after the first
+ * 72 hours only start earning when the cycle ends and the money is
+ * reinvested), never in the middle of one.
+ * TODO(api): the server applies the move at cycle end and notifies the investor.
+ */
+export function packageAfterTopUp(
+  packageId: PackageId,
+  total: number,
+): { kind: "same" } | { kind: "moves"; to: (typeof INVESTMENT_PACKAGES)[PackageId] } | { kind: "review" } {
+  if (total <= INVESTMENT_PACKAGES[packageId].maximum) return { kind: "same" };
+  const fits = Object.values(INVESTMENT_PACKAGES).find((pkg) => total >= pkg.minimum && total <= pkg.maximum);
+  return fits ? { kind: "moves", to: fits } : { kind: "review" };
+}
+
 /** True when money can go into the package now (a first investment or a top-up). */
 export function canInvest(option: InvestOption): boolean {
   return option.kind === "new" || option.kind === "top-up";

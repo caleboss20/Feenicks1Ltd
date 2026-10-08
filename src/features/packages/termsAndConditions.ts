@@ -23,7 +23,7 @@ export function keyPointsFor(pkg: InvestmentPackage): string[] {
   return [
     `You can invest between ${formatCedis(pkg.minimum)} and ${formatCedis(pkg.maximum)}.`,
     `Expected return: ${roiRangeLabel(pkg.monthlyRoiPercent)} a month. This is not guaranteed.`,
-    `A ${pkg.managementFeePercent}% management fee is taken from your profit only, never from the amount you invest.`,
+    `A ${pkg.managementFeePercent}% management fee comes off the monthly return (e.g. 7% − ${pkg.managementFeePercent}% = ${7 - pkg.managementFeePercent}%). It is never more than that month's profit.`,
     `Profit can be withdrawn ${withdrawalLabel(pkg).toLowerCase()}.`,
     "Like all investments, the value can go down as well as up, and you could lose money.",
   ];
@@ -74,7 +74,7 @@ export function termsFor(pkg: InvestmentPackage): TermsSection[] {
     {
       title: "5. Management fee",
       paragraphs: [
-        `A management fee of ${pkg.managementFeePercent}% is charged on the profit your investment earns. No fee is charged on the amount you invest, and no fee is charged in a period with no profit.`,
+        `A management fee of ${pkg.managementFeePercent} percentage points is taken off the monthly gross return: the return you receive is the gross return minus the fee (for example, a 7% month with a ${pkg.managementFeePercent}% fee pays ${7 - pkg.managementFeePercent}%). The fee is never more than the profit for that month, and no fee is charged in a period with no profit.`,
         "The fee is deducted before profit is paid to you. Your statements will show the profit earned, the fee and the amount paid out.",
       ],
     },

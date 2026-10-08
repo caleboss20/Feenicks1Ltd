@@ -34,10 +34,11 @@ export type Transaction = {
  * How a return was worked out, so anyone can check it:
  *
  *   gross profit = amount invested × monthly rate × months
- *   fee          = gross profit × the package's management fee %
+ *   fee          = amount invested × fee points × months  (CEO: net ROI = gross − fee),
+ *                  never more than the gross profit
  *   paid         = gross profit − fee                 (= Transaction.amount)
  *
- * e.g. GH₵ 1,500 × 7.5% × 1 month = GH₵ 112.50; 4% fee = GH₵ 4.50; paid GH₵ 108.00.
+ * e.g. GH₵ 1,500 × 7.5% × 1 month = GH₵ 112.50; fee 4 points = GH₵ 60.00; paid GH₵ 52.50 (3.5%).
  * TODO(api): the server stores this with each return (the declared rate for the period).
  */
 export type ReturnBreakdown = {
@@ -49,8 +50,8 @@ export type ReturnBreakdown = {
   months: number;
   /** Profit before the fee, in GH₵. */
   grossProfit: number;
-  /** The management fee taken (a % of the profit), in GH₵. */
+  /** The management fee taken, in GH₵ (feePercent points of the amount, per month). */
   fee: number;
-  /** That fee, in %. */
+  /** That fee, in percentage points a month off the gross return. */
   feePercent: number;
 };

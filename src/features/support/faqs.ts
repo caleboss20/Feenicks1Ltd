@@ -88,7 +88,7 @@ export const FAQS: Faq[] = [
     question: "How are my returns worked out?",
     answer: [
       "Each package has an expected monthly return. Your profit for a period is the amount invested × the monthly rate × the number of months.",
-      "The management fee is then taken from that profit (never from the amount you invest), and the rest is paid to you. Every return in Transactions shows its own calculation.",
+      "The management fee then comes off that return: the return you receive is the gross return minus the fee (e.g. 7% − 4% = 3%). It's never more than the period's profit. Every return in Transactions shows its own calculation.",
     ],
   },
   {
@@ -96,9 +96,9 @@ export const FAQS: Faq[] = [
     category: "investing",
     question: "What is the management fee?",
     answer: [
-      "A percentage of the profit your investment earns:",
-      ALL_PACKAGES.map((pkg) => `${pkg.name}: ${pkg.managementFeePercent}% of profit`),
-      "Nothing is charged on the amount you invest, and nothing in a period with no profit.",
+      "Percentage points taken off the monthly return (e.g. a 7% month with a 4% fee pays 3%):",
+      ALL_PACKAGES.map((pkg) => `${pkg.name}: ${pkg.managementFeePercent}% a month`),
+      "It's never more than the period's profit, and nothing is charged in a period with no profit.",
     ],
   },
 

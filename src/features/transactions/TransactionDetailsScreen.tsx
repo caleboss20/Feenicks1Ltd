@@ -206,7 +206,7 @@ function Receipt({ transaction }: { transaction: Transaction }) {
               { label: "Months", value: String(breakdown.months) },
               { label: "Profit before fee", value: formatCedis(breakdown.grossProfit, { exact: true }) },
               {
-                label: `Management fee (${breakdown.feePercent}%)`,
+                label: `Management fee (${breakdown.feePercent}% a month)`,
                 value: `− ${formatCedis(breakdown.fee, { exact: true })}`,
               },
             ].map((row) => (

@@ -177,7 +177,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
         ? `${REFERRAL_POINTS} points`
         : breakdown
           ? // How a return was worked out: rate × months, less the fee.
-            `${breakdown.monthlyRatePercent}% × ${breakdown.months} mo − ${breakdown.feePercent}% fee`
+            `(${breakdown.monthlyRatePercent}% − ${breakdown.feePercent}% fee) × ${breakdown.months} mo`
           : type.label;
 
   const amount = formatCedis(transaction.amount, { exact: true });
