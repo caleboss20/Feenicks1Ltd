@@ -11,10 +11,15 @@
  *    (👆)  0   ⌫             ← fingerprint / Face ID key, if set up
  *     Not you? Log out
  *
- * Fingerprint / Face ID (if turned on during 2FA setup): the phone's own
- * prompt opens once automatically, and the bottom-left key opens it again.
- * The PIN always works as the fallback. The icon/wording is Face ID on
- * iPhones and fingerprint elsewhere (the website can't see which sensor).
+ * Fingerprint / Face ID (if turned on during 2FA setup) is a FIRST step, not
+ * a way in by itself: the phone's own prompt opens once automatically (the
+ * bottom-left key opens it again), and after it succeeds the user STILL
+ * enters their PIN ("Fingerprint confirmed. Now enter your PIN."). Only the
+ * correct PIN unlocks the app. Why (owner's request): someone who knows the
+ * phone's screen lock, and so can pass the fingerprint / face prompt's
+ * passcode fallback, may not know the Feenicks1 PIN. The PIN on its own
+ * still works (if they skip or close the prompt). The icon/wording is Face
+ * ID on iPhones and fingerprint elsewhere (the website can't see which sensor).
  *
  * After the 4th digit: the screen blurs slightly and a small green spinner
  * with "Authenticating…" shows at the bottom. A correct PIN keeps that up
@@ -80,6 +85,8 @@ export function EnterPinScreen() {
   const [isLockedOut, setIsLockedOut] = useState(false);
   /** The phone's fingerprint / face prompt is open. */
   const [isAwaitingDevice, setIsAwaitingDevice] = useState(false);
+  /** Fingerprint / Face ID passed: now the PIN (the only thing that unlocks). */
+  const [isBiometricConfirmed, setIsBiometricConfirmed] = useState(false);
   /** Set when auto-lock brought the user here (read once, on arrival). */
   const [lockContext] = useState(peekLockContext);
 
@@ -115,23 +122,18 @@ export function EnterPinScreen() {
   };
 
   /**
-   * Fingerprint / Face ID. `automatic`: the first prompt opened on arrival;
-   * if the user closes it, say nothing and let them type the PIN.
+   * Fingerprint / Face ID, the first step: on success, the PIN is asked for
+   * next (it doesn't unlock by itself). `automatic`: the first prompt opened
+   * on arrival; if the user closes it, say nothing and let them type the PIN.
    */
-  const unlockWithBiometrics = async (automatic = false) => {
-    if (isBusy) return;
+  const confirmWithBiometrics = async (automatic = false) => {
+    if (isBusy || isBiometricConfirmed) return;
     setError(null);
-    // Holds the redirect while the prompt is open: a success marks the session
-    // unlocked, and we still want the "Authenticating…" moment first.
     setIsAwaitingDevice(true);
-    const startedAt = Date.now();
     const result = await verifyBiometric();
-    if (result.ok) {
-      await finishUnlock(startedAt);
-      return;
-    }
     setIsAwaitingDevice(false);
-    if (!automatic) setError(result.message);
+    if (result.ok) setIsBiometricConfirmed(true);
+    else if (!automatic) setError(result.message);
   };
 
   // Open the fingerprint / face prompt once when the screen appears.
@@ -141,7 +143,7 @@ export function EnterPinScreen() {
     // prompt after a tap: then this quietly fails and the key is used instead.
     if (!hasBiometrics || redirect || hasPromptedRef.current) return;
     hasPromptedRef.current = true;
-    void unlockWithBiometrics(true);
+    void confirmWithBiometrics(true);
   });
 
   const checkPin = async (pin: string) => {
@@ -205,6 +207,7 @@ export function EnterPinScreen() {
   const firstName = current.account.firstName;
   const biometricKind = guessBiometricKind();
   const biometricName = biometricKind === "face" ? "Face ID" : "your fingerprint";
+  const confirmedName = biometricKind === "face" ? "Face ID" : "Fingerprint";
 
   return (
     <>
@@ -245,9 +248,11 @@ export function EnterPinScreen() {
                 }
               >
                 {error ??
-                  (hasBiometrics
-                    ? `Enter your PIN or use ${biometricName}.`
-                    : "Your PIN keeps your account safe.")}
+                  (isBiometricConfirmed
+                    ? `${confirmedName} confirmed. Now enter your PIN.`
+                    : hasBiometrics
+                      ? `Use ${biometricName}, then enter your PIN.`
+                      : "Your PIN keeps your account safe.")}
               </p>
             </div>
 
@@ -256,11 +261,12 @@ export function EnterPinScreen() {
               onBackspace={removeDigit}
               disabled={isBusy}
               extraKey={
-                hasBiometrics
+                // Once it has passed, the key goes: only the PIN is left to do.
+                hasBiometrics && !isBiometricConfirmed
                   ? {
                       label: biometricKind === "face" ? "Use Face ID" : "Use fingerprint",
                       icon: biometricKind === "face" ? <FaceIdIcon /> : <FingerprintIcon />,
-                      onPress: () => void unlockWithBiometrics(),
+                      onPress: () => void confirmWithBiometrics(),
                     }
                   : undefined
               }
