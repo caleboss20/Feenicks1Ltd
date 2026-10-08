@@ -116,6 +116,13 @@ export async function getWithdrawals(): Promise<WithdrawalRequest[]> {
   return [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+/** The request behind a withdrawal transaction (for its receipt), or null. TODO(api): part of GET /api/transactions/:id */
+export async function getWithdrawalForTransaction(transactionId: string): Promise<WithdrawalRequest | null> {
+  if (!IS_DEMO_MODE) return null;
+  const email = demo.getSessionEmail();
+  return (email && demo.findAccount(email)?.withdrawals?.find((item) => item.transactionId === transactionId)) || null;
+}
+
 /** The withdrawal with its latest status, or null if there's no such request on this account. */
 export async function getWithdrawal(id: string): Promise<WithdrawalRequest | null> {
   // TODO(api): GET /api/withdrawals/:id

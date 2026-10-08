@@ -23,12 +23,12 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { ROUTES } from "@/config/routes";
+import { ROUTES, transactionReceiptHref } from "@/config/routes";
 import { formatWhen } from "@/features/transactions/transactionFormat";
 import { MOMO_NETWORKS } from "@/lib/mobileMoney";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
-import { WITHDRAWAL_RULES, type WithdrawalRequest } from "./withdrawalModel";
+import { WITHDRAWAL_KIND_LABELS, WITHDRAWAL_RULES, type WithdrawalRequest } from "./withdrawalModel";
 import { cancelWithdrawal, getWithdrawal, subscribeToWithdrawals } from "./withdrawalService";
 
 /** How often to look for the next step while it's underway. */
@@ -63,11 +63,6 @@ const HEADLINES: Record<WithdrawalRequest["status"], string> = {
   cancelled: "Withdrawal cancelled",
 };
 
-const KIND_LABELS: Record<WithdrawalRequest["kind"], string> = {
-  standard: "Standard",
-  express: "Express",
-  "pre-investment": "Free (first 72 hours)",
-};
 
 export function WithdrawalStatusScreen({ id }: { id: string }) {
   const router = useRouter();
@@ -174,12 +169,18 @@ export function WithdrawalStatusScreen({ id }: { id: string }) {
       )}
 
       <p className="mt-4 text-center text-xs text-neutral-500 tabular-nums dark:text-neutral-400">
-        Ref {withdrawal.id} · {KIND_LABELS[withdrawal.kind]}
+        Ref {withdrawal.id} · {WITHDRAWAL_KIND_LABELS[withdrawal.kind]}
         {withdrawal.fee > 0 && ` · fee ${formatCedis(withdrawal.fee, { exact: true })}`}
       </p>
 
       <div className="mt-auto flex flex-col items-center gap-2 pt-10">
         <FormErrorMessage message={error} />
+        {/* Paid: its receipt (Share / Download), as for a payment into a package. */}
+        {withdrawal.status === "paid" && (
+          <ButtonLink href={transactionReceiptHref(withdrawal.transactionId)} size="lg" fullWidth>
+            View receipt
+          </ButtonLink>
+        )}
         <ButtonLink href={ROUTES.dashboard} variant="soft" size="lg" fullWidth>
           Go to dashboard
         </ButtonLink>

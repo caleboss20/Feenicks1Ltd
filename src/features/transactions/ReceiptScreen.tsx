@@ -40,6 +40,8 @@ import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { ROUTES, supportMessageAboutHref, transactionDetailsHref } from "@/config/routes";
 import type { MomoPayment } from "@/features/payments/paymentModel";
 import { getPaymentForTransaction } from "@/features/payments/paymentService";
+import type { WithdrawalRequest } from "@/features/withdraw/withdrawalModel";
+import { getWithdrawalForTransaction } from "@/features/withdraw/withdrawalService";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import { CEDI_SYMBOL, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -62,13 +64,29 @@ function usePaymentFor(transactionId: string): MomoPayment | null | undefined {
   return payment;
 }
 
+/** The withdrawal request behind a transaction (withdrawals only): undefined while it loads. */
+function useWithdrawalFor(transactionId: string): WithdrawalRequest | null | undefined {
+  const [withdrawal, setWithdrawal] = useState<WithdrawalRequest | null | undefined>(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    void getWithdrawalForTransaction(transactionId).then((found) => {
+      if (!cancelled) setWithdrawal(found);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [transactionId]);
+  return withdrawal;
+}
+
 export function ReceiptScreen({ id, isNewPayment }: { id: string; isNewPayment: boolean }) {
   useStatusBarColor(GREY_PAGE_COLORS);
   const router = useRouter();
   const transactions = useTransactions();
   const payment = usePaymentFor(id);
+  const withdrawal = useWithdrawalFor(id);
   const transaction = transactions?.find((item) => item.id === id) ?? null;
-  const isLoading = transactions === null || payment === undefined;
+  const isLoading = transactions === null || payment === undefined || withdrawal === undefined;
 
   // Not (yet) completed, or unknown: its details page says what's going on.
   const hasReceipt = transaction?.status === "completed";
@@ -91,7 +109,7 @@ export function ReceiptScreen({ id, isNewPayment }: { id: string; isNewPayment: 
     );
   }
 
-  const details = receiptDetails(transaction, payment ?? null, transactions ?? []);
+  const details = receiptDetails(transaction, payment ?? null, transactions ?? [], withdrawal ?? null);
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-neutral-100 pt-[max(0.75rem,env(safe-area-inset-top))] dark:bg-background">

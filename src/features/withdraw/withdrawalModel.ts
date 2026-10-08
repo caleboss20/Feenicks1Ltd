@@ -74,6 +74,13 @@ const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
+/** How each kind is named to the investor (status screen, receipt). */
+export const WITHDRAWAL_KIND_LABELS: Record<WithdrawalKind, string> = {
+  standard: "Standard",
+  express: "Express",
+  "pre-investment": "Free (first 72 hours)",
+};
+
 /** The investor's first paid deposit into the package (when the 72 hours start), or null. */
 export function firstDeposit(transactions: Transaction[], packageId: PackageId): Date | null {
   const dates = transactions

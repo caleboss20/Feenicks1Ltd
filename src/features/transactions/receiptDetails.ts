@@ -1,5 +1,6 @@
 import { INVESTMENT_PACKAGES, roiRangeLabel } from "@/features/packages/investmentPackages";
 import type { MomoPayment } from "@/features/payments/paymentModel";
+import { WITHDRAWAL_KIND_LABELS, type WithdrawalRequest } from "@/features/withdraw/withdrawalModel";
 import { formatLocalNumber, MOMO_NETWORKS } from "@/lib/mobileMoney";
 import { formatCedis } from "@/lib/money";
 import type { Transaction } from "./transactionModel";
@@ -36,7 +37,7 @@ export type ReceiptDetails = {
 const HEADLINES: Record<Transaction["type"], string> = {
   investment: "Payment successful",
   return: "Return paid",
-  withdrawal: "Withdrawal successful",
+  withdrawal: "Withdrawal paid",
   referral: "Reward received",
 };
 
@@ -57,7 +58,9 @@ export function receiptDetails(
   transaction: Transaction,
   payment: MomoPayment | null,
   transactions: Transaction[],
+  withdrawal: WithdrawalRequest | null = null,
 ): ReceiptDetails {
+  if (transaction.type === "withdrawal" && withdrawal) return withdrawalReceipt(transaction, withdrawal);
   const pkg = transaction.packageId ? INVESTMENT_PACKAGES[transaction.packageId] : null;
   const fee = payment?.fee ?? 0;
   const total = transaction.amount + fee;
@@ -118,6 +121,52 @@ export function receiptDetails(
         rows: [reference, { label: "Amount", value: formatCedis(total, { exact: true }), isTotal: true }],
       },
     ].filter((section) => section.rows.length > 0),
+  };
+}
+
+/**
+ * A paid withdrawal's receipt, from its request: the big figure is what
+ * reached their Mobile Money; the rows show the kind, the fee (express: 1%,
+ * on top) and the total taken from the wallet (the transaction's amount).
+ *
+ *            GH₵ 500.00
+ *          Withdrawal paid
+ *   From InvestWise Capital (IC)
+ *   Withdrawal details: Type · Package · Paid to · Requested · Paid
+ *   Payment details:    Transaction ID · Reference · Received · Fee · Total taken
+ */
+function withdrawalReceipt(transaction: Transaction, withdrawal: WithdrawalRequest): ReceiptDetails {
+  const pkg = INVESTMENT_PACKAGES[withdrawal.packageId];
+  return {
+    headline: HEADLINES.withdrawal,
+    packageLine: `From ${pkg.name} (${pkg.ticker})`,
+    total: withdrawal.amount,
+    when: receiptDate(withdrawal.paidAt ?? transaction.createdAt),
+    sections: [
+      {
+        title: "Withdrawal details",
+        rows: [
+          { label: "Type", value: WITHDRAWAL_KIND_LABELS[withdrawal.kind] },
+          { label: "Package", value: `${pkg.name} (${pkg.ticker})` },
+          { label: "Paid to", value: `${MOMO_NETWORKS[withdrawal.network].name} · ${formatLocalNumber(withdrawal.phone)}` },
+          { label: "Requested", value: receiptDate(withdrawal.createdAt) },
+          ...(withdrawal.paidAt ? [{ label: "Paid", value: receiptDate(withdrawal.paidAt) }] : []),
+        ],
+      },
+      {
+        title: "Payment details",
+        rows: [
+          { label: "Transaction ID", value: transaction.id, isReference: true },
+          { label: "Withdrawal reference", value: withdrawal.id },
+          { label: "Amount received", value: formatCedis(withdrawal.amount, { exact: true }) },
+          {
+            label: withdrawal.fee > 0 ? "Express fee (1%)" : "Fee",
+            value: withdrawal.fee > 0 ? formatCedis(withdrawal.fee, { exact: true }) : "No fee",
+          },
+          { label: "Total taken from wallet", value: formatCedis(withdrawal.debit, { exact: true }), isTotal: true },
+        ],
+      },
+    ],
   };
 }
 
