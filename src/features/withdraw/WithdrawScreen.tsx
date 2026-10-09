@@ -33,6 +33,7 @@ import { ArrowLeft, ArrowRight, BackspaceIcon, CheckIcon, ChevronDownIcon, Clock
 import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { SlideToConfirm } from "@/components/ui/SlideToConfirm";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { ROUTES, withdrawalStatusHref } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -502,9 +503,13 @@ function ConfirmWithdrawalSheet({
       </p>
       <div className="mt-4 flex flex-col gap-3">
         <FormErrorMessage message={error} />
-        <Button size="lg" fullWidth onClick={send} isLoading={isSending} loadingLabel="Sending your request">
-          Request withdrawal
-        </Button>
+        {/* A slide, not a tap: money leaves only on purpose. */}
+        <SlideToConfirm
+          label={`Slide to withdraw ${formatCedis(amount, { exact: true })}`}
+          onConfirm={send}
+          isLoading={isSending}
+          loadingLabel="Sending your request"
+        />
       </div>
     </BottomSheet>
   );

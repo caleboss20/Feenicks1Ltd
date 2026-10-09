@@ -30,7 +30,7 @@
  * the phone can share files, else the text, else copies the text.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ChevronDownIcon, CopyIcon, SupportIcon } from "@/components/icons";
@@ -149,24 +149,91 @@ export function ReceiptScreen({ id, isNewPayment }: { id: string; isNewPayment: 
         <p className="mt-2.5 text-xs text-neutral-500 dark:text-neutral-400">{details.when}</p>
       </section>
 
-      {/* The details, on a white panel that rises to the bottom of the screen. */}
-      <div className="flex flex-1 flex-col rounded-t-[2rem] bg-white px-5 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-neutral-900">
-        <span aria-hidden className="mx-auto block h-1.5 w-10 rounded-full bg-neutral-200 dark:bg-white/15" />
-        <div className="mt-3">
-          {details.sections.map((section) => (
-            <ReceiptSectionBlock key={section.title} section={section} />
-          ))}
+      {/* The details, on a white panel that rises to the bottom of the screen
+          (and "prints out" of a slot the first time it's opened: PrintOut). */}
+      <PrintOut receiptId={transaction.id}>
+        <div className="flex flex-1 flex-col rounded-t-[2rem] bg-white px-5 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-neutral-900">
+          <span aria-hidden className="mx-auto block h-1.5 w-10 rounded-full bg-neutral-200 dark:bg-white/15" />
+          <div className="mt-3">
+            {details.sections.map((section) => (
+              <ReceiptSectionBlock key={section.title} section={section} />
+            ))}
+          </div>
+          <div data-receipt-actions>
+            <ReceiptActions details={details} reference={transaction.id} />
+          </div>
+          {isNewPayment && (
+            <Link
+              href={ROUTES.dashboard}
+              replace
+              className="mx-auto mt-4 px-4 py-2 text-sm font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400"
+            >
+              Back to Home
+            </Link>
+          )}
         </div>
-        <ReceiptActions details={details} reference={transaction.id} />
-        {isNewPayment && (
-          <Link
-            href={ROUTES.dashboard}
-            replace
-            className="mx-auto mt-4 px-4 py-2 text-sm font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400"
-          >
-            Back to Home
-          </Link>
-        )}
+      </PrintOut>
+    </div>
+  );
+}
+
+/**
+ * The receipt "prints out": the first time a receipt is opened (per tab
+ * session), the white panel feeds down out of a dark slot in two pushes,
+ * like a till printer, then Share / Download fade in. About 1.2 s. Later
+ * visits, and reduced motion, show it straight away. Runs before the first
+ * paint (layout effect), so the finished receipt never flashes first.
+ */
+function PrintOut({ receiptId, children }: { receiptId: string; children: React.ReactNode }) {
+  const paperRef = useRef<HTMLDivElement>(null);
+  const slotRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    const key = `feenicks1-receipt-printed-${receiptId}`;
+    let isSeen = true;
+    try {
+      isSeen = window.sessionStorage.getItem(key) === "1";
+      window.sessionStorage.setItem(key, "1");
+    } catch {
+      // Storage blocked: no print animation.
+    }
+    const paper = paperRef.current;
+    const slot = slotRef.current;
+    if (isSeen || !paper || !slot || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    slot.animate([{ opacity: 1 }, { opacity: 1, offset: 0.85 }, { opacity: 0 }], { duration: 1500, fill: "both" });
+    // Two pushes with a short stop between, each eased on its own.
+    const push = "cubic-bezier(0.3, 0.7, 0.4, 1)";
+    paper.animate(
+      [
+        { transform: "translateY(-100%)", easing: push },
+        { transform: "translateY(-55%)", offset: 0.4 },
+        { transform: "translateY(-55%)", offset: 0.52, easing: push },
+        { transform: "translateY(0)" },
+      ],
+      { duration: 1150, fill: "backwards" },
+    );
+    paper.querySelector("[data-receipt-actions]")?.animate(
+      [
+        { opacity: 0, transform: "translateY(6px)" },
+        { opacity: 1, transform: "none" },
+      ],
+      { duration: 350, delay: 1050, easing: "ease-out", fill: "backwards" },
+    );
+  }, [receiptId]);
+
+  return (
+    <div className="relative flex flex-1 flex-col">
+      {/* The printer's slot the paper comes out of (only while printing). */}
+      <span
+        ref={slotRef}
+        aria-hidden
+        className="absolute inset-x-1 top-0 z-10 h-2.5 -translate-y-1/2 rounded-full bg-neutral-800 opacity-0 dark:bg-black"
+      />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <div ref={paperRef} className="flex flex-1 flex-col">
+          {children}
+        </div>
       </div>
     </div>
   );

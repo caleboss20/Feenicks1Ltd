@@ -55,6 +55,7 @@ import {
   TriangleUpIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
+import { RollingNumber } from "@/components/ui/RollingNumber";
 import { packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -327,16 +328,20 @@ export function DashboardScreen() {
         <div className="mt-3.5 flex items-center gap-3">
           <p className="flex items-baseline gap-2 leading-none">
             <span className="text-xl font-semibold text-white/90">{CEDI_SYMBOL}</span>
-            {hideAmounts ? (
-              <span aria-label="Amount hidden" className="text-[2.0625rem] font-bold tracking-[0.1em]">
-                ••••••
-              </span>
-            ) : (
-              <span className="text-[2.6875rem] font-bold tracking-[-0.03em] tabular-nums">
-                {balanceWhole}
-                <span className="text-[1.6875rem] text-white/80">.{balanceFraction}</span>
-              </span>
-            )}
+            {/* Rolls up like an odometer when Home opens; hidden = blurred, not replaced. */}
+            {hideAmounts && <span className="sr-only">Amount hidden</span>}
+            <span
+              aria-hidden={hideAmounts || undefined}
+              className={cn(
+                "text-[2.6875rem] font-bold tracking-[-0.03em] tabular-nums transition-[filter] duration-300 select-none",
+                hideAmounts && "blur-[11px]",
+              )}
+            >
+              <RollingNumber
+                value={`${balanceWhole}.${balanceFraction}`}
+                fractionClassName="text-[1.6875rem] text-white/80"
+              />
+            </span>
           </p>
           <button
             type="button"
@@ -360,8 +365,12 @@ export function DashboardScreen() {
             />
           </span>
           Profit earned
-          <span className="font-semibold text-white">
-            {hideAmounts ? "••••" : formatCedis(profitEarned, { exact: true })}
+          {hideAmounts && <span className="sr-only">hidden</span>}
+          <span
+            aria-hidden={hideAmounts || undefined}
+            className={cn("font-semibold text-white transition-[filter] duration-300 select-none", hideAmounts && "blur-[5px]")}
+          >
+            {formatCedis(profitEarned, { exact: true })}
           </span>
         </p>
       </section>

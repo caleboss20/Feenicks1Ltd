@@ -28,7 +28,7 @@
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BottomSheet } from "@/components/ui/BottomSheet";
-import { Button } from "@/components/ui/Button";
+import { SlideToConfirm } from "@/components/ui/SlideToConfirm";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { investPaymentHref } from "@/config/routes";
 import type { InvestmentPackage } from "@/features/packages/investmentPackages";
@@ -182,16 +182,14 @@ export function ConfirmPaymentSheet({
 
       <div className="mt-auto flex flex-col gap-3 pt-5">
         <FormErrorMessage message={error} />
-        <Button
-          size="lg"
-          fullWidth
-          onClick={pay}
+        {/* A slide, not a tap: money moves only on purpose. */}
+        <SlideToConfirm
+          label={`Slide to pay ${formatCedis(total, { exact: true })}`}
+          onConfirm={pay}
           disabled={!network}
           isLoading={isPaying}
           loadingLabel="Sending the payment request"
-        >
-          Pay {formatCedis(total, { exact: true })}
-        </Button>
+        />
       </div>
     </BottomSheet>
   );
