@@ -15,6 +15,7 @@
  * SegmentRow: one row on its own (the result screen).
  */
 
+import Image from "next/image";
 import { INVESTMENT_PACKAGES, type PackageId } from "@/features/packages/investmentPackages";
 import { formatCedis, formatCedisNumber } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -94,7 +95,16 @@ export function SegmentRow({ segment, className }: { segment: InvestorSegmentInf
           {segment.number}
         </span>
         <span className="mt-2.5 text-[0.8125rem] leading-tight font-bold tracking-wide uppercase">{segment.name}</span>
-        <span className={cn("mt-1 text-xs leading-snug", tone.tagline)}>{segment.tagline}</span>
+        <span className={cn("mt-1 mb-3 text-xs leading-snug", tone.tagline)}>{segment.tagline}</span>
+        {/* The person, at the foot of the tile (as in the guide). */}
+        <Image
+          src={segment.photo.src}
+          alt={segment.photo.alt}
+          width={600}
+          height={600}
+          sizes="80px"
+          className="mt-auto aspect-square w-full rounded-xl object-cover"
+        />
       </div>
 
       <ul className="min-w-0 flex-1 divide-y divide-neutral-200/80 rounded-2xl border border-neutral-200/80 bg-white dark:divide-white/10 dark:border-white/10 dark:bg-white/5">

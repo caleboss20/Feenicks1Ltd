@@ -32,6 +32,14 @@ export type InvestorSegmentInfo = {
   tagline: string;
   /** The portfolios built for this profile, in the guide's order. */
   packageIds: PackageId[];
+  /**
+   * Photo in the tile (600×600, under /public). Unsplash License (free for
+   * commercial use, no attribution required); sources:
+   *   student         unsplash.com/photos/WMNZaH4n4ME (Askas Jeremy, Kampala, Uganda)
+   *   investor        unsplash.com/photos/TdgCYy02i_I
+   *   business owner  unsplash.com/photos/uk3ey_vhDKA
+   */
+  photo: { src: string; alt: string };
   /** The tile's colours, after the guide: yellow, navy, red. */
   tone: "yellow" | "navy" | "red";
 };
@@ -43,6 +51,7 @@ export const INVESTOR_SEGMENTS: InvestorSegmentInfo[] = [
     name: "Student",
     tagline: "Start small. Build the habit.",
     packageIds: ["mfc"],
+    photo: { src: "/images/profiles/student.jpg", alt: "A smiling young African university graduate in his cap and gown" },
     tone: "yellow",
   },
   {
@@ -51,6 +60,7 @@ export const INVESTOR_SEGMENTS: InvestorSegmentInfo[] = [
     name: "Investor",
     tagline: "Scale with structure.",
     packageIds: ["investwise", "abc"],
+    photo: { src: "/images/profiles/investor.jpg", alt: "An investor in a suit checking his phone" },
     tone: "navy",
   },
   {
@@ -59,6 +69,7 @@ export const INVESTOR_SEGMENTS: InvestorSegmentInfo[] = [
     name: "Business owner",
     tagline: "Put capital to work.",
     packageIds: ["repf"],
+    photo: { src: "/images/profiles/business-owner.jpg", alt: "A business owner in an apron using his phone at his stall" },
     tone: "red",
   },
 ];
