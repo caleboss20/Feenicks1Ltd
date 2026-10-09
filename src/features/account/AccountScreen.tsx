@@ -380,11 +380,11 @@ function HiddenBalanceRow() {
   );
 }
 
-/** A tiny dashboard-green chip showing the style: "GH₵ ••••••", or a blurred figure. */
+/** The style as plain text, no background: "GH₵ ••••••", or a blurred figure. */
 function HiddenBalancePreview({ mask }: { mask: string | null }) {
   return (
-    <span aria-hidden className="flex items-baseline gap-1 rounded-lg bg-brand-600 px-2.5 py-1.5 text-white">
-      <span className="text-[0.6875rem] font-semibold text-white/85">GH₵</span>
+    <span aria-hidden className="flex items-baseline gap-1 text-foreground">
+      <span className="text-[0.6875rem] font-semibold text-neutral-500 dark:text-neutral-400">GH₵</span>
       {mask === null ? (
         <span className="text-sm font-bold tabular-nums blur-[3px] select-none">2,450.00</span>
       ) : (
