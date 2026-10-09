@@ -45,7 +45,7 @@ const HINT_KEY = "feenicks1-liquid-pull-used";
  * apart from the green card. The flood after a release is a faint ash grey
  * (--flood), soft on the eye between pages. Both are set on the wrapper.
  */
-const LIQUID_CLASS = "[--liquid:#6e6e73] [--flood:#e5e5e7] dark:[--liquid:#636366] dark:[--flood:#2c2c2e]";
+const LIQUID_CLASS = "[--liquid:#8e8e93] [--flood:#e5e5e7] dark:[--liquid:#7c7c80] dark:[--flood:#2c2c2e]";
 const LIQUID = "var(--liquid)";
 
 /** Finger distance → card distance: 1:1 at first, then heavier and heavier (about 140 px of finger to trigger). */
