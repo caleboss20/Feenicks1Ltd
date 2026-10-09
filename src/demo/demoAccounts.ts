@@ -83,6 +83,8 @@ export type DemoAccount = {
   withdrawals?: WithdrawalRequest[];
   /** Statements issued (features/statements): number, period, when. */
   statements?: IssuedStatement[];
+  /** The latest month whose statement the investor was told about, e.g. "2026-09". */
+  monthlyStatementAnnounced?: string;
   createdAt: string;
 };
 
@@ -230,6 +232,7 @@ export function updateAccount(
       | "wallets"
       | "withdrawals"
       | "statements"
+      | "monthlyStatementAnnounced"
     >
   >,
 ) {

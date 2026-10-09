@@ -56,6 +56,7 @@ import {
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { hiddenMask } from "@/features/dashboard/hiddenBalance";
+import { announceMonthlyStatement } from "@/features/statements/statementService";
 import { packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -142,6 +143,11 @@ export function DashboardScreen() {
   useEffect(() => {
     if (needsOnboardingFinished) void markOnboardingFinished();
   }, [needsOnboardingFinished]);
+
+  // A month has ended: its statement is ready (one notification, Statements › Monthly).
+  useEffect(() => {
+    if (transactions) announceMonthlyStatement(transactions);
+  }, [transactions]);
 
   const toggleHideAmounts = () => {
     setHideAmounts((hidden) => {

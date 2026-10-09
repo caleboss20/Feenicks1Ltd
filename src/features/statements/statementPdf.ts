@@ -33,23 +33,24 @@ export type StatementMeta = {
   walletId: string | null;
 };
 
-const PAGE_W = 210;
-const PAGE_H = 297;
-const M = 16; // margin, mm
-const RIGHT = PAGE_W - M;
-const BRAND: [number, number, number] = [19, 147, 79];
-const BRAND_LIGHT: [number, number, number] = [231, 245, 237];
-const INK: [number, number, number] = [17, 24, 39];
-const MUTED: [number, number, number] = [107, 114, 128];
-const HAIRLINE: [number, number, number] = [229, 231, 235];
-const PANEL: [number, number, number] = [246, 247, 248];
+/** Page geometry and the brand palette, shared with the proof of funds letter (letterPdf.ts). */
+export const PAGE_W = 210;
+export const PAGE_H = 297;
+export const M = 16; // margin, mm
+export const RIGHT = PAGE_W - M;
+export const BRAND: [number, number, number] = [19, 147, 79];
+export const BRAND_LIGHT: [number, number, number] = [231, 245, 237];
+export const INK: [number, number, number] = [17, 24, 39];
+export const MUTED: [number, number, number] = [107, 114, 128];
+export const HAIRLINE: [number, number, number] = [229, 231, 235];
+export const PANEL: [number, number, number] = [246, 247, 248];
 
-const shortDate = (date: Date) => date.toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" });
-const dateTime = (date: Date) =>
+export const shortDate = (date: Date) => date.toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" });
+export const dateTime = (date: Date) =>
   `${shortDate(date)}, ${date.toLocaleTimeString("en-GH", { hour: "numeric", minute: "2-digit" })}`;
 const money = (amount: number) => amount.toLocaleString("en-GH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-async function imageData(url: string): Promise<string | null> {
+export async function imageData(url: string): Promise<string | null> {
   try {
     const blob = await (await fetch(url)).blob();
     return await new Promise((resolve) => {
