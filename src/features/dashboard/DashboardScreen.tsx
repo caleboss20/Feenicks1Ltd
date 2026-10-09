@@ -55,7 +55,6 @@ import {
   TriangleUpIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
-import { RollingNumber } from "@/components/ui/RollingNumber";
 import { hiddenMask } from "@/features/dashboard/hiddenBalance";
 import { packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
@@ -333,8 +332,9 @@ export function DashboardScreen() {
         <div className="mt-3.5 flex items-center gap-3">
           <p className="flex items-baseline gap-2 leading-none">
             <span className="text-xl font-semibold text-white/90">{CEDI_SYMBOL}</span>
-            {/* Rolls up like an odometer when Home opens. Hidden: dots, asterisks or a
-                blur, as chosen on Account › Hidden balance (dots by default). */}
+            {/* A short, calm fade-in when Home opens (no counting: it's money, not a game).
+                Hidden: dots, asterisks, dashes, the word or a blur, as chosen on
+                Account › Hidden balance (dots by default). */}
             {hideAmounts && balanceMask !== null ? (
               <span
                 aria-label="Amount hidden"
@@ -348,14 +348,12 @@ export function DashboardScreen() {
                 <span
                   aria-hidden={hideAmounts || undefined}
                   className={cn(
-                    "text-[2.6875rem] font-bold tracking-[-0.03em] tabular-nums transition-[filter] duration-300 select-none",
+                    "animate-fade-up text-[2.6875rem] font-bold tracking-[-0.03em] tabular-nums transition-[filter] duration-300 select-none [animation-duration:0.5s] motion-reduce:animate-none",
                     hideAmounts && "blur-[11px]",
                   )}
                 >
-                  <RollingNumber
-                    value={`${balanceWhole}.${balanceFraction}`}
-                    fractionClassName="text-[1.6875rem] text-white/80"
-                  />
+                  {balanceWhole}
+                  <span className="text-[1.6875rem] text-white/80">.{balanceFraction}</span>
                 </span>
               </>
             )}
