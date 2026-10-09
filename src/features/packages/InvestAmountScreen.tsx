@@ -8,7 +8,8 @@
  *   (‹)                 Invest
  *              GH₵ 500 – GH₵ 4,999.99          ← top-up: "Invested: GH₵ 2,500.00"
  *   ╭─────────────────────────────────────────╮
- *   │ From   (M) MTN MoMo  [024 123 4567]      │  ← their MoMo number; network
+ *   │ From   (M) MTN MoMo                     │  ← their MoMo number; network
+ *   │            024 123 4567                 │
  *   ╰─────────────────────────────────────────╯    from its prefix
  *   ╭─────────────────────────────────────────╮
  *   │ To     InvestWise Capital                │
@@ -155,16 +156,20 @@ export function InvestAmountScreen({ pkg }: { pkg: InvestmentPackage }) {
           {/* From: the MoMo wallet the money comes from. */}
           <div className={cn(card, "flex min-h-16 items-center gap-4")}>
             <span className="w-10 shrink-0 text-sm text-neutral-500 dark:text-neutral-400">From</span>
-            <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-1">
-              {network && <MomoNetworkLogo network={network} className="size-7" />}
-              <span className="text-[0.9375rem] font-medium">
-                {network ? MOMO_NETWORKS[network].name : "Mobile Money"}
-              </span>
-              {phone && (
-                <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600 tabular-nums dark:bg-white/10 dark:text-neutral-300">
-                  {formatLocalNumber(phone)}
+            {/* The logo on the left, as tall as both lines; the network, then the
+                number beneath it (same type as the "To" row). */}
+            <span className="flex min-w-0 flex-1 items-center gap-3">
+              {network && <MomoNetworkLogo network={network} className="size-9 shrink-0" />}
+              <span className="min-w-0">
+                <span className="block text-[0.9375rem] font-medium">
+                  {network ? MOMO_NETWORKS[network].name : "Mobile Money"}
                 </span>
-              )}
+                {phone && (
+                  <span className="mt-0.5 block text-xs text-neutral-500 tabular-nums dark:text-neutral-400">
+                    {formatLocalNumber(phone)}
+                  </span>
+                )}
+              </span>
             </span>
           </div>
 

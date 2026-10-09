@@ -152,8 +152,7 @@ export function ReceiptScreen({ id, isNewPayment }: { id: string; isNewPayment: 
       {/* The details, on a white panel that rises to the bottom of the screen
           (and "prints out" of a slot the first time it's opened: PrintOut). */}
       <PrintOut receiptId={transaction.id}>
-        <div className="flex flex-1 flex-col rounded-t-[2rem] bg-white px-5 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-neutral-900">
-          <span aria-hidden className="mx-auto block h-1.5 w-10 rounded-full bg-neutral-200 dark:bg-white/15" />
+        <div className="flex flex-1 flex-col bg-(--paper) px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div className="mt-3">
             {details.sections.map((section) => (
               <ReceiptSectionBlock key={section.title} section={section} />
@@ -178,15 +177,25 @@ export function ReceiptScreen({ id, isNewPayment }: { id: string; isNewPayment: 
 }
 
 /**
- * The receipt "prints out": the first time a receipt is opened (per tab
- * session), the white panel feeds down out of a dark slot in two pushes,
- * like a till printer, then Share / Download fade in. About 1.2 s. Later
- * visits, and reduced motion, show it straight away. Runs before the first
+ * The receipt "prints out", like a slip from a bank machine: the first time
+ * a receipt is opened (per tab session) the paper glides down out of a slot
+ * in one smooth, steady feed (2.6 s: a gentle start, a long glide, a soft
+ * stop), then Share / Download fade in.
+ *
+ *   ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄   ← the slot: dark inside, lighter lip
+ *    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░     ← the paper darker at the mouth, as if
+ *    │ Investment details        │       still inside the machine
+ *    │ …                         │
+ *
+ * Depth comes from shading (gradients), never drop shadows. The paper has
+ * a torn, zigzag top edge and is a little narrower than the slot. Later
+ * visits and reduced motion show it straight away. Runs before the first
  * paint (layout effect), so the finished receipt never flashes first.
  */
 function PrintOut({ receiptId, children }: { receiptId: string; children: React.ReactNode }) {
   const paperRef = useRef<HTMLDivElement>(null);
   const slotRef = useRef<HTMLSpanElement>(null);
+  const mouthRef = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
     const key = `feenicks1-receipt-printed-${receiptId}`;
@@ -201,37 +210,46 @@ function PrintOut({ receiptId, children }: { receiptId: string; children: React.
     const slot = slotRef.current;
     if (isSeen || !paper || !slot || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    slot.animate([{ opacity: 1 }, { opacity: 1, offset: 0.85 }, { opacity: 0 }], { duration: 1500, fill: "both" });
-    // Two pushes with a short stop between, each eased on its own.
-    const push = "cubic-bezier(0.3, 0.7, 0.4, 1)";
-    paper.animate(
-      [
-        { transform: "translateY(-100%)", easing: push },
-        { transform: "translateY(-55%)", offset: 0.4 },
-        { transform: "translateY(-55%)", offset: 0.52, easing: push },
-        { transform: "translateY(0)" },
-      ],
-      { duration: 1150, fill: "backwards" },
-    );
+    const FEED = 2600;
+    // The slot and the shade at its mouth stay while it feeds, then fade.
+    for (const part of [slot, mouthRef.current]) {
+      part?.animate([{ opacity: 1 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }], { duration: FEED + 700, fill: "both" });
+    }
+    paper.animate([{ transform: "translateY(-100%)" }, { transform: "translateY(0)" }], {
+      duration: FEED,
+      easing: "cubic-bezier(0.33, 0, 0.2, 1)",
+      fill: "backwards",
+    });
     paper.querySelector("[data-receipt-actions]")?.animate(
       [
         { opacity: 0, transform: "translateY(6px)" },
         { opacity: 1, transform: "none" },
       ],
-      { duration: 350, delay: 1050, easing: "ease-out", fill: "backwards" },
+      { duration: 400, delay: FEED - 150, easing: "ease-out", fill: "backwards" },
     );
   }, [receiptId]);
 
   return (
-    <div className="relative flex flex-1 flex-col">
-      {/* The printer's slot the paper comes out of (only while printing). */}
+    <div className="relative flex flex-1 flex-col [--paper:#ffffff] dark:[--paper:#171717]">
+      {/* The machine's slot (only while printing): dark inside, a lighter lip below. */}
       <span
         ref={slotRef}
         aria-hidden
-        className="absolute inset-x-1 top-0 z-10 h-2.5 -translate-y-1/2 rounded-full bg-neutral-800 opacity-0 dark:bg-black"
+        className="absolute inset-x-1 top-0 z-20 h-3 -translate-y-1/2 rounded-full bg-[linear-gradient(to_bottom,#09090b_0%,#27272a_65%,#71717a_100%)] opacity-0 dark:bg-[linear-gradient(to_bottom,#000_0%,#18181b_65%,#3f3f46_100%)]"
       />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="relative mx-2.5 flex flex-1 flex-col overflow-hidden">
+        {/* The paper just out of the slot is in the machine's shade. */}
+        <span
+          ref={mouthRef}
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-12 bg-linear-to-b from-black/[0.14] to-transparent opacity-0 dark:from-black/40"
+        />
         <div ref={paperRef} className="flex flex-1 flex-col">
+          {/* Torn top edge: the zigzag of receipt paper. */}
+          <span
+            aria-hidden
+            className="block h-2.5 bg-[linear-gradient(-45deg,var(--paper)_5px,transparent_0),linear-gradient(45deg,var(--paper)_5px,transparent_0)] bg-size-[10px_10px] bg-bottom-left bg-repeat-x"
+          />
           {children}
         </div>
       </div>
