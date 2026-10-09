@@ -24,8 +24,9 @@
  *     sets off the browser's own pull-to-refresh
  *   - taps on buttons inside the card (the eye) are left alone
  *   - prefers-reduced-motion: no liquid or flood; a pull simply opens the page
- *   - first visits: one gentle nudge of the card and a hint under it, until
- *     the investor has used the pull once (localStorage, per device)
+ *   - a hint always shows under the card ("↓ Pull the card down to …"),
+ *     because people forget; first visits also get one gentle nudge of the
+ *     card, until the pull has been used once (localStorage, per device)
  */
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
@@ -38,7 +39,7 @@ const THRESHOLD = 96;
 const MAX_PULL = 168;
 /** Finger movement before it counts as a pull (a tap stays a tap). */
 const DEAD_ZONE = 6;
-/** Remembers that the investor has used the pull (then the hint stops). */
+/** Remembers that the investor has used the pull (then the first-visit nudge stops). */
 const HINT_KEY = "feenicks1-liquid-pull-used";
 /**
  * The liquid's colour: ash grey (dark enough for its white label), so the bubble stands
@@ -57,7 +58,7 @@ function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function readHintUsed(): boolean {
+function readPullUsed(): boolean {
   try {
     return window.localStorage.getItem(HINT_KEY) === "1";
   } catch {
@@ -126,15 +127,12 @@ export function LiquidPull({
   /** The card's width, measured when a pull starts (the liquid is drawn to it). */
   const [width, setWidth] = useState(0);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [showHint, setShowHint] = useState(false);
   const pastThreshold = pull >= THRESHOLD;
   const wasPast = useRef(false);
 
-  // First visits: a hint under the card and one gentle nudge of the card.
+  // First visits: one gentle nudge of the card, showing it can move.
   useEffect(() => {
-    if (disabled || readHintUsed()) return;
-    const show = window.setTimeout(() => setShowHint(true), 0);
-    if (prefersReducedMotion()) return () => window.clearTimeout(show);
+    if (disabled || readPullUsed() || prefersReducedMotion()) return;
     const nudge = window.setTimeout(() => {
       wrapRef.current?.animate(
         [
@@ -146,10 +144,7 @@ export function LiquidPull({
         { duration: 900, easing: "cubic-bezier(0.34, 1.3, 0.64, 1)" },
       );
     }, 700);
-    return () => {
-      window.clearTimeout(show);
-      window.clearTimeout(nudge);
-    };
+    return () => window.clearTimeout(nudge);
   }, [disabled]);
 
   // A short buzz when it becomes "Release to …" (Android; iPhones ignore it).
@@ -184,9 +179,8 @@ export function LiquidPull({
     try {
       window.localStorage.setItem(HINT_KEY, "1");
     } catch {
-      // Storage blocked: the hint just keeps showing.
+      // Storage blocked: the nudge just keeps playing on visits.
     }
-    setShowHint(false);
     if (prefersReducedMotion()) {
       router.push(href);
       return;
@@ -259,12 +253,13 @@ export function LiquidPull({
         {children}
       </div>
 
-      {showHint && !disabled && (
+      {/* Always shown: people forget the gesture between visits. */}
+      {!disabled && (
         <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
           <span aria-hidden className="inline-block animate-bounce motion-reduce:animate-none">
             ↓
           </span>
-          Tip: pull the card down to {action}
+          Pull the card down to {action}
         </p>
       )}
     </div>
