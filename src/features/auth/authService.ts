@@ -41,10 +41,10 @@ export async function signUp(
   // TODO(api): POST /api/auth/sign-up  { email, password, remember, referralCode }
   //   The server checks the code and credits the friend (see referralService).
   if (IS_DEMO_MODE) {
-    // Demo: nothing to credit without a server, so the code is only shown on screen.
-    void referralCode;
+    // Demo: the code is kept on the new account; the friend is rewarded when
+    // this account's first investment completes (referralRewards.ts).
     await wait(DEMO_SIGN_UP_DELAY_MS);
-    const account = await demo.createAccount(values.email, values.password);
+    const account = await demo.createAccount(values.email, values.password, referralCode ?? null);
     if (!account) {
       return { ok: false, message: "An account with this email already exists. Log in instead." };
     }

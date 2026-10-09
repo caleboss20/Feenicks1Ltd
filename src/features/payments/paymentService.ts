@@ -2,6 +2,7 @@ import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import { transactionDetailsHref } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
 import { notify } from "@/demo/demoNotifications";
+import { rewardReferrer } from "@/features/referrals/referralRewards";
 import { chosenPackageOf } from "@/features/auth/useCurrentAccount";
 import { INVESTMENT_PACKAGES, type PackageId } from "@/features/packages/investmentPackages";
 import {
@@ -216,6 +217,8 @@ export function settleDemoPayments(): void {
   if (recorded.length === 0) return;
 
   demo.updateAccount(email, { payments, transactions: [...(account.transactions ?? []), ...recorded] });
+  // Their first investment: the friend who invited them (if any) earns the referral reward.
+  rewardReferrer(email);
   for (const transaction of recorded) {
     notify(email, {
       kind: "investing",

@@ -83,6 +83,10 @@ export type DemoAccount = {
   withdrawals?: WithdrawalRequest[];
   /** Statements issued (features/statements): number, period, when. */
   statements?: IssuedStatement[];
+  /** The invite code this account signed up with (a friend's link), if any. */
+  referredBy?: string;
+  /** True once the friend who invited this account has been rewarded (paid once). */
+  referralRewarded?: boolean;
   /** The latest month whose statement the investor was told about, e.g. "2026-09". */
   monthlyStatementAnnounced?: string;
   createdAt: string;
@@ -146,6 +150,11 @@ function readAccounts(): Record<string, DemoAccount> {
   return readJson<Record<string, DemoAccount>>(local(), ACCOUNTS_KEY) ?? {};
 }
 
+/** Every account on this device (demo: e.g. to find who owns an invite code). */
+export function listAccounts(): DemoAccount[] {
+  return Object.values(readAccounts());
+}
+
 export function findAccount(email: string): DemoAccount | null {
   return readAccounts()[normaliseEmail(email)] ?? null;
 }
@@ -180,7 +189,11 @@ function saveAccount(account: DemoAccount) {
 }
 
 /** Creates an account. Returns null if the email is already registered. */
-export async function createAccount(email: string, password: string): Promise<DemoAccount | null> {
+export async function createAccount(
+  email: string,
+  password: string,
+  referredBy: string | null = null,
+): Promise<DemoAccount | null> {
   const key = normaliseEmail(email);
   if (findAccount(key)) return null;
 
@@ -188,6 +201,7 @@ export async function createAccount(email: string, password: string): Promise<De
     email: key,
     password: await hashSecret(password),
     step: "verify-email",
+    ...(referredBy ? { referredBy } : {}),
     createdAt: new Date().toISOString(),
   };
   saveAccount(account);
@@ -233,6 +247,7 @@ export function updateAccount(
       | "withdrawals"
       | "statements"
       | "monthlyStatementAnnounced"
+      | "referralRewarded"
     >
   >,
 ) {
