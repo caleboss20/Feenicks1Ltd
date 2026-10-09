@@ -35,12 +35,6 @@ const FREE_DAYS = WITHDRAWAL_RULES.standardWindowDays;
 const FEE = WITHDRAWAL_RULES.expressFeePercent;
 const WAIT_HOURS = WITHDRAWAL_RULES.activationHours;
 
-/** "28 Oct" / "28 Oct, 3:02 pm". */
-function day(date: Date, withTime = false): string {
-  const text = date.toLocaleDateString("en-GH", { day: "numeric", month: "short" });
-  return withTime ? `${text}, ${date.toLocaleTimeString("en-GH", { hour: "numeric", minute: "2-digit" })}` : text;
-}
-
 /** A section: a clear heading, then roomy text. */
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -215,7 +209,21 @@ export function WithdrawalGuideScreen() {
   );
 }
 
-/** The signed-in investor's own dates, worked out from their first deposit. Nothing if they haven't invested. */
+/**
+ * The signed-in investor's own schedule, as a timeline worked out from their
+ * first deposit (nothing if they haven't invested):
+ *
+ *   ┌ Right now: 1% fee · cycle 2, day 12 of 28 ─────────────┐
+ *   │ Next free withdrawal: 16 Oct 2026 (in 8 days)            │
+ *   └──────────────────────────────────────────────────────────┘
+ *   ✓ 14 Sep 2026, 2:11 pm   First deposit
+ *   ✓ 17 Sep 2026, 2:11 pm   Money invested · cycle 1 starts
+ *   ● 15 – 18 Oct 2026       Free withdrawal window (end of cycle 1)   ← now / next
+ *   ○ 12 – 15 Nov 2026       Free withdrawal window (end of cycle 2)
+ *
+ * Done steps are ticked, the current one is marked "Now", and every date
+ * carries its year, so it reads as a calendar, not a list of loose dates.
+ */
 function YourDates() {
   const current = useCurrentAccount();
   const transactions = useTransactions();
@@ -227,60 +235,140 @@ function YourDates() {
   const pkg = INVESTMENT_PACKAGES[packageId];
   const now = new Date();
   const terms = withdrawalTerms(pkg, started, now);
-  // The next two free windows that haven't started yet.
-  const windows: { from: Date; until: Date }[] = [];
+  const cycleName = "days" in pkg.cycle ? `${pkg.cycle.days}-day cycles` : `${pkg.cycle.months}-month cycles`;
+
+  // Which cycle we're in, and the free windows: the current one (if open) and the next ones.
+  let cycleNumber = 0;
+  let cycleStart = terms.investedFrom;
+  const windows: { cycle: number; from: Date; until: Date }[] = [];
   for (let count = 1; windows.length < 2 && count < 2000; count += 1) {
     const from = cycleEnd(pkg, terms.investedFrom, count);
     const until = new Date(from.getTime() + FREE_DAYS * DAY);
-    if (from > now) windows.push({ from, until });
+    if (now >= cycleEnd(pkg, terms.investedFrom, count - 1) && now < from) {
+      cycleNumber = count;
+      cycleStart = cycleEnd(pkg, terms.investedFrom, count - 1);
+    }
+    if (until > now) windows.push({ cycle: count, from, until });
   }
+  const nextFree = windows.find((window) => window.from > now) ?? null;
+  const cycleLength = nextFree ? Math.round((nextFree.from.getTime() - cycleStart.getTime()) / DAY) : 0;
+  const cycleDay = Math.floor((now.getTime() - cycleStart.getTime()) / DAY) + 1;
 
   const isFee = terms.kind === "express";
-  const nowText =
+  const status =
     terms.kind === "pre-investment"
-      ? `Free of charge. Your funds will be invested on ${day(terms.investedFrom, true)}.`
+      ? {
+          title: "Right now: free",
+          text: `Your money isn't invested yet, so you can take it all back at no cost until ${when(terms.investedFrom, true)}.`,
+        }
       : terms.kind === "standard"
-        ? `Free of charge until ${terms.freeUntil ? day(terms.freeUntil) : "the fee-free days end"}.`
-        : `A ${FEE}% fee applies (a cycle is in progress).`;
+        ? {
+            title: "Right now: free",
+            text: `You're in a free withdrawal window until ${when(terms.freeUntil ?? now, true)}. Any amount, no fee.`,
+          }
+        : {
+            title: `Right now: ${FEE}% fee`,
+            text: `You're in cycle ${cycleNumber}, day ${cycleDay} of ${cycleLength}.${
+              nextFree ? ` Next free withdrawal: ${when(nextFree.from)} (${inDays(nextFree.from, now)}).` : ""
+            }`,
+          };
+
+  const events: { key: string; date: string; title: string; text: string; state: "done" | "now" | "next" }[] = [
+    {
+      key: "deposit",
+      date: when(started, true),
+      title: "First deposit",
+      text: "Your money arrived in your wallet.",
+      state: "done",
+    },
+    {
+      key: "invested",
+      date: when(terms.investedFrom, true),
+      title: "Money invested · cycle 1 starts",
+      text: `${WAIT_HOURS} hours after your first deposit. Until then, withdrawals are free.`,
+      state: now >= terms.investedFrom ? "done" : "next",
+    },
+    ...windows.map((window) => ({
+      key: window.from.toISOString(),
+      date: range(window.from, window.until),
+      title: "Free withdrawal window",
+      text: `End of cycle ${window.cycle}: withdraw any amount with no fee for ${FREE_DAYS} days. The next cycle then starts.`,
+      state: (now >= window.from ? "now" : "next") as "now" | "next",
+    })),
+  ];
 
   return (
     <section className="mt-8 rounded-3xl bg-brand-50 p-6 dark:bg-brand-500/10">
       <h2 className="text-lg font-bold tracking-tight">Your withdrawal schedule</h2>
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{pkg.name}</p>
-
-      <p
-        className={cn(
-          "mt-5 rounded-2xl px-4 py-3 text-[0.9375rem] leading-6 font-semibold",
-          isFee
-            ? "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200"
-            : "bg-white text-brand-800 dark:bg-white/10 dark:text-brand-300",
-        )}
-      >
-        Current status: {nowText}
+      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        {pkg.name} · {cycleName}
       </p>
 
-      <dl className="mt-5 flex flex-col gap-4 text-[0.9375rem]">
-        <DateRow label="First deposit" value={day(started, true)} />
-        <DateRow label="Invested from" value={day(terms.investedFrom, true)} />
-        {windows.map((window, index) => (
-          <DateRow
-            key={window.from.toISOString()}
-            label={index === 0 ? "Next fee-free window" : "Following fee-free window"}
-            value={`${day(window.from)} – ${day(window.until)}`}
-          />
+      <div
+        className={cn(
+          "mt-5 rounded-2xl px-4 py-3.5",
+          isFee
+            ? "bg-amber-100 text-amber-950 dark:bg-amber-500/15 dark:text-amber-100"
+            : "bg-white text-brand-900 dark:bg-white/10 dark:text-brand-200",
+        )}
+      >
+        <p className="text-[0.9375rem] font-bold">{status.title}</p>
+        <p className="mt-1 text-sm leading-6">{status.text}</p>
+      </div>
+
+      <ol className="mt-6 flex flex-col">
+        {events.map((event, index) => (
+          <li key={event.key} className={cn("relative flex gap-3.5", index < events.length - 1 && "pb-6")}>
+            {index < events.length - 1 && (
+              <span aria-hidden className="absolute top-7 bottom-0 left-[0.6875rem] w-0.5 rounded-full bg-brand-200 dark:bg-white/15" />
+            )}
+            <span
+              aria-hidden
+              className={cn(
+                "relative mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-white",
+                event.state === "done" && "bg-brand-600",
+                event.state === "now" && "bg-brand-600 ring-4 ring-brand-200 dark:ring-brand-500/30",
+                event.state === "next" && "border-2 border-brand-300 bg-white dark:border-white/30 dark:bg-transparent",
+              )}
+            >
+              {event.state === "done" && (
+                <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m5 12 5 5 9-10" />
+                </svg>
+              )}
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                {event.date}
+                {event.state === "now" && <span className="ml-2 rounded-full bg-brand-600 px-2 py-0.5 text-[0.6875rem] text-white">Now</span>}
+              </p>
+              <p className="mt-0.5 text-[0.9375rem] font-semibold text-foreground">{event.title}</p>
+              <p className="mt-0.5 text-sm leading-6">{event.text}</p>
+            </div>
+          </li>
         ))}
-      </dl>
+      </ol>
     </section>
   );
 }
 
-function DateRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <dt className="text-sm text-neutral-600 dark:text-neutral-400">{label}</dt>
-      <dd className="font-semibold text-foreground">{value}</dd>
-    </div>
-  );
+/** "17 Sep 2026" / "17 Sep 2026, 2:11 pm". */
+function when(date: Date, withTime = false): string {
+  const text = date.toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" });
+  return withTime ? `${text}, ${date.toLocaleTimeString("en-GH", { hour: "numeric", minute: "2-digit" })}` : text;
+}
+
+/** "15 – 18 Oct 2026", or "30 Oct – 2 Nov 2026" across months. */
+function range(from: Date, until: Date): string {
+  const sameMonth = from.getMonth() === until.getMonth() && from.getFullYear() === until.getFullYear();
+  const start = from.toLocaleDateString("en-GH", sameMonth ? { day: "numeric" } : { day: "numeric", month: "short" });
+  return `${start} – ${when(until)}`;
+}
+
+/** "today", "tomorrow", "in 8 days". */
+function inDays(date: Date, now: Date): string {
+  const days = Math.ceil((date.getTime() - now.getTime()) / DAY);
+  return days <= 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
 }
 
 /** One step on the vertical line: a numbered dot (green free, amber fee, grey neutral), then the words. */
