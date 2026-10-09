@@ -54,6 +54,7 @@ import {
   LogoutIcon,
   MoonIcon,
   PaletteIcon,
+  ReceiptIcon,
   SupportIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
@@ -166,6 +167,7 @@ export function AccountScreen() {
         />
         <LinkRow icon={<GridIcon />} label="Investment portfolios" href={ROUTES.investPackages} />
         <LinkRow icon={<ArrowRight className="rotate-90" />} label="Withdraw" href={ROUTES.withdraw} />
+        <LinkRow icon={<ReceiptIcon />} label="Statements" href={ROUTES.statements} />
       </RowGroup>
 
       <RowGroup>

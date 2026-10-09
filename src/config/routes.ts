@@ -54,6 +54,8 @@ export const ROUTES = {
   editProfile: "/account/profile",
   /** Choose the colour behind the balance on Home (Account › Dashboard colour). */
   dashboardColor: "/account/dashboard-color",
+  /** Account statements: PDF / Excel for any period (Account › Statements, Home, Transactions). */
+  statements: "/account/statements",
   /** Help & support: the dashboard's headset, and Account › Help & support. */
   support: "/support",
   /** Help & support › Send a message. */

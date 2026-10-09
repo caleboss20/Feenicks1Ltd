@@ -101,7 +101,19 @@ export function TransactionsScreen() {
         appTabBarPadding,
       )}
     >
-      <h1 className="px-1 text-[1.75rem] leading-tight font-bold tracking-tight">Transactions</h1>
+      <div className="flex items-center justify-between gap-3 px-1">
+        <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">Transactions</h1>
+        {/* All of this as a document (PDF / Excel) for any period. */}
+        <Link
+          href={ROUTES.statements}
+          className="flex h-9 items-center gap-1.5 rounded-full bg-white px-3.5 text-[0.8125rem] font-semibold text-brand-700 transition-colors hover:bg-white/70 dark:bg-white/10 dark:text-brand-400 dark:hover:bg-white/15"
+        >
+          <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 19h14" />
+          </svg>
+          Statement
+        </Link>
+      </div>
 
       <div className="mt-3 empty:hidden">
         <SampleDataNotice transactions={transactions} />

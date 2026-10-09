@@ -146,15 +146,35 @@ export function PerformanceCard({
         })}
       </div>
 
-      {/* A quiet text link (no box), so nothing frames the chart. */}
-      <Link
-        href={ROUTES.analytics}
-        className="group mx-auto mt-3 flex w-fit items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-(--chart-line) transition-opacity hover:opacity-80 dark:text-(--chart-line-dark)"
-      >
-        See full analytics
-        <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-      </Link>
+      {/* Quiet text links (no box), so nothing frames the chart: the full
+          analytics, and the same story as a statement (PDF / Excel). */}
+      <div className="mt-3 flex items-center justify-center gap-1">
+        <Link
+          href={ROUTES.analytics}
+          className="group flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-(--chart-line) transition-opacity hover:opacity-80 dark:text-(--chart-line-dark)"
+        >
+          See full analytics
+          <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+        <span aria-hidden className="h-3.5 w-px bg-neutral-200 dark:bg-white/15" />
+        <Link
+          href={ROUTES.statements}
+          className="group flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-(--chart-line) transition-opacity hover:opacity-80 dark:text-(--chart-line-dark)"
+        >
+          Statement
+          <DownloadGlyph />
+        </Link>
+      </div>
     </section>
+  );
+}
+
+/** A small "download" arrow for the Statement link. */
+function DownloadGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-3.5 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 19h14" />
+    </svg>
   );
 }
 
