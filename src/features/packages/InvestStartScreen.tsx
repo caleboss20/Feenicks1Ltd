@@ -37,6 +37,7 @@ import { investAmountHref, packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
 import { useTransactions } from "@/features/transactions/useTransactions";
+import { LiquidPull } from "@/features/wallets/LiquidPull";
 import { WalletCard } from "@/features/wallets/WalletCard";
 import { useWallet } from "@/features/wallets/useWallet";
 import { walletBalance } from "@/features/wallets/walletModel";
@@ -74,17 +75,24 @@ export function InvestStartScreen() {
     // The package's name is the title, high up (compactTop), with the card right under it.
     <StepScreenLayout title={pkg.name} centeredTitle stickyHeader compactTop backHref={ROUTES.dashboard}>
       <div className="flex flex-1 flex-col sm:flex-none">
-        {/* The card carries the balance (with the eye) and the status, like the reference card. */}
+        {/* The card carries the balance (with the eye) and the status, like the reference card.
+            Pulling it down is a shortcut to the same page as the button (LiquidPull). */}
         {wallet ? (
-          <WalletCard
-            wallet={wallet}
-            pkg={pkg}
-            holderName={holderName}
-            balance={balance}
-            hideAmounts={hideAmounts}
-            onToggleHideAmounts={toggleHideAmounts}
-            className="mt-0"
-          />
+          <LiquidPull
+            action={isInvested ? "add money" : "invest"}
+            href={investAmountHref(pkg.id)}
+            disabled={!canInvest(option)}
+          >
+            <WalletCard
+              wallet={wallet}
+              pkg={pkg}
+              holderName={holderName}
+              balance={balance}
+              hideAmounts={hideAmounts}
+              onToggleHideAmounts={toggleHideAmounts}
+              className="mt-0"
+            />
+          </LiquidPull>
         ) : (
           // Same size while the wallet loads, so nothing jumps.
           <div aria-hidden className="mt-0 aspect-[1.75] w-full animate-pulse rounded-xl bg-brand-600/20" />

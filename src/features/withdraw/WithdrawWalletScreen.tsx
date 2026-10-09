@@ -19,6 +19,7 @@
  * "Nothing to withdraw yet" screen as the amount step.
  */
 
+import { LiquidPull } from "@/features/wallets/LiquidPull";
 import { StepScreenLayout, walletActionsClass } from "@/components/layout/StepScreenLayout";
 import { ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/config/routes";
@@ -54,15 +55,18 @@ export function WithdrawWalletScreen() {
     // Same layout as the Invest wallet: the package name high up, the card right under it.
     <StepScreenLayout title={pkg.name} centeredTitle stickyHeader compactTop backHref={ROUTES.dashboard}>
       <div className="flex flex-1 flex-col sm:flex-none">
+        {/* Pulling the card down is a shortcut to the same page as the button (LiquidPull). */}
         {wallet ? (
-          <WalletCard
-            wallet={wallet}
-            pkg={pkg}
-            holderName={current.account.fullName ?? current.account.email}
-            balance={walletBalance(transactions, heldId)}
-            hideAmounts={hideAmounts}
-            onToggleHideAmounts={toggleHideAmounts}
-          />
+          <LiquidPull action="withdraw" href={ROUTES.withdrawAmount}>
+            <WalletCard
+              wallet={wallet}
+              pkg={pkg}
+              holderName={current.account.fullName ?? current.account.email}
+              balance={walletBalance(transactions, heldId)}
+              hideAmounts={hideAmounts}
+              onToggleHideAmounts={toggleHideAmounts}
+            />
+          </LiquidPull>
         ) : (
           // Same size while the wallet loads, so nothing jumps.
           <div aria-hidden className="aspect-[1.75] w-full animate-pulse rounded-xl bg-brand-600/20" />
