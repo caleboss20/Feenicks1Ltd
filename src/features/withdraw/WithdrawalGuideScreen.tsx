@@ -124,13 +124,13 @@ export function WithdrawalGuideScreen() {
               number={4}
               tone="free"
               title={`End of a cycle: standard withdrawal (free)`}
-              text={`For ${FREE_DAYS} days after each cycle ends, you may withdraw any amount, up to your full balance, at no charge.`}
+              text={`For the first ${FREE_DAYS} days after a cycle ends, you may withdraw any amount, up to your full balance, at no charge.`}
             />
             <Step
               number={5}
               tone="neutral"
-              title="The next cycle"
-              text={`Funds that remain in your wallet are reinvested in the next cycle, and the same terms apply: a ${FEE}% fee during the cycle and ${FREE_DAYS} fee-free days at its end.`}
+              title="Cycles run back to back"
+              text={`Each new cycle starts the moment the previous one ends, so your money never stops earning. The ${FREE_DAYS} fee-free days are the first days of the new cycle; after them, the ${FEE}% fee applies until that cycle ends.`}
               isLast
             />
           </ol>
@@ -264,7 +264,7 @@ function YourDates() {
       : terms.kind === "standard"
         ? {
             title: "Right now: free",
-            text: `You're in a free withdrawal window until ${when(terms.freeUntil ?? now, true)}. Any amount, no fee.`,
+            text: `Cycle ${cycleNumber} has just started, and its first ${FREE_DAYS} days are free: withdraw any amount with no fee until ${when(terms.freeUntil ?? now, true)}.`,
           }
         : {
             title: `Right now: ${FEE}% fee`,
@@ -292,7 +292,7 @@ function YourDates() {
       key: window.from.toISOString(),
       date: range(window.from, window.until),
       title: "Free withdrawal window",
-      text: `End of cycle ${window.cycle}: withdraw any amount with no fee for ${FREE_DAYS} days. The next cycle then starts.`,
+      text: `Cycle ${window.cycle} ends and cycle ${window.cycle + 1} begins straight away. Its first ${FREE_DAYS} days are free: withdraw any amount with no fee.`,
       state: (now >= window.from ? "now" : "next") as "now" | "next",
     })),
   ];
