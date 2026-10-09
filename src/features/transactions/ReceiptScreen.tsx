@@ -152,24 +152,29 @@ export function ReceiptScreen({ id, isNewPayment }: { id: string; isNewPayment: 
       {/* The details, on a white panel that rises to the bottom of the screen
           (and "prints out" of a slot the first time it's opened: PrintOut). */}
       <PrintOut receiptId={transaction.id}>
-        <div className="flex flex-1 flex-col bg-(--paper) px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <div className="flex flex-1 flex-col bg-(--paper) px-5 pt-2">
           <div className="mt-3">
             {details.sections.map((section) => (
               <ReceiptSectionBlock key={section.title} section={section} />
             ))}
           </div>
-          <div data-receipt-actions>
+          {/* Pinned to the bottom of the screen on receipt paper, so Share and
+              Download are always fully in view; long receipts scroll behind them. */}
+          <div
+            data-receipt-actions
+            className="sticky bottom-0 z-10 -mx-5 mt-auto flex flex-col bg-(--paper) px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+          >
             <ReceiptActions details={details} reference={transaction.id} />
+            {isNewPayment && (
+              <Link
+                href={ROUTES.dashboard}
+                replace
+                className="mx-auto mt-2 px-4 py-2 text-sm font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400"
+              >
+                Back to Home
+              </Link>
+            )}
           </div>
-          {isNewPayment && (
-            <Link
-              href={ROUTES.dashboard}
-              replace
-              className="mx-auto mt-4 px-4 py-2 text-sm font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400"
-            >
-              Back to Home
-            </Link>
-          )}
         </div>
       </PrintOut>
     </div>
@@ -237,7 +242,8 @@ function PrintOut({ receiptId, children }: { receiptId: string; children: React.
         aria-hidden
         className="absolute inset-x-1 top-0 z-20 h-3 -translate-y-1/2 rounded-full bg-[linear-gradient(to_bottom,#09090b_0%,#27272a_65%,#71717a_100%)] opacity-0 dark:bg-[linear-gradient(to_bottom,#000_0%,#18181b_65%,#3f3f46_100%)]"
       />
-      <div className="relative mx-2.5 flex flex-1 flex-col overflow-hidden">
+      {/* overflow-clip, not hidden: hidden would trap the sticky Share / Download bar. */}
+      <div className="relative mx-2.5 flex flex-1 flex-col overflow-clip">
         {/* The paper just out of the slot is in the machine's shade. */}
         <span
           ref={mouthRef}
@@ -373,7 +379,7 @@ function ReceiptActions({ details, reference }: { details: ReceiptDetails; refer
     "flex h-13 flex-1 cursor-pointer items-center justify-center rounded-full text-[0.9375rem] font-semibold transition-colors disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400";
 
   return (
-    <div className="mt-auto pt-8">
+    <div className="pt-4">
       <div className="flex gap-3">
         <button
           type="button"
