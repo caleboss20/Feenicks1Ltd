@@ -15,8 +15,8 @@
  *        └───────────────────────────┘    down (it feels heavy)
  *
  * Past the threshold the bubble swells, the label reads "Release to …" and
- * Android phones give a short buzz. Releasing there floods the screen with the
- * liquid from the bubble and opens the next page as the colour fades away. Released
+ * Android phones give a short buzz. Releasing there floods the screen in faint
+ * ash grey from the bubble and opens the next page as the colour fades away. Released
  * earlier, everything springs back.
  *
  * Details that matter:
@@ -42,9 +42,10 @@ const DEAD_ZONE = 6;
 const HINT_KEY = "feenicks1-liquid-pull-used";
 /**
  * The liquid's colour: near-black (ash in dark mode), so the bubble stands
- * apart from the green card. Set as --liquid on the wrapper; the flood reads it.
+ * apart from the green card. The flood after a release is a faint ash grey
+ * (--flood), soft on the eye between pages. Both are set on the wrapper.
  */
-const LIQUID_CLASS = "[--liquid:#1c1c1e] dark:[--liquid:#48484a]";
+const LIQUID_CLASS = "[--liquid:#1c1c1e] [--flood:#e5e5e7] dark:[--liquid:#48484a] dark:[--flood:#2c2c2e]";
 const LIQUID = "var(--liquid)";
 
 /** Finger distance → card distance: 1:1 at first, then heavier and heavier (about 140 px of finger to trigger). */
@@ -65,7 +66,7 @@ function readHintUsed(): boolean {
 }
 
 /**
- * The flood: a circle of the liquid grows from the bubble to cover the screen, the
+ * The flood: a faint ash-grey circle grows from the bubble to cover the screen, the
  * page changes underneath it, then the colour fades away. Plain DOM on
  * <body>, so it outlives this screen while the next one loads.
  */
@@ -193,7 +194,7 @@ export function LiquidPull({
     setIsLeaving(true);
     const box = wrapRef.current?.getBoundingClientRect();
     const origin = box ? { x: box.left + box.width / 2, y: box.top - bubbleY(pull) } : { x: innerWidth / 2, y: 120 };
-    const color = (wrapRef.current && getComputedStyle(wrapRef.current).getPropertyValue("--liquid").trim()) || "#1c1c1e";
+    const color = (wrapRef.current && getComputedStyle(wrapRef.current).getPropertyValue("--flood").trim()) || "#e5e5e7";
     floodThenNavigate(origin, color, () => router.push(href), href.split("?")[0]);
   };
 
