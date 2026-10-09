@@ -174,6 +174,7 @@ export function AccountScreen() {
       </RowGroup>
 
       <RowGroup>
+        <LinkRow icon={<ShieldCheckIcon />} label="Security centre" href={ROUTES.securityCentre} />
         <BiometricUnlockRow isOn={hasBiometrics} />
         <LinkRow icon={<KeyIcon />} label="Reset PIN" href={ROUTES.forgotPin} />
         <LinkRow
@@ -192,7 +193,8 @@ export function AccountScreen() {
 
       <RowGroup>
         <LinkRow icon={<SupportIcon />} label="Help & support" href={ROUTES.support} />
-        <LinkRow icon={<ShieldCheckIcon />} label="About Feenicks1" href={ROUTES.about} />
+        <LinkRow icon={<CompassIcon />} label="About Feenicks1" href={ROUTES.about} />
+        <LinkRow icon={<ReceiptIcon />} label="Legal" href={ROUTES.legal} />
       </RowGroup>
 
       <RowGroup>
@@ -405,7 +407,7 @@ function HiddenBalancePreview({ mask }: { mask: string | null }) {
  * device. Turning it on shows the phone's own prompt; turning it off means
  * the PIN unlocks the app. Greyed out when the device can't do it.
  */
-function BiometricUnlockRow({ isOn }: { isOn: boolean }) {
+export function BiometricUnlockRow({ isOn }: { isOn: boolean }) {
   const isSupported = useBiometricSupport();
   const [isBusy, setIsBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

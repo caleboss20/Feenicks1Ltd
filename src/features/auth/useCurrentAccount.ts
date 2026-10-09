@@ -39,6 +39,8 @@ export type CurrentAccount = {
   hasBiometrics: boolean;
   /** Investor risk profile, once the questions are answered. */
   riskLevel: RiskLevel | null;
+  /** The two-step method turned on at sign-up or later, if any (Security centre). */
+  twoFactorMethod: "sms" | "biometric" | "authenticator-app" | null;
   /** Student / Investor / Business owner, from the investor profile (null if not answered). */
   investorSegment: InvestorSegment | null;
   /**
@@ -88,6 +90,7 @@ function readSnapshot() {
     account?.step ?? "",
     account?.biometricCredentialId ? 1 : 0,
     account?.riskProfile?.level ?? "",
+    account?.twoFactorMethod ?? "",
     account?.riskProfile?.segment ?? "",
     // Changes when a picture is added (its length is a cheap fingerprint).
     account?.avatarDataUrl?.length ?? 0,
@@ -121,6 +124,7 @@ export function useCurrentAccount(): CurrentAccountState {
         avatarUrl: account.avatarDataUrl ?? null,
         hasBiometrics: Boolean(account.biometricCredentialId),
         riskLevel: account.riskProfile?.level ?? null,
+        twoFactorMethod: account.twoFactorMethod ?? null,
         investorSegment: account.riskProfile?.segment ?? null,
         chosenPackageId: chosenPackageOf(account),
         step: account.step,

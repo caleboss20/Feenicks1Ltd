@@ -58,6 +58,10 @@ export const ROUTES = {
   statements: "/account/statements",
   /** About Feenicks1: company details, how your money is handled, risks, contacts. */
   about: "/account/about",
+  /** Security centre: protections, signed-in devices, recent security activity. */
+  securityCentre: "/account/security",
+  /** Legal centre: Terms, Privacy, Risk disclosure, Fees, Complaints (public pages). */
+  legal: "/legal",
   /** Help & support: the dashboard's headset, and Account › Help & support. */
   support: "/support",
   /** Help & support › Send a message. */

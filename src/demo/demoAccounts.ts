@@ -23,6 +23,7 @@ import type { MomoPayment } from "@/features/payments/paymentModel";
 import type { PackageWallet } from "@/features/wallets/walletModel";
 import type { WithdrawalRequest } from "@/features/withdraw/withdrawalModel";
 import type { IssuedStatement } from "@/features/statements/statementService";
+import type { KnownDevice, SecurityEvent } from "@/features/security/securityActivity";
 import type { SupportRequest } from "@/features/support/supportService";
 import type { Transaction } from "@/features/transactions/transactionModel";
 
@@ -83,6 +84,10 @@ export type DemoAccount = {
   withdrawals?: WithdrawalRequest[];
   /** Statements issued (features/statements): number, period, when. */
   statements?: IssuedStatement[];
+  /** Devices signed in to this account (Security centre). */
+  devices?: KnownDevice[];
+  /** Security events, newest first (Security centre › Recent activity). */
+  securityEvents?: SecurityEvent[];
   /** The invite code this account signed up with (a friend's link), if any. */
   referredBy?: string;
   /** True once the friend who invited this account has been rewarded (paid once). */
@@ -248,6 +253,8 @@ export function updateAccount(
       | "statements"
       | "monthlyStatementAnnounced"
       | "referralRewarded"
+      | "devices"
+      | "securityEvents"
     >
   >,
 ) {

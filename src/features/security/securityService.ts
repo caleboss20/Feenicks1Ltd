@@ -1,6 +1,7 @@
 import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import { ROUTES } from "@/config/routes";
 import * as demo from "@/demo/demoAccounts";
+import { recordSecurityEvent } from "./securityActivity";
 import { notify, notifySessionAccount } from "@/demo/demoNotifications";
 import { buildOtpAuthUri, generateTotpSecret, verifyTotp } from "@/lib/totp";
 import { confirmWithDevice, createDeviceCredential, guessBiometricKind, randomChallenge } from "@/lib/webAuthn";
@@ -168,6 +169,7 @@ export async function enableBiometricUnlock(): Promise<SecurityResult> {
 
   if (IS_DEMO_MODE) {
     demo.updateSessionAccount({ biometricCredentialId: result.credentialId });
+    if (email) recordSecurityEvent(email, "biometric-on");
     notifySessionAccount({
       kind: "security",
       title: `${biometricName()} unlock is on`,
@@ -186,6 +188,8 @@ export async function disableBiometricUnlock(): Promise<SecurityResult> {
   // TODO(api): DELETE /api/security/biometric (the server forgets the public key)
   if (IS_DEMO_MODE) {
     demo.updateSessionAccount({ biometricCredentialId: undefined });
+    const signedIn = demo.getSessionEmail();
+    if (signedIn) recordSecurityEvent(signedIn, "biometric-off");
     notifySessionAccount({
       kind: "security",
       title: `${biometricName()} unlock is off`,
@@ -249,6 +253,8 @@ export async function confirmTwoFactorSmsCode(code: string): Promise<SecurityRes
   if (IS_DEMO_MODE) {
     await wait(DEMO_DELAY_MS);
     demo.updateSessionAccount({ twoFactorMethod: "sms" });
+    const smsEmail = demo.getSessionEmail();
+    if (smsEmail) recordSecurityEvent(smsEmail, "two-factor-on");
     notifySessionAccount({
       kind: "security",
       title: "Two-step verification is on",
@@ -319,6 +325,7 @@ export async function resetPin(resetToken: string, newPin: string): Promise<Secu
     }
     if (email) {
       await demo.setPin(email, newPin);
+      recordSecurityEvent(email, "pin-changed");
       notify(email, {
         kind: "security",
         title: "PIN changed",
@@ -369,6 +376,8 @@ export async function confirmAuthenticatorSetup(secret: string, code: string): P
       };
     }
     demo.updateSessionAccount({ totpSecret: secret, twoFactorMethod: "authenticator-app" });
+    const appEmail = demo.getSessionEmail();
+    if (appEmail) recordSecurityEvent(appEmail, "two-factor-on");
     notifySessionAccount({
       kind: "security",
       title: "Two-step verification is on",

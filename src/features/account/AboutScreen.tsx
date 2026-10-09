@@ -140,6 +140,27 @@ export function AboutScreen() {
           </ul>
         </Section>
 
+        <Section title="Legal">
+          <ul className="divide-y divide-neutral-100 rounded-3xl border border-neutral-200 dark:divide-white/10 dark:border-white/10">
+            {[
+              ["terms", "Terms of Use"],
+              ["privacy", "Privacy Policy"],
+              ["risk", "Risk Disclosure"],
+              ["fees", "Fees & charges"],
+              ["complaints", "Complaints procedure"],
+            ].map(([slug, title]) => (
+              <li key={slug}>
+                <Link href={`${ROUTES.legal}/${slug}`} className="flex items-center justify-between px-5 py-3.5 text-sm font-semibold">
+                  {title}
+                  <svg viewBox="0 0 24 24" className="size-4 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="m9 6 6 6-6 6" />
+                  </svg>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Section>
+
         <Section title="Talk to us">
           <div className="grid grid-cols-2 gap-3">
             <ContactButton href={whatsApp(COMPANY.phones[0])} label="WhatsApp" detail={COMPANY.phones[0]} external />

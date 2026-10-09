@@ -2,6 +2,7 @@ import { DEMO_DELAY_MS, IS_DEMO_MODE, wait } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
 import { notify } from "@/demo/demoNotifications";
 import { describeThisDevice } from "@/lib/device";
+import { recordSecurityEvent } from "@/features/security/securityActivity";
 import { maskGhanaPhone } from "@/lib/maskContactDetails";
 import { verifyTotp } from "@/lib/totp";
 import type { AccountStep } from "./accountProgress";
@@ -102,6 +103,7 @@ const WRONG_CREDENTIALS = "Incorrect email or password. Check them and try again
  * the user can spot one that wasn't them. (The server will also email it.)
  */
 function notifyNewLogIn(email: string) {
+  recordSecurityEvent(email, "log-in");
   notify(email, {
     kind: "security",
     title: "New log-in",

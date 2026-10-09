@@ -25,6 +25,7 @@
  */
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +34,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { FormErrorMessage } from "@/components/ui/FormErrorMessage";
 import { PasswordField, TextField } from "@/components/ui/TextField";
+import { COMPANY } from "@/config/company";
 import { ROUTES } from "@/config/routes";
 import { signUp } from "./authService";
 import { AuthFooterLink, AuthScreenLayout, authFormSpacing, authSectionSpacing } from "./AuthScreenLayout";
@@ -143,6 +145,22 @@ export function SignUpForm({ referralCode }: SignUpFormProps) {
         >
           Sign up
         </Button>
+
+        {/* What signing up means, and who it's with (the trust line). */}
+        <p className="text-center text-xs leading-5 text-neutral-500 dark:text-neutral-400">
+          By signing up, you agree to our{" "}
+          <Link href={`${ROUTES.legal}/terms`} className="font-semibold text-brand-700 hover:underline dark:text-brand-400">
+            Terms of Use
+          </Link>{" "}
+          and{" "}
+          <Link href={`${ROUTES.legal}/privacy`} className="font-semibold text-brand-700 hover:underline dark:text-brand-400">
+            Privacy Policy
+          </Link>
+          .
+          <span className="mt-1 block text-neutral-400 dark:text-neutral-500">
+            {COMPANY.legalName} · Reg. No. {COMPANY.registrationNumber} · {COMPANY.address}
+          </span>
+        </p>
       </form>
 
       <div className={authSectionSpacing}>
