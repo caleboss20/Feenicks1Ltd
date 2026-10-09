@@ -62,11 +62,11 @@ export function SegmentPicker({
   return (
     <fieldset className={cn("min-w-0", className)}>
       <legend className="sr-only">Which best describes you?</legend>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         {INVESTOR_SEGMENTS.map((segment) => (
           <label
             key={segment.id}
-            className="block cursor-pointer rounded-[1.375rem] p-1 outline-2 -outline-offset-2 outline-transparent transition-colors has-checked:outline-brand-600 has-focus-visible:outline-brand-400"
+            className="block cursor-pointer rounded-[1.125rem] outline-2 outline-offset-2 outline-transparent transition-colors has-checked:outline-brand-600 has-focus-visible:outline-brand-400"
           >
             <input
               type="radio"
@@ -77,7 +77,7 @@ export function SegmentPicker({
               onChange={() => onSelect(segment.id)}
               className="sr-only"
             />
-            <SegmentRow segment={segment} />
+            <SegmentRow segment={segment} compact />
           </label>
         ))}
       </div>
@@ -85,56 +85,77 @@ export function SegmentPicker({
   );
 }
 
-/** One profile: its tile, then its portfolios with their range and cycle. */
-export function SegmentRow({ segment, className }: { segment: InvestorSegmentInfo; className?: string }) {
+/**
+ * One profile: its tile, then its portfolios with their range and cycle.
+ * `compact` (the picker): tighter, without the one-line summaries, so all
+ * three profiles and the button fit one phone screen.
+ */
+export function SegmentRow({
+  segment,
+  compact = false,
+  className,
+}: {
+  segment: InvestorSegmentInfo;
+  compact?: boolean;
+  className?: string;
+}) {
   const tone = TILE_TONES[segment.tone];
   return (
     <div className={cn("flex gap-2", className)}>
-      <div className={cn("flex w-[5.75rem] shrink-0 flex-col rounded-2xl p-3", tone.tile)}>
-        <span className={cn("self-start rounded-full px-2 py-0.5 text-[0.6875rem] font-bold tabular-nums", tone.number)}>
-          {segment.number}
-        </span>
-        <span className="mt-2.5 text-[0.8125rem] leading-tight font-bold tracking-wide uppercase">{segment.name}</span>
-        <span className={cn("mt-1 mb-3 text-xs leading-snug", tone.tagline)}>{segment.tagline}</span>
-        {/* The person, at the foot of the tile (as in the guide). */}
-        <Image
-          src={segment.photo.src}
-          alt={segment.photo.alt}
-          width={600}
-          height={600}
-          sizes="80px"
-          className="mt-auto aspect-square w-full rounded-xl object-cover"
-        />
+      {/* Solid tile: words on top, the person filling the rest edge to edge (as in the guide). */}
+      <div className={cn("flex w-[6.25rem] shrink-0 flex-col overflow-hidden rounded-2xl", tone.tile)}>
+        <div className={compact ? "px-2.5 pt-2.5 pb-2" : "px-3 pt-3 pb-2.5"}>
+          <span className={cn("inline-block rounded-full px-2 py-0.5 text-[0.6875rem] font-bold tabular-nums", tone.number)}>
+            {segment.number}
+          </span>
+          <span className={cn("block leading-tight font-bold tracking-wide uppercase", compact ? "mt-1.5 text-xs" : "mt-2 text-[0.8125rem]")}>
+            {segment.name}
+          </span>
+          <span className={cn("mt-1 block text-[0.6875rem] leading-snug", tone.tagline)}>{segment.tagline}</span>
+        </div>
+        <div className={cn("relative flex-1", compact ? "min-h-11" : "min-h-[4.5rem]")}>
+          <Image
+            src={segment.photo.src}
+            alt={segment.photo.alt}
+            fill
+            sizes="96px"
+            className="object-cover"
+            style={{ objectPosition: segment.photo.focus }}
+          />
+        </div>
       </div>
 
       <ul className="min-w-0 flex-1 divide-y divide-neutral-200/80 rounded-2xl border border-neutral-200/80 bg-white dark:divide-white/10 dark:border-white/10 dark:bg-white/5">
         {segment.packageIds.map((id) => (
-          <PortfolioLine key={id} id={id} tickerClass={tone.ticker} />
+          <PortfolioLine key={id} id={id} tickerClass={tone.ticker} compact={compact} />
         ))}
       </ul>
     </div>
   );
 }
 
-function PortfolioLine({ id, tickerClass }: { id: PackageId; tickerClass: string }) {
+function PortfolioLine({ id, tickerClass, compact }: { id: PackageId; tickerClass: string; compact: boolean }) {
   const pkg = INVESTMENT_PACKAGES[id];
   return (
-    <li className="px-3 py-3">
+    <li className="px-3 py-2.5">
       <div className="flex items-start gap-2">
         <span className={cn("mt-px shrink-0 rounded-md px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide", tickerClass)}>
           {pkg.ticker}
         </span>
-        <span className="min-w-0 text-sm leading-snug font-semibold text-foreground">{pkg.name}</span>
+        <span className={cn("min-w-0 leading-snug font-semibold text-foreground", compact ? "text-[0.8125rem]" : "text-sm")}>
+          {pkg.name}
+        </span>
       </div>
-      <p className="mt-1.5 text-xs leading-snug text-neutral-500 dark:text-neutral-400">{PORTFOLIO_SUMMARIES[id]}</p>
-      <div className="mt-2 flex flex-wrap gap-1.5 text-[0.6875rem] font-medium">
+      {!compact && (
+        <p className="mt-1 text-xs leading-snug text-neutral-500 dark:text-neutral-400">{PORTFOLIO_SUMMARIES[id]}</p>
+      )}
+      {/* Range and cycle on one line, so all three profiles fit one phone screen. */}
+      <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.6875rem] font-medium">
         <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-800 tabular-nums dark:bg-white/10 dark:text-neutral-200">
           {formatCedis(pkg.minimum)} – {formatCedisNumber(pkg.maximum)}
         </span>
-        <span className="rounded-full border border-neutral-200 px-2 py-0.5 text-neutral-600 dark:border-white/15 dark:text-neutral-300">
-          {cycleLabel(pkg)}
-        </span>
-      </div>
+        <span className="text-neutral-500 dark:text-neutral-400">{cycleLabel(pkg, compact)}</span>
+      </p>
     </li>
   );
 }

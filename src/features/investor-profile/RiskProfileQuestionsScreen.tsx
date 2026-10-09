@@ -111,10 +111,10 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
           {isSegmentStep && (
             <div>
               <h2 className="text-xl leading-snug font-bold tracking-tight">Which best describes you?</h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                Each profile has portfolios designed for it. You can still choose any portfolio later.
+              <p className="mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                You can still choose any portfolio later.
               </p>
-              <SegmentPicker selected={segment} onSelect={setSegment} className="mt-5" />
+              <SegmentPicker selected={segment} onSelect={setSegment} className="mt-3" />
             </div>
           )}
           {step?.questions.map((question) => (
@@ -146,7 +146,7 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
                 size="lg"
                 onClick={() => goToStep(stepIndex - 1)}
                 disabled={isSaving}
-                className="px-6"
+                className="h-13! px-6"
               >
                 Back
               </Button>
@@ -157,6 +157,8 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
               disabled={!isStepComplete}
               isLoading={isSaving}
               loadingLabel="Working out your profile"
+              // Same height as the wallet screens' button (52px).
+              className="h-13!"
               onClick={handleContinue}
             >
               {isLastStep ? "See my profile" : "Continue"}
