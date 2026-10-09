@@ -56,6 +56,8 @@ export const ROUTES = {
   dashboardColor: "/account/dashboard-color",
   /** Account statements: PDF / Excel for any period (Account › Statements, Home, Transactions). */
   statements: "/account/statements",
+  /** About Feenicks1: company details, how your money is handled, risks, contacts. */
+  about: "/account/about",
   /** Help & support: the dashboard's headset, and Account › Help & support. */
   support: "/support",
   /** Help & support › Send a message. */
@@ -77,6 +79,8 @@ export const ROUTES = {
    * packages list if they haven't chosen one (features/packages/InvestStartScreen).
    */
   invest: "/invest",
+  /** "My investment": the current cycle, earnings so far, what's next (tap the wallet card). */
+  myInvestment: "/invest/overview",
   /** All packages (matched to the risk profile first): 
    * choose or change. Details at /invest/[id], terms at /invest/[id]/terms. */
   investPackages: "/invest/packages",

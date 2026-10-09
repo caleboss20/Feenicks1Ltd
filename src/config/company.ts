@@ -15,10 +15,18 @@ export const COMPANY = {
   address: "Ridge, Accra, Ghana",
   /** Placeholder until the CEO confirms the registration number. */
   registrationNumber: "CS000000000",
+  /**
+   * Who licenses and supervises the company, and the licence number.
+   * TODO(ceo): confirm (e.g. the Securities and Exchange Commission, Ghana).
+   * Shown as "To be confirmed" until then: the app never claims a licence it
+   * hasn't been given.
+   */
+  regulator: null as string | null,
+  licenceNumber: null as string | null,
   phones: ["+233 54 572 8382", "+233 55 021 2623"],
   email: "feenicks1solutionsltd@gmail.com",
   website: siteConfig.url.replace(/^https?:\/\//, ""),
-} as const;
+};
 
 /** "Feenicks1 Solutions Ltd · Reg. No. CS000000000 · Ridge, Accra, Ghana". */
 export const COMPANY_LINE = `${COMPANY.legalName} · Reg. No. ${COMPANY.registrationNumber} · ${COMPANY.address}`;

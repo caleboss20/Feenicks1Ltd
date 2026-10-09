@@ -24,12 +24,15 @@
  *     sets off the browser's own pull-to-refresh
  *   - taps on buttons inside the card (the eye) are left alone
  *   - prefers-reduced-motion: no liquid or flood; a pull simply opens the page
+ *   - a TAP on the card (no drag) opens `tapHref` (My investment); a
+ *     "Details" link under the card does the same for keyboards
  *   - a hint always shows under the card ("↓ Pull the card down to …"),
  *     because people forget; first visits also get one gentle nudge of the
  *     card, until the pull has been used once (localStorage, per device)
  */
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -108,6 +111,7 @@ export function LiquidPull({
   action,
   href,
   disabled = false,
+  tapHref,
   children,
 }: {
   /** The verb on the bubble: "invest" → "Pull to invest" / "Release to invest". */
@@ -116,6 +120,8 @@ export function LiquidPull({
   href: string;
   /** No pull (e.g. nothing can be invested right now): the card is just a card. */
   disabled?: boolean;
+  /** Where a tap on the card goes (no drag), e.g. My investment. Works even when the pull is off. */
+  tapHref?: string;
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -193,7 +199,7 @@ export function LiquidPull({
   };
 
   const onPointerDown = (event: React.PointerEvent) => {
-    if (disabled || isLeaving || event.button !== 0) return;
+    if (isLeaving || event.button !== 0 || (disabled && !tapHref)) return;
     // The eye (and any other control on the card) keeps working as a tap.
     if ((event.target as Element).closest("button, a, input")) return;
     if (spring.current) cancelAnimationFrame(spring.current);
@@ -207,7 +213,7 @@ export function LiquidPull({
     const dx = event.clientX - current.startX;
     if (!current.active) {
       if (Math.abs(dy) < DEAD_ZONE && Math.abs(dx) < DEAD_ZONE) return;
-      if (dy <= 0 || Math.abs(dx) > Math.abs(dy)) {
+      if (disabled || dy <= 0 || Math.abs(dx) > Math.abs(dy)) {
         drag.current = null; // not a downward pull
         return;
       }
@@ -222,7 +228,12 @@ export function LiquidPull({
   const onPointerEnd = (event: React.PointerEvent) => {
     const current = drag.current;
     drag.current = null;
-    if (!current || current.pointerId !== event.pointerId || !current.active) return;
+    if (!current || current.pointerId !== event.pointerId) return;
+    // A tap (it never became a pull): open the details.
+    if (!current.active) {
+      if (event.type === "pointerup" && tapHref) router.push(tapHref);
+      return;
+    }
     if (event.type === "pointerup" && pull >= THRESHOLD) complete();
     else springBack(pull);
   };
@@ -244,7 +255,10 @@ export function LiquidPull({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd}
         onPointerCancel={onPointerEnd}
-        className={cn("relative z-10 select-none", !disabled && "cursor-grab touch-none active:cursor-grabbing")}
+        className={cn(
+          "relative z-10 select-none",
+          !disabled ? "cursor-grab touch-none active:cursor-grabbing" : tapHref && "cursor-pointer",
+        )}
         style={{
           transform: pull ? `translateY(${pull}px) scale(${1 - progress * 0.02})` : undefined,
           willChange: pull ? "transform" : undefined,
@@ -253,14 +267,25 @@ export function LiquidPull({
         {children}
       </div>
 
-      {/* Always shown: people forget the gesture between visits. */}
-      {!disabled && (
-        <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-          <span aria-hidden className="inline-block animate-bounce motion-reduce:animate-none">
-            ↓
-          </span>
-          Pull the card down to {action}
-        </p>
+      {/* Always shown: people forget the gesture between visits. "Details" is
+          the tap's twin for keyboards and screen readers. */}
+      {(!disabled || tapHref) && (
+        <div className="mt-3 flex items-center justify-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+          {!disabled && (
+            <span className="flex items-center gap-1.5">
+              <span aria-hidden className="inline-block animate-bounce motion-reduce:animate-none">
+                ↓
+              </span>
+              Pull down to {action}
+            </span>
+          )}
+          {!disabled && tapHref && <span aria-hidden>·</span>}
+          {tapHref && (
+            <Link href={tapHref} className="rounded-full px-1.5 py-1 font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400">
+              Tap for details
+            </Link>
+          )}
+        </div>
       )}
     </div>
   );

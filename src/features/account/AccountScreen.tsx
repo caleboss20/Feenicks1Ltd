@@ -45,6 +45,7 @@ import {
   ArrowRight,
   BellIcon,
   ChevronDownIcon,
+  ClockIcon,
   CompassIcon,
   EyeOffIcon,
   FaceIdIcon,
@@ -55,6 +56,7 @@ import {
   MoonIcon,
   PaletteIcon,
   ReceiptIcon,
+  ShieldCheckIcon,
   SupportIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
@@ -165,6 +167,7 @@ export function AccountScreen() {
           // In-app versions (never the sign-up screens); without a profile it opens the questions.
           href={ROUTES.investorProfile}
         />
+        <LinkRow icon={<ClockIcon />} label="My investment" href={ROUTES.myInvestment} />
         <LinkRow icon={<GridIcon />} label="Investment portfolios" href={ROUTES.investPackages} />
         <LinkRow icon={<ArrowRight className="rotate-90" />} label="Withdraw" href={ROUTES.withdraw} />
         <LinkRow icon={<ReceiptIcon />} label="Statements" href={ROUTES.statements} />
@@ -189,6 +192,7 @@ export function AccountScreen() {
 
       <RowGroup>
         <LinkRow icon={<SupportIcon />} label="Help & support" href={ROUTES.support} />
+        <LinkRow icon={<ShieldCheckIcon />} label="About Feenicks1" href={ROUTES.about} />
       </RowGroup>
 
       <RowGroup>

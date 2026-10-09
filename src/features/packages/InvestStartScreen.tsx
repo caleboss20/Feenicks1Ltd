@@ -82,6 +82,7 @@ export function InvestStartScreen() {
             action={isInvested ? "add money" : "invest"}
             href={investAmountHref(pkg.id)}
             disabled={!canInvest(option)}
+            tapHref={isInvested ? ROUTES.myInvestment : undefined}
           >
             <WalletCard
               wallet={wallet}

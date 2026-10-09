@@ -57,7 +57,7 @@ export function WithdrawWalletScreen() {
       <div className="flex flex-1 flex-col sm:flex-none">
         {/* Pulling the card down is a shortcut to the same page as the button (LiquidPull). */}
         {wallet ? (
-          <LiquidPull action="withdraw" href={ROUTES.withdrawAmount}>
+          <LiquidPull action="withdraw" href={ROUTES.withdrawAmount} tapHref={ROUTES.myInvestment}>
             <WalletCard
               wallet={wallet}
               pkg={pkg}
