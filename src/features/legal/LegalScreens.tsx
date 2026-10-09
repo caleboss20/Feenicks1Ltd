@@ -17,9 +17,10 @@ import Link from "next/link";
 import { COMPANY } from "@/config/company";
 import { ROUTES } from "@/config/routes";
 import { LEGAL_DOCUMENTS, type LegalBlock, type LegalDocument } from "./legalDocuments";
+import { SECTION_LABEL } from "@/components/ui/styles";
 
 const IS_DRAFT = true;
-const LABEL = "text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400";
+const LABEL = SECTION_LABEL;
 
 function Page({ title, backHref, children }: { title: string; backHref: string; children: React.ReactNode }) {
   return (
@@ -74,7 +75,7 @@ export function LegalIndexScreen({ backHref = ROUTES.account }: { backHref?: str
                 <span className="block text-[0.9375rem] font-semibold">{item.title}</span>
                 <span className="mt-0.5 block text-xs leading-5 text-neutral-500 dark:text-neutral-400">{item.summary}</span>
               </span>
-              <svg viewBox="0 0 24 24" className="size-[18px] shrink-0 text-neutral-400 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <svg viewBox="0 0 24 24" className="size-[18px] shrink-0 text-neutral-500 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="m9 6 6 6-6 6" />
               </svg>
             </Link>
@@ -156,7 +157,8 @@ function Block({ block }: { block: LegalBlock }) {
     );
   }
   return (
-    <div className="-mx-1 overflow-x-auto">
+    // Focusable, so keyboard users can scroll a table wider than the screen.
+    <div className="-mx-1 overflow-x-auto" tabIndex={0} role="region" aria-label="Table">
       <table className="w-full min-w-[20rem] border-separate border-spacing-0 overflow-hidden rounded-2xl border border-neutral-200 text-left text-[0.8125rem] leading-5 dark:border-white/10">
         <thead>
           <tr className="bg-brand-50 dark:bg-brand-500/10">

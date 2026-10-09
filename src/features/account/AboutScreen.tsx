@@ -28,8 +28,9 @@ import { ROUTES } from "@/config/routes";
 import { PORTFOLIO_SUMMARIES } from "@/features/investor-profile/investorSegments";
 import { ALL_PACKAGES, roiRangeLabel } from "@/features/packages/investmentPackages";
 import { WITHDRAWAL_RULES } from "@/features/withdraw/withdrawalModel";
+import { SECTION_LABEL } from "@/components/ui/styles";
 
-const LABEL = "text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400";
+const LABEL = SECTION_LABEL;
 
 const PROTECTIONS: { title: string; text: string }[] = [
   {
@@ -101,7 +102,7 @@ export function AboutScreen() {
           <ul className="flex flex-col gap-4">
             {PROTECTIONS.map((item) => (
               <li key={item.title} className="flex gap-3">
-                <span aria-hidden className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-brand-600 text-white">
+                <span aria-hidden className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-brand-700 text-white">
                   <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m5 12 5 5 9-10" />
                   </svg>
@@ -152,7 +153,7 @@ export function AboutScreen() {
               <li key={slug}>
                 <Link href={`${ROUTES.legal}/${slug}`} className="flex items-center justify-between px-5 py-3.5 text-sm font-semibold">
                   {title}
-                  <svg viewBox="0 0 24 24" className="size-4 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <svg viewBox="0 0 24 24" className="size-4 text-neutral-500" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <path d="m9 6 6 6-6 6" />
                   </svg>
                 </Link>

@@ -396,7 +396,7 @@ function ReceiptActions({ details, reference }: { details: ReceiptDetails; refer
           type="button"
           onClick={download}
           disabled={isBusy}
-          className={cn(button, "bg-brand-600 text-white hover:bg-brand-700")}
+          className={cn(button, "bg-brand-700 text-white hover:bg-brand-800")}
         >
           Download
         </button>

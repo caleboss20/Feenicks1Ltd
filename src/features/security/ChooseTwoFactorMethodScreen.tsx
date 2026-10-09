@@ -175,7 +175,7 @@ export function ChooseTwoFactorMethodScreen() {
                 onChange={() => setChosen(method.id)}
                 className="peer sr-only"
               />
-              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-500/10 [@media(max-height:700px)]:size-10">
+              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700 dark:bg-brand-500/10 [@media(max-height:700px)]:size-10">
                 {method.icon}
               </span>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">

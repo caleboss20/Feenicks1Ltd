@@ -88,7 +88,7 @@ export function AnalyticsScreen() {
   const [whole, fraction] = formatCedisNumber(last, { exact: true }).split(".");
 
   return (
-    <div
+    <main
       className={cn(
         "mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 bg-neutral-100 px-4 pt-[max(1.5rem,env(safe-area-inset-top))] dark:bg-background",
         appTabBarPadding,
@@ -128,7 +128,7 @@ export function AnalyticsScreen() {
           </span>
           <span className="text-[2.5rem] tracking-tight">
             {whole}
-            <span className="text-2xl text-neutral-400">.{fraction}</span>
+            <span className="text-2xl text-neutral-500">.{fraction}</span>
           </span>
         </p>
         {transactions && (
@@ -155,7 +155,7 @@ export function AnalyticsScreen() {
                   ` (${change > 0 ? "+" : "−"}${Math.abs(percent).toFixed(1)}%)`}
               </span>
             )}
-            <span className="text-neutral-400">· {range.period}</span>
+            <span className="text-neutral-500">· {range.period}</span>
           </p>
         )}
 
@@ -306,7 +306,7 @@ export function AnalyticsScreen() {
       )}
 
       <AppTabBar />
-    </div>
+    </main>
   );
 }
 
@@ -351,7 +351,7 @@ function SumRows({
         <div key={line.label} className="flex items-baseline justify-between gap-4">
           <dt className="text-neutral-600 dark:text-neutral-300">
             {line.label}
-            {line.note && <span className="ml-1 text-xs text-neutral-400">({line.note})</span>}
+            {line.note && <span className="ml-1 text-xs text-neutral-500">({line.note})</span>}
           </dt>
           <dd className="font-medium whitespace-nowrap tabular-nums">
             {/* No sign on zero: "GH₵ 0.00", not "− GH₵ 0.00". */}

@@ -106,7 +106,7 @@ export function ConfirmDialog({
               "mx-auto grid size-14 place-items-center rounded-full [&_svg]:size-6",
               isDanger
                 ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
-                : "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400",
+                : "bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400",
             )}
           >
             {icon}

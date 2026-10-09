@@ -135,7 +135,7 @@ export function NothingToWithdraw({ needsPhone }: { needsPhone: boolean }) {
   return (
     <StepScreenLayout title="Withdraw" centeredTitle backHref={ROUTES.dashboard}>
       <div className="mt-12 flex flex-col items-center text-center [@media(max-height:700px)]:mt-8">
-        <span className="grid size-16 place-items-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-500/10">
+        <span className="grid size-16 place-items-center rounded-full bg-brand-50 text-brand-700 dark:bg-brand-500/10">
           <ArrowRight className="size-7 rotate-90" />
         </span>
         <h2 className="mt-5 text-lg font-semibold">{needsPhone ? "Add your phone number" : "Nothing to withdraw yet"}</h2>
@@ -403,7 +403,7 @@ function NetworkSheet({
             >
               <MomoNetworkLogo network={id} className="size-9" />
               <span className="flex-1 text-[0.9375rem] font-semibold">{MOMO_NETWORKS[id].name}</span>
-              {id === selected && <CheckIcon className="size-5 text-brand-600" />}
+              {id === selected && <CheckIcon className="size-5 text-brand-700" />}
             </button>
           </li>
         ))}
@@ -471,7 +471,7 @@ function ConfirmWithdrawalSheet({
       <div className="mt-4 text-center">
         <p className="text-[0.8125rem] text-neutral-500 dark:text-neutral-400">You&apos;ll receive</p>
         <p className="mt-1.5 flex items-start justify-center gap-1.5 font-semibold tracking-tight tabular-nums">
-          <span className="mt-0.5 text-base text-neutral-400 dark:text-neutral-500">{CEDI_SYMBOL}</span>
+          <span className="mt-0.5 text-base text-neutral-500 dark:text-neutral-400">{CEDI_SYMBOL}</span>
           <span className="text-[2.25rem] leading-none">{formatCedisNumber(amount, { exact: true })}</span>
         </p>
       </div>

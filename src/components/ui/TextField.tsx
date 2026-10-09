@@ -38,7 +38,7 @@ type TextFieldProps = Omit<React.ComponentProps<"input">, "size"> & {
 };
 
 const FIELD_SIZES = {
-  md: "h-15 gap-3 rounded-2xl px-5 lg:h-13 lg:rounded-xl lg:px-4",
+  md: "h-13 gap-3 rounded-2xl px-4 lg:rounded-xl",
   sm: "h-13 gap-2.5 rounded-xl px-4",
 };
 
@@ -81,7 +81,7 @@ export function TextField({
               error
                 ? "text-red-500"
                 : // Grey by default, dark once filled, green while focused.
-                  "text-neutral-400 group-focus-within:text-brand-600! group-has-[input:not(:placeholder-shown)]:text-foreground",
+                  "text-neutral-500 group-focus-within:text-brand-600! group-has-[input:not(:placeholder-shown)]:text-foreground",
             )}
           >
             {icon}
@@ -128,7 +128,7 @@ export function PasswordField(props: Omit<TextFieldProps, "type" | "trailing">) 
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? "Hide password" : "Show password"}
           aria-pressed={visible}
-          className="-mr-2 grid size-10 cursor-pointer place-items-center rounded-full text-neutral-400 transition-colors hover:text-foreground group-focus-within:text-brand-600"
+          className="-mr-2 grid size-10 cursor-pointer place-items-center rounded-full text-neutral-500 transition-colors hover:text-foreground group-focus-within:text-brand-600"
         >
           {visible ? <EyeOffIcon /> : <EyeIcon />}
         </button>

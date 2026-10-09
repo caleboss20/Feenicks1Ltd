@@ -109,7 +109,7 @@ export function SupportScreen() {
         <p className="text-[0.9375rem] font-medium">Still stuck? Help is a message away</p>
         <Link
           href={ROUTES.supportMessage}
-          className="mt-3 flex h-12 w-full items-center justify-center rounded-full bg-brand-600 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700"
+          className="mt-3 flex h-12 w-full items-center justify-center rounded-full bg-brand-700 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-800"
         >
           Send a message
         </Link>
@@ -175,7 +175,7 @@ function FaqRow({
           </span>
           <PlusIcon
             className={cn(
-              "size-4 shrink-0 text-neutral-400 transition-transform duration-200",
+              "size-4 shrink-0 text-neutral-500 transition-transform duration-200",
               isOpen && "rotate-45",
             )}
           />

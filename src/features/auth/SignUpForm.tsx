@@ -157,7 +157,7 @@ export function SignUpForm({ referralCode }: SignUpFormProps) {
             Privacy Policy
           </Link>
           .
-          <span className="mt-1 block text-neutral-400 dark:text-neutral-500">
+          <span className="mt-1 block text-neutral-500 dark:text-neutral-400">
             {COMPANY.legalName} · Reg. No. {COMPANY.registrationNumber} · {COMPANY.address}
           </span>
         </p>

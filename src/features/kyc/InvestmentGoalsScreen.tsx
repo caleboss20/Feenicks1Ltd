@@ -117,7 +117,7 @@ export function InvestmentGoalsScreen() {
                     aria-hidden
                     className={
                       isSelected
-                        ? "grid size-6 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition-colors"
+                        ? "grid size-6 shrink-0 place-items-center rounded-full bg-brand-700 text-white transition-colors"
                         : "grid size-6 shrink-0 place-items-center rounded-full border-2 border-neutral-300 text-transparent transition-colors dark:border-white/20"
                     }
                   >

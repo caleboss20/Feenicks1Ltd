@@ -63,7 +63,7 @@ function BannerCard({ banner }: { banner: Banner }) {
     <div className="flex w-full flex-col rounded-3xl border border-neutral-200/80 bg-background p-2.5 dark:border-white/10">
       {/* Room on the right for the dots. */}
       <div className="flex items-center gap-2 px-2 pt-1 pr-16 pb-2.5">
-        <span className="text-brand-600 dark:text-brand-400 [&_svg]:size-[18px]">{banner.icon}</span>
+        <span className="text-brand-700 dark:text-brand-400 [&_svg]:size-[18px]">{banner.icon}</span>
         <h2 className="truncate text-[0.8125rem] font-semibold">{banner.title}</h2>
       </div>
 
@@ -88,7 +88,7 @@ function BannerCard({ banner }: { banner: Banner }) {
           >
             {copied ? (
               <>
-                <CheckIcon className="size-4 text-brand-600" />
+                <CheckIcon className="size-4 text-brand-700" />
                 Link copied
               </>
             ) : (

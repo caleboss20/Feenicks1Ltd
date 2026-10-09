@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import { ConnectionBanner } from "@/components/feedback/ConnectionBanner";
 import { IS_PUBLIC_LAUNCH } from "@/config/launch";
 import { siteConfig } from "@/config/site";
 import { themeInitScript } from "@/config/theme";
@@ -103,7 +104,11 @@ export default function RootLayout({
         {/* Apply the saved theme before first paint (light unless the user chose dark). */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {children}
+        {/* Offline / back online, on every screen. */}
+        <ConnectionBanner />
+      </body>
     </html>
   );
 }

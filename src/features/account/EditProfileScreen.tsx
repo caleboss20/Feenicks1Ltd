@@ -167,7 +167,7 @@ function EditProfileForm({ account }: { account: CurrentAccount }) {
           )}
           <label
             htmlFor={photoInputId}
-            className="absolute -right-0.5 -bottom-0.5 grid size-10 cursor-pointer place-items-center rounded-full bg-brand-600 text-white ring-4 ring-neutral-100 transition-colors hover:bg-brand-700 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-brand-400 dark:ring-background"
+            className="absolute -right-0.5 -bottom-0.5 grid size-10 cursor-pointer place-items-center rounded-full bg-brand-700 text-white ring-4 ring-neutral-100 transition-colors hover:bg-brand-800 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-brand-400 dark:ring-background"
           >
             <CameraIcon className="size-[18px]" />
             <span className="sr-only">Change profile photo</span>

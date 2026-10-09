@@ -150,13 +150,13 @@ export function OneTimeCodeForm({
           Didn&apos;t get it?{" "}
           {secondsLeft > 0 ? (
             <span>
-              Resend code in <span className="font-semibold text-brand-600">{secondsLeft} s</span>
+              Resend code in <span className="font-semibold text-brand-700">{secondsLeft} s</span>
             </span>
           ) : (
             <button
               type="button"
               onClick={handleResend}
-              className="cursor-pointer font-semibold text-brand-600 hover:underline"
+              className="cursor-pointer font-semibold text-brand-700 hover:underline"
             >
               Resend code
             </button>

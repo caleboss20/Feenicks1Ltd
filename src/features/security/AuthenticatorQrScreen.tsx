@@ -105,7 +105,7 @@ export function AuthenticatorQrScreen() {
           type="button"
           onClick={copyKey}
           disabled={!setup}
-          className="mx-auto mt-2 flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-brand-600 transition-colors hover:bg-brand-50 dark:hover:bg-brand-500/10"
+          className="mx-auto mt-2 flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50 dark:hover:bg-brand-500/10"
         >
           {isCopied ? (
             <>
@@ -137,7 +137,7 @@ export function AuthenticatorQrScreen() {
           {setup && (
             <a
               href={setup.otpAuthUri}
-              className="mt-4 block text-center text-sm font-semibold text-brand-600 hover:underline lg:hidden"
+              className="mt-4 block text-center text-sm font-semibold text-brand-700 hover:underline lg:hidden"
             >
               Using this phone? Open in authenticator app
             </a>

@@ -141,7 +141,7 @@ export function PackageCard({
           <p className="flex items-center gap-2 text-xs font-medium text-neutral-500">
             {pkg.ticker}
             {label && (
-              <span className="rounded-full bg-brand-600 px-2 py-0.5 text-[0.6875rem] font-semibold text-white">
+              <span className="rounded-full bg-brand-700 px-2 py-0.5 text-[0.6875rem] font-semibold text-white">
                 {label}
               </span>
             )}
@@ -158,7 +158,7 @@ export function PackageCard({
             "grid size-12 shrink-0 place-items-center rounded-full transition-transform",
             isLocked
               ? "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-400"
-              : "bg-brand-600 text-white group-hover:rotate-12",
+              : "bg-brand-700 text-white group-hover:rotate-12",
           )}
         >
           {isLocked ? <LockIcon className="size-5" /> : <ArrowRight className="size-5 -rotate-45" />}

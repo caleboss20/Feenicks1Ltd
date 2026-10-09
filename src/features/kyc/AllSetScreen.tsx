@@ -117,7 +117,7 @@ export function AllSetScreen() {
                 className="flex animate-fade-up items-center gap-3 text-[0.9375rem] font-medium motion-reduce:animate-none lg:text-sm"
                 style={{ animationDelay: `${0.9 + i * 0.15}s` }}
               >
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-600 text-white">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-700 text-white">
                   <CheckIcon className="size-3.5 stroke-3" />
                 </span>
                 {step}
@@ -127,7 +127,7 @@ export function AllSetScreen() {
 
           {/* Honest status: the final check happens on our side. */}
           <p className="mt-3 flex gap-3 rounded-2xl border border-brand-100 bg-brand-50/60 p-3.5 text-left text-sm leading-relaxed text-brand-900 dark:border-brand-500/20 dark:bg-brand-500/10 dark:text-brand-200">
-            <ClockIcon className="mt-0.5 size-5 text-brand-600" />
+            <ClockIcon className="mt-0.5 size-5 text-brand-700" />
             <span>
               We&apos;re reviewing your documents. This usually takes a few minutes, and
               we&apos;ll let you know when it&apos;s done.

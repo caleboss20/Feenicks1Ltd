@@ -47,7 +47,7 @@ export function ProfilePhotoPicker({ photoUrl, onPhotoSelected, onError }: Profi
           // eslint-disable-next-line @next/next/no-img-element
           <img src={photoUrl} alt="Your profile photo" className="size-full object-cover" />
         ) : (
-          <span className="grid size-full place-items-center text-neutral-300 dark:text-neutral-500">
+          <span className="grid size-full place-items-center text-neutral-300 dark:text-neutral-400">
             <UserIcon className="size-10" />
           </span>
         )}
@@ -56,7 +56,7 @@ export function ProfilePhotoPicker({ photoUrl, onPhotoSelected, onError }: Profi
       {/* Green pencil badge, bottom-right, with a white ring to separate it. */}
       <span
         aria-hidden
-        className="absolute right-0.5 bottom-0.5 grid size-8 place-items-center rounded-lg bg-brand-600 text-white ring-[3px] ring-background"
+        className="absolute right-0.5 bottom-0.5 grid size-8 place-items-center rounded-lg bg-brand-700 text-white ring-[3px] ring-background"
       >
         <PencilIcon className="size-4" />
       </span>

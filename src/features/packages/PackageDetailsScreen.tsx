@@ -91,7 +91,7 @@ const DEFAULT_PERIOD = 12;
 /** Small, quiet section heading used throughout the page. */
 function SectionTitle({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h3 id={id} className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
+    <h3 id={id} className="text-xs font-semibold tracking-wider text-neutral-500 uppercase">
       {children}
     </h3>
   );
@@ -246,7 +246,7 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
                 className={cn(
                   "h-9 cursor-pointer rounded-full border text-[0.8125rem] font-medium transition-colors",
                   months === period
-                    ? "border-brand-600 bg-brand-600 text-white"
+                    ? "border-brand-600 bg-brand-700 text-white"
                     : "border-neutral-200 text-neutral-600 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-300",
                 )}
               >
@@ -282,7 +282,7 @@ export function PackageDetailsScreen({ pkg, flow }: { pkg: InvestmentPackage; fl
             )}
           </div>
 
-          <p className="mt-4 text-xs leading-relaxed text-neutral-400">
+          <p className="mt-4 text-xs leading-relaxed text-neutral-500">
             Based on the expected monthly return. The management fee comes off that return: a 7%
             month with a {pkg.managementFeePercent}% fee pays {7 - pkg.managementFeePercent}%. It&apos;s never more than the
             month&apos;s profit. Returns are not guaranteed.

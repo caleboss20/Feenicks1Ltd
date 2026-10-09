@@ -151,7 +151,7 @@ export function DashboardColorScreen() {
 
       {/* Brightness, like the reference's top slider. */}
       <section aria-labelledby="brightness-label" className="mt-8">
-        <p id="brightness-label" className={cn(LABEL, "text-neutral-400")}>
+        <p id="brightness-label" className={cn(LABEL, "text-neutral-500")}>
           Dashboard brightness
         </p>
         <div className="mt-3 flex items-center gap-4">
@@ -193,7 +193,7 @@ export function DashboardColorScreen() {
               "relative cursor-pointer pb-3 transition-colors",
               tab === id
                 ? "text-foreground after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:rounded-full after:bg-foreground"
-                : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300",
+                : "text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300",
             )}
           >
             {id === "hue" ? "Hue" : "Temperature"}

@@ -268,7 +268,7 @@ export function DashboardScreen() {
     "flex h-13 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white text-xs font-semibold min-[360px]:gap-2 min-[360px]:text-[0.8125rem] text-neutral-900 transition-colors hover:bg-neutral-50 [&_svg]:size-[18px]";
 
   return (
-    <div
+    <main
       className={cn(
         "relative isolate mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background",
         appTabBarPadding,
@@ -381,7 +381,7 @@ export function DashboardScreen() {
             <TriangleUpIcon
               className={cn(
                 "size-3",
-                profitEarned < 0 ? "rotate-180 text-red-600" : "text-brand-600",
+                profitEarned < 0 ? "rotate-180 text-red-600" : "text-brand-700",
               )}
             />
           </span>
@@ -443,6 +443,6 @@ export function DashboardScreen() {
 
       {/* Not invested yet: a milestone sheet nudging the first investment. */}
       <FirstInvestmentSheet hasInvested={hasInvested ?? true} visitId={unlockedAt} />
-    </div>
+    </main>
   );
 }

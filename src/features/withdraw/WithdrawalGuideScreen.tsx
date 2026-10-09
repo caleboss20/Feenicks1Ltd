@@ -176,7 +176,7 @@ export function WithdrawalGuideScreen() {
               ["Paid", `The funds are sent to your Mobile Money wallet within ${WITHDRAWAL_RULES.processingDays} working days.`],
             ].map(([title, text], index) => (
               <li key={title} className="flex gap-4">
-                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-600 text-sm font-semibold text-white">
+                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-700 text-sm font-semibold text-white">
                   {index + 1}
                 </span>
                 <span className="pt-0.5">
@@ -340,7 +340,7 @@ function YourDates() {
             <div className="min-w-0">
               <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
                 {event.date}
-                {event.state === "now" && <span className="ml-2 rounded-full bg-brand-600 px-2 py-0.5 text-[0.6875rem] text-white">Now</span>}
+                {event.state === "now" && <span className="ml-2 rounded-full bg-brand-700 px-2 py-0.5 text-[0.6875rem] text-white">Now</span>}
               </p>
               <p className="mt-0.5 text-[0.9375rem] font-semibold text-foreground">{event.title}</p>
               <p className="mt-0.5 text-sm leading-6">{event.text}</p>
@@ -394,7 +394,7 @@ function Step({
         aria-hidden
         className={cn(
           "relative grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold",
-          tone === "free" && "bg-brand-600 text-white",
+          tone === "free" && "bg-brand-700 text-white",
           tone === "fee" && "bg-amber-500 text-white",
           tone === "neutral" && "bg-neutral-200 text-neutral-700 dark:bg-white/15 dark:text-neutral-200",
         )}

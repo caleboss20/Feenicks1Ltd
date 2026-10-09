@@ -60,7 +60,7 @@ export function AuthScreenLayout({ title, backHref, footer, children }: AuthScre
 /** Green inline link used in the footer ("Log in", "Sign up"). */
 export function AuthFooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="font-semibold text-brand-600 hover:underline">
+    <Link href={href} className="font-semibold text-brand-700 hover:underline">
       {children}
     </Link>
   );

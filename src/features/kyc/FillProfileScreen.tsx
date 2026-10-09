@@ -165,12 +165,12 @@ export function FillProfileScreen() {
               part of the form: the server uses the account's own email. */}
           <div>
             <p className="flex h-13 items-center gap-2.5 rounded-xl bg-neutral-100 px-4 dark:bg-white/5">
-              <MailIcon className="text-neutral-400" />
+              <MailIcon className="text-neutral-500" />
               <span className="min-w-0 flex-1 truncate text-base font-medium text-neutral-500 dark:text-neutral-400">
                 <span className="sr-only">Email (can&apos;t be changed): </span>
                 {registeredEmail}
               </span>
-              <LockIcon className="size-4 shrink-0 text-neutral-400" />
+              <LockIcon className="size-4 shrink-0 text-neutral-500" />
             </p>
             <p className="mt-1.5 px-1 text-[0.8125rem] text-neutral-500">
               This is the email you signed up with. It can&apos;t be changed.

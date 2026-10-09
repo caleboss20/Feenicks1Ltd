@@ -46,7 +46,7 @@ export function NumericKeypad({ onDigit, onBackspace, disabled, extraKey, classN
               disabled={disabled}
               onClick={extraKey.onPress}
               aria-label={extraKey.label}
-              className="grid h-14 cursor-pointer place-items-center rounded-2xl text-brand-600 transition-[background-color,transform] select-none hover:bg-brand-50 active:scale-95 active:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-40 lg:h-12 dark:hover:bg-brand-500/10 [&_svg]:size-7 touch-manipulation"
+              className="grid h-14 cursor-pointer place-items-center rounded-2xl text-brand-700 transition-[background-color,transform] select-none hover:bg-brand-50 active:scale-95 active:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-40 lg:h-12 dark:hover:bg-brand-500/10 [&_svg]:size-7 touch-manipulation"
             >
               {extraKey.icon}
             </button>

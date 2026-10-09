@@ -41,7 +41,7 @@ export function PasswordRequirements({
             className={cn(
               "grid size-5 shrink-0 place-items-center rounded-full transition-colors",
               item.isMet
-                ? "bg-brand-600 text-white"
+                ? "bg-brand-700 text-white"
                 : "border-[1.5px] border-neutral-300 text-transparent dark:border-white/20",
             )}
           >

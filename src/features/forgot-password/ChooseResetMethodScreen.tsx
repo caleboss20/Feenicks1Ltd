@@ -121,7 +121,7 @@ export function ChooseResetMethodScreen() {
                   onChange: () => resetField("contact"),
                 })}
               />
-              <span className="grid size-16 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600 lg:size-13 dark:bg-brand-500/10 [&_svg]:size-7 lg:[&_svg]:size-6">
+              <span className="grid size-16 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700 lg:size-13 dark:bg-brand-500/10 [&_svg]:size-7 lg:[&_svg]:size-6">
                 {option.icon}
               </span>
               <span className="flex flex-col gap-1">

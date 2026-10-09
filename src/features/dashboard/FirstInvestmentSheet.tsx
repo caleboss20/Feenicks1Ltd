@@ -210,7 +210,7 @@ export function FirstInvestmentSheet({ hasInvested, visitId }: FirstInvestmentSh
           >
             Maybe later
           </button>
-          <Link href={ROUTES.invest} className={cn(pill, "bg-brand-600 text-white hover:bg-brand-700")}>
+          <Link href={ROUTES.invest} className={cn(pill, "bg-brand-700 text-white hover:bg-brand-800")}>
             Start investing
           </Link>
         </div>
@@ -293,7 +293,7 @@ function MilestoneBadge() {
       })}
 
       <span className="absolute -inset-3 rounded-full bg-brand-50 dark:bg-brand-500/10" />
-      <span className="relative grid size-full animate-pop-in place-items-center text-brand-600 [animation-delay:0.3s] motion-reduce:animate-none">
+      <span className="relative grid size-full animate-pop-in place-items-center text-brand-700 [animation-delay:0.3s] motion-reduce:animate-none">
         <svg viewBox="0 0 100 100" className="absolute inset-0 size-full">
           <polygon
             points={SEAL_POINTS}

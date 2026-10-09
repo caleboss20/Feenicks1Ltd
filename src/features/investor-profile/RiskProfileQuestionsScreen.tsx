@@ -146,7 +146,7 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
                 size="lg"
                 onClick={() => goToStep(stepIndex - 1)}
                 disabled={isSaving}
-                className="h-13! px-6"
+                className="px-6"
               >
                 Back
               </Button>
@@ -158,7 +158,7 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
               isLoading={isSaving}
               loadingLabel="Working out your profile"
               // Same height as the wallet screens' button (52px).
-              className="h-13!"
+             
               onClick={handleContinue}
             >
               {isLastStep ? "See my profile" : "Continue"}

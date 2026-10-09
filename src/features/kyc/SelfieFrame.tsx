@@ -160,7 +160,7 @@ export function SelfieFrame({
 
       {/* ── Tick when the face matches ── */}
       {isMatched && (
-        <span className="absolute top-[47%] left-1/2 grid size-14 -translate-x-1/2 animate-pop-in place-items-center rounded-full bg-brand-600 text-white motion-reduce:animate-none">
+        <span className="absolute top-[47%] left-1/2 grid size-14 -translate-x-1/2 animate-pop-in place-items-center rounded-full bg-brand-700 text-white motion-reduce:animate-none">
           <CheckIcon className="size-7 stroke-3" />
         </span>
       )}
@@ -170,7 +170,7 @@ export function SelfieFrame({
         <span
           className={cn(
             "absolute top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-[0.8125rem] font-semibold whitespace-nowrap tabular-nums",
-            isMatched ? "bg-brand-600 text-white" : "bg-black/60 text-white",
+            isMatched ? "bg-brand-700 text-white" : "bg-black/60 text-white",
           )}
         >
           {isMatched ? "Face matched" : `Matching your face… ${Math.round(percent)}%`}

@@ -82,7 +82,7 @@ export function IdCardFrame({
             e.target.value = ""; // allow picking the same file again after an error
           }}
         />
-        <span className="grid size-14 place-items-center rounded-full bg-white text-brand-600 dark:bg-brand-500/10 [&_svg]:size-7">
+        <span className="grid size-14 place-items-center rounded-full bg-white text-brand-700 dark:bg-brand-500/10 [&_svg]:size-7">
           {isPassport ? <PassportIcon /> : <IdCardIcon />}
         </span>
         <span className="text-base font-bold lg:text-[0.9375rem]">Upload {sideLabel}</span>
@@ -134,7 +134,7 @@ export function IdCardFrame({
 
       {stage === "verified" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/40 dark:bg-black/30">
-          <span className="grid size-16 animate-pop-in place-items-center rounded-full bg-brand-600 text-white motion-reduce:animate-none">
+          <span className="grid size-16 animate-pop-in place-items-center rounded-full bg-brand-700 text-white motion-reduce:animate-none">
             <CheckIcon className="size-8 stroke-3" />
           </span>
           <span className="animate-pop-in rounded-full bg-white px-3 py-1 text-sm font-bold text-brand-700 [animation-delay:120ms] motion-reduce:animate-none">

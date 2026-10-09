@@ -26,7 +26,7 @@ export function IconIllustration({
         className,
       )}
     >
-      <div className="grid size-3/4 place-items-center rounded-full bg-brand-100 text-brand-600 dark:bg-brand-500/20 [&_svg]:size-1/2 [&_svg]:stroke-[1.6]">
+      <div className="grid size-3/4 place-items-center rounded-full bg-brand-100 text-brand-700 dark:bg-brand-500/20 [&_svg]:size-1/2 [&_svg]:stroke-[1.6]">
         {icon}
       </div>
     </div>

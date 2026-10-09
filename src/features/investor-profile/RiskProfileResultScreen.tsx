@@ -99,7 +99,7 @@ export function RiskProfileResultScreen({ flow }: { flow: InvestingFlow }) {
           </section>
         )}
 
-        <p className="mt-6 text-xs leading-relaxed text-neutral-400 [@media(max-height:700px)]:mt-4">
+        <p className="mt-6 text-xs leading-relaxed text-neutral-500 [@media(max-height:700px)]:mt-4">
           We&apos;ll use this profile to recommend portfolios that suit you. It&apos;s a guide based
           on your answers, not financial advice, and you can retake it anytime.
         </p>
@@ -153,7 +153,7 @@ function RiskMeter({ level, className }: { level: RiskLevel; className?: string 
               "flex-1 text-xs",
               index === 1 && "text-center",
               index === 2 && "text-right",
-              item === level ? "font-semibold text-brand-700 dark:text-brand-400" : "text-neutral-400",
+              item === level ? "font-semibold text-brand-700 dark:text-brand-400" : "text-neutral-500",
             )}
           >
             {RISK_LEVELS[item].name}

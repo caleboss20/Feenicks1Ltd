@@ -146,7 +146,7 @@ function Receipt({ transaction }: { transaction: Transaction }) {
           aria-hidden
           className={cn(
             "grid size-14 place-items-center rounded-full bg-neutral-100 dark:bg-white/10 [&_svg]:size-6",
-            isOut ? "text-red-600 dark:text-red-400" : "text-brand-600 dark:text-brand-400",
+            isOut ? "text-red-600 dark:text-red-400" : "text-brand-700 dark:text-brand-400",
           )}
         >
           <ArrowRight className={isOut ? "-rotate-45" : "rotate-[135deg]"} />
@@ -154,9 +154,9 @@ function Receipt({ transaction }: { transaction: Transaction }) {
         <p
           className={cn(
             "mt-4 text-[2rem] leading-none font-bold tracking-tight tabular-nums",
-            isFailed && "text-neutral-400 line-through",
+            isFailed && "text-neutral-500 line-through",
             !isFailed && isOut && "text-red-600 dark:text-red-400",
-            !isFailed && sign === "+ " && "text-brand-600 dark:text-brand-400",
+            !isFailed && sign === "+ " && "text-brand-700 dark:text-brand-400",
           )}
         >
           {sign}
@@ -196,7 +196,7 @@ function Receipt({ transaction }: { transaction: Transaction }) {
       {/* ── Returns: how the amount was worked out ── */}
       {breakdown && (
         <section aria-labelledby="calculation-title" className="mt-8">
-          <h2 id="calculation-title" className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
+          <h2 id="calculation-title" className="text-xs font-semibold tracking-wider text-neutral-500 uppercase">
             How it was worked out
           </h2>
           <dl className="mt-2">
@@ -232,7 +232,7 @@ function Receipt({ transaction }: { transaction: Transaction }) {
       {transaction.status === "completed" && (
         <Link
           href={transactionReceiptHref(transaction.id)}
-          className="mt-10 flex h-12 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+          className="mt-10 flex h-12 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white transition-colors hover:bg-brand-800"
         >
           View receipt
         </Link>
@@ -313,7 +313,7 @@ function Progress({ transaction }: { transaction: Transaction }) {
 
   return (
     <section aria-labelledby="progress-title" className="mt-8">
-      <h2 id="progress-title" className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
+      <h2 id="progress-title" className="text-xs font-semibold tracking-wider text-neutral-500 uppercase">
         Progress
       </h2>
       <ol className="mt-3">
@@ -327,7 +327,7 @@ function Progress({ transaction }: { transaction: Transaction }) {
               aria-hidden
               className={cn(
                 "grid size-6 shrink-0 place-items-center rounded-full [&_svg]:size-3.5",
-                step.state === "done" && "bg-brand-600 text-white dark:bg-brand-500",
+                step.state === "done" && "bg-brand-700 text-white dark:bg-brand-500",
                 step.state === "current" && "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
                 step.state === "failed" && "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300",
                 step.state === "todo" && "border-2 border-neutral-200 dark:border-white/20",
@@ -339,7 +339,7 @@ function Progress({ transaction }: { transaction: Transaction }) {
               <p
                 className={cn(
                   "text-sm font-medium",
-                  step.state === "todo" && "text-neutral-400",
+                  step.state === "todo" && "text-neutral-500",
                   step.state === "failed" && "text-red-700 dark:text-red-300",
                 )}
               >

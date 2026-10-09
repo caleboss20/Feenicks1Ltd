@@ -63,6 +63,7 @@ import {
   issueStatement,
   type IssuedStatement,
 } from "./statementService";
+import { SECTION_LABEL } from "@/components/ui/styles";
 
 type Format = "pdf" | "excel";
 
@@ -77,7 +78,7 @@ const FORMATS: { id: Format; name: string; note: string; extension: string; mime
   },
 ];
 
-const LABEL = "text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400";
+const LABEL = SECTION_LABEL;
 const todayInput = () => new Date().toLocaleDateString("en-CA"); // yyyy-mm-dd, local
 
 export function StatementsScreen() {
@@ -153,7 +154,7 @@ export function StatementsScreen() {
             Statements cover your investments, returns and withdrawals. They&apos;re available after your first
             investment.
           </p>
-          <ButtonLink href={ROUTES.invest} size="lg" className="mt-6 h-13! px-10">
+          <ButtonLink href={ROUTES.invest} size="lg" className="mt-6 px-10">
             Invest
           </ButtonLink>
         </div>
@@ -269,7 +270,7 @@ export function StatementsScreen() {
                 className={cn(
                   "h-9 cursor-pointer rounded-full border px-3.5 text-sm font-medium transition-colors",
                   periodId === option.id
-                    ? "border-brand-600 bg-brand-600 text-white"
+                    ? "border-brand-600 bg-brand-700 text-white"
                     : "border-neutral-200 text-neutral-700 hover:border-neutral-300 dark:border-white/15 dark:text-neutral-300",
                 )}
               >
@@ -433,7 +434,7 @@ export function StatementsScreen() {
               type="button"
               onClick={() => period && void deliver(() => makeStatementFile(period), "download", "statement")}
               disabled={isBusy || !statement}
-              className={cn(button, "bg-brand-600 text-white hover:bg-brand-700")}
+              className={cn(button, "bg-brand-700 text-white hover:bg-brand-800")}
             >
               {isBusy ? "Preparing…" : `Download ${format === "pdf" ? "PDF" : "Excel"}`}
             </button>
@@ -646,7 +647,7 @@ function ProofOfFundsSheet({
               className={cn(
                 "h-9 cursor-pointer rounded-full border px-3.5 text-sm font-medium transition-colors",
                 purpose === option
-                  ? "border-brand-600 bg-brand-600 text-white"
+                  ? "border-brand-600 bg-brand-700 text-white"
                   : "border-neutral-200 text-neutral-700 dark:border-white/15 dark:text-neutral-300",
               )}
             >
@@ -693,7 +694,7 @@ function ProofOfFundsSheet({
           type="button"
           disabled={isBusy || !isReady}
           onClick={() => onCreate(input(), "download")}
-          className={cn(button, "bg-brand-600 text-white hover:bg-brand-700")}
+          className={cn(button, "bg-brand-700 text-white hover:bg-brand-800")}
         >
           {isBusy ? "Preparing…" : "Download PDF"}
         </button>

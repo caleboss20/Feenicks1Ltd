@@ -67,7 +67,7 @@ import {
 import { PackageRuleNotice } from "./PackageRuleNotice";
 
 /** Small uppercase heading above a group of cards. */
-const SECTION_TITLE = "text-xs font-semibold tracking-wider text-neutral-400 uppercase";
+const SECTION_TITLE = "text-xs font-semibold tracking-wider text-neutral-500 uppercase";
 
 /** The package last picked from this list (this tab session), highlighted on return. */
 const SELECTED_PACKAGE_KEY = "feenicks1-selected-package";
@@ -219,7 +219,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
             href={ROUTES.investorProfileQuestions}
             className="group mt-5 flex items-center gap-3.5 rounded-3xl bg-brand-50 p-4 transition-colors hover:bg-brand-100 dark:bg-brand-500/10 dark:hover:bg-brand-500/15"
           >
-            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white text-brand-600 dark:bg-white/10 dark:text-brand-400">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white text-brand-700 dark:bg-white/10 dark:text-brand-400">
               <TargetIcon className="size-5" />
             </span>
             <span className="min-w-0 flex-1">
@@ -283,7 +283,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
           </>
         )}
 
-        <p className="mt-8 text-xs leading-relaxed text-neutral-400">
+        <p className="mt-8 text-xs leading-relaxed text-neutral-500">
           Returns are expected ranges, not guaranteed. Past performance doesn&apos;t guarantee
           future results.
         </p>

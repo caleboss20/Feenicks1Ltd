@@ -104,12 +104,12 @@ export function InvestStartScreen() {
             slightly shorter button (h-13, 52px) than the standard large one. */}
         <div className={cn(walletActionsClass, "flex flex-col items-center gap-2.5")}>
           {canInvest(option) && (
-            <ButtonLink href={investAmountHref(pkg.id)} size="lg" fullWidth className="h-13!">
+            <ButtonLink href={investAmountHref(pkg.id)} size="lg" fullWidth>
               {isInvested ? "Add money" : "Continue"}
             </ButtonLink>
           )}
           {!isInvested && (
-            <ButtonLink href={ROUTES.investPackages} variant="soft" size="lg" fullWidth className="h-13!">
+            <ButtonLink href={ROUTES.investPackages} variant="soft" size="lg" fullWidth>
               Change portfolio
             </ButtonLink>
           )}

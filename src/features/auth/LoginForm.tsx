@@ -147,7 +147,7 @@ export function LoginForm() {
 
         <Link
           href={ROUTES.forgotPassword}
-          className="mx-auto text-[0.9375rem] font-semibold text-brand-600 hover:underline lg:text-sm"
+          className="mx-auto text-[0.9375rem] font-semibold text-brand-700 hover:underline lg:text-sm"
         >
           Forgot the password?
         </Link>

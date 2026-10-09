@@ -158,7 +158,7 @@ function CoinCard({ email }: { email: string }) {
         <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-white py-1.5 pr-3.5 pl-1.5 text-[0.8125rem] font-semibold whitespace-nowrap text-neutral-900">
           {copied ? (
             <>
-              <CheckIcon className="ml-1 size-4 text-brand-600" />
+              <CheckIcon className="ml-1 size-4 text-brand-700" />
               Link copied
             </>
           ) : (

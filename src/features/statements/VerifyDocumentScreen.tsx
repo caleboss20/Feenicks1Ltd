@@ -46,7 +46,7 @@ export function VerifyDocumentScreen({ number, encoded }: { number: string; enco
       {matches && facts ? (
         <section className="mt-7 rounded-3xl border border-neutral-200 p-5 dark:border-white/10">
           <p className="flex items-center gap-2 text-[0.9375rem] font-bold text-brand-700 dark:text-brand-400">
-            <span aria-hidden className="grid size-6 place-items-center rounded-full bg-brand-600 text-white">
+            <span aria-hidden className="grid size-6 place-items-center rounded-full bg-brand-700 text-white">
               <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m5 12 5 5 9-10" />
               </svg>

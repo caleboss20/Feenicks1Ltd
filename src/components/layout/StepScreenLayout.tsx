@@ -89,7 +89,7 @@ export function StepScreenLayout({
   );
 
   return (
-    <div
+    <main
       className={cn(
         "mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-[max(2rem,env(safe-area-inset-bottom))] sm:justify-center sm:py-8",
         compactTop ? "pt-[max(0.25rem,env(safe-area-inset-top))]" : "pt-[max(1rem,env(safe-area-inset-top))]",
@@ -124,7 +124,7 @@ export function StepScreenLayout({
       </header>
 
       <div className={cn("flex flex-1 flex-col sm:flex-none lg:mt-4", compactTop ? "mt-2" : "mt-6")}>{children}</div>
-    </div>
+    </main>
   );
 }
 

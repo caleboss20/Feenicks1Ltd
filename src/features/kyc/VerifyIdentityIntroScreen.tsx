@@ -61,7 +61,7 @@ export function VerifyIdentityIntroScreen() {
         <div className={stepActionsClass}>
           {/* Reassurance right above the button, where hesitation happens. */}
           <p className="mb-4 flex items-center justify-center gap-2 text-sm text-neutral-500 lg:text-[0.8125rem]">
-            <LockIcon className="size-4 text-brand-600" />
+            <LockIcon className="size-4 text-brand-700" />
             Your data is encrypted and kept secure.
           </p>
 

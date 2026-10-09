@@ -85,9 +85,12 @@ export function PerformanceCard({
       style={
         {
           "--chart-line": color.main,
+          // Small text in the colour: its deepest shade, which reads at 4.5:1+ on white.
+          "--chart-text": color.top,
           "--chart-line-dark": `color-mix(in srgb, ${color.main} 55%, white)`,
           "--chart-bubble": color.top,
-          "--chart-bubble-dark": `color-mix(in srgb, ${color.main} 75%, white)`,
+          // Dark mode too: the deepest shade, so the white text in it reads at 4.5:1+.
+          "--chart-bubble-dark": color.top,
         } as React.CSSProperties
       }
     >
@@ -151,7 +154,7 @@ export function PerformanceCard({
       <div className="mt-3 flex items-center justify-center gap-1">
         <Link
           href={ROUTES.analytics}
-          className="group flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-(--chart-line) transition-opacity hover:opacity-80 dark:text-(--chart-line-dark)"
+          className="group flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-(--chart-text) transition-opacity hover:opacity-80 dark:text-(--chart-line-dark)"
         >
           See full analytics
           <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -159,7 +162,7 @@ export function PerformanceCard({
         <span aria-hidden className="h-3.5 w-px bg-neutral-200 dark:bg-white/15" />
         <Link
           href={ROUTES.statements}
-          className="group flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-(--chart-line) transition-opacity hover:opacity-80 dark:text-(--chart-line-dark)"
+          className="group flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-(--chart-text) transition-opacity hover:opacity-80 dark:text-(--chart-line-dark)"
         >
           Statement
           <DownloadGlyph />

@@ -38,9 +38,10 @@ import {
   type SupportRequest,
   type SupportTopic,
 } from "./supportService";
+import { SECTION_LABEL } from "@/components/ui/styles";
 
 const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
-const LABEL = "text-xs font-semibold tracking-wider text-neutral-400 uppercase";
+const LABEL = SECTION_LABEL;
 
 /** The topic that fits a transaction, so a message about one starts on the right topic. */
 const TOPIC_FOR_TYPE: Record<Transaction["type"], SupportTopic> = {
@@ -100,7 +101,7 @@ export function SupportMessageScreen() {
         <button
           type="button"
           onClick={() => router.replace(ROUTES.support)}
-          className="mt-8 flex h-12 w-full max-w-xs cursor-pointer items-center justify-center rounded-full bg-brand-600 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700"
+          className="mt-8 flex h-12 w-full max-w-xs cursor-pointer items-center justify-center rounded-full bg-brand-700 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-800"
         >
           Back to help
         </button>
@@ -145,7 +146,7 @@ export function SupportMessageScreen() {
                 className={cn(
                   "flex h-9 items-center rounded-full px-4 text-[0.8125rem] font-medium transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-brand-400",
                   topic === item.id
-                    ? "bg-brand-600 text-white"
+                    ? "bg-brand-700 text-white"
                     : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/15",
                 )}
               >
@@ -175,7 +176,7 @@ export function SupportMessageScreen() {
               </option>
             ))}
           </select>
-          <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4 size-4 -translate-y-1/2 text-neutral-400" />
+          <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4 size-4 -translate-y-1/2 text-neutral-500" />
         </div>
         {transactionId && (
           <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
@@ -202,7 +203,7 @@ export function SupportMessageScreen() {
           id="support-message-count"
           className={cn(
             "mt-1.5 text-right text-xs tabular-nums",
-            length > 0 && length < MESSAGE_MIN_LENGTH ? "text-amber-600" : "text-neutral-400",
+            length > 0 && length < MESSAGE_MIN_LENGTH ? "text-amber-600" : "text-neutral-500",
           )}
         >
           {length < MESSAGE_MIN_LENGTH ? `At least ${MESSAGE_MIN_LENGTH} characters · ` : ""}
@@ -222,7 +223,7 @@ export function SupportMessageScreen() {
           onClick={send}
           disabled={isSending}
           aria-busy={isSending || undefined}
-          className="flex h-12 w-full cursor-pointer items-center justify-center rounded-full bg-brand-600 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
+          className="flex h-12 w-full cursor-pointer items-center justify-center rounded-full bg-brand-700 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-60"
         >
           {isSending ? "Sending…" : "Send message"}
         </button>

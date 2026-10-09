@@ -182,7 +182,7 @@ export function PackageTermsScreen({ pkg, flow }: { pkg: InvestmentPackage; flow
             type="button"
             onClick={scrollFurther}
             aria-label={isAtEnd ? "Back to the top" : "Scroll to the end of the terms"}
-            className="absolute -top-16 right-6 grid size-12 cursor-pointer place-items-center rounded-full bg-brand-600 text-white transition-[background-color,transform] hover:bg-brand-700 active:scale-95 sm:-top-16 sm:right-0"
+            className="absolute -top-16 right-6 grid size-12 cursor-pointer place-items-center rounded-full bg-brand-700 text-white transition-[background-color,transform] hover:bg-brand-800 active:scale-95 sm:-top-16 sm:right-0"
           >
             {/* ArrowLeft turned to point down (more to read) or up (back to top). */}
             <ArrowLeft

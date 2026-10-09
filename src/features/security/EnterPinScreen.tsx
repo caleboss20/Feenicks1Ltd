@@ -276,7 +276,7 @@ export function EnterPinScreen() {
             >
               <Link
                 href={ROUTES.forgotPin}
-                className="font-semibold text-brand-600 hover:underline"
+                className="font-semibold text-brand-700 hover:underline"
               >
                 Forgot PIN?
               </Link>
@@ -285,7 +285,7 @@ export function EnterPinScreen() {
                 <button
                   type="button"
                   onClick={handleLogOut}
-                  className="cursor-pointer font-semibold text-brand-600 hover:underline"
+                  className="cursor-pointer font-semibold text-brand-700 hover:underline"
                 >
                   Log out
                 </button>

@@ -37,7 +37,7 @@ export function AppTabBar() {
         {
           // The current tab is always the app's green: the colour chosen in
           // Account › Dashboard colour is for the dashboard's top only.
-          "--tab-active": "var(--color-brand-600)",
+          "--tab-active": "var(--color-brand-700)",
           "--tab-active-dark": "var(--color-brand-400)",
         } as React.CSSProperties
       }
@@ -55,7 +55,7 @@ export function AppTabBar() {
                   "flex h-full flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium transition-colors [&_svg]:size-[22px]",
                   isActive
                     ? "font-semibold text-(--tab-active) dark:text-(--tab-active-dark)"
-                    : "text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300",
+                    : "text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300",
                 )}
               >
                 {tab.icon}

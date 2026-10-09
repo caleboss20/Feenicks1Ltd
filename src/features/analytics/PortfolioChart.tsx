@@ -292,7 +292,7 @@ export function PortfolioChart({
           }}
           className={cn(
             "relative rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60",
-            themed ? "text-(--chart-line) dark:text-(--chart-line-dark)" : "text-brand-600 dark:text-brand-400",
+            themed ? "text-(--chart-line) dark:text-(--chart-line-dark)" : "text-brand-700 dark:text-brand-400",
             isCompact ? "h-40" : "h-56",
           )}
         >
@@ -418,7 +418,7 @@ export function PortfolioChart({
                 style={{ left: `${percentX(activeIndex)}%` }}
               >
                 <p className="text-sm font-semibold">{formatCedis(active.value, { exact: true })}</p>
-                <p className="text-[0.6875rem] text-white/70 dark:text-neutral-500">{formatTime(active.time)}</p>
+                <p className="text-[0.6875rem] text-white/70 dark:text-neutral-400">{formatTime(active.time)}</p>
               </div>
             </>
           )}
@@ -456,7 +456,7 @@ export function PortfolioChart({
 
         {/* Dates along the bottom (they scroll with a wide chart). */}
         {showDates && formatAxisTime && (
-          <div aria-hidden className="relative mt-2.5 h-4 text-[0.6875rem] text-neutral-400">
+          <div aria-hidden className="relative mt-2.5 h-4 text-[0.6875rem] text-neutral-500 dark:text-neutral-400">
             {dateIndexes.map((index, k) => (
               <span
                 key={index}
@@ -487,7 +487,7 @@ export function PortfolioChart({
           {ticks.map((tick) => (
             <span
               key={tick}
-              className="absolute right-0 -translate-y-full rounded bg-background/85 px-1 pb-0.5 text-[0.625rem] leading-none text-neutral-400 tabular-nums"
+              className="absolute right-0 -translate-y-full rounded bg-background/85 px-1 pb-0.5 text-[0.625rem] leading-none text-neutral-500 tabular-nums"
               style={{ top: `${(y(tick) / HEIGHT) * 100}%` }}
             >
               {compactValue(tick)}

@@ -38,8 +38,9 @@ import {
   type KnownDevice,
   type SecurityEvent,
 } from "./securityActivity";
+import { SECTION_LABEL } from "@/components/ui/styles";
 
-const LABEL = "text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400";
+const LABEL = SECTION_LABEL;
 const CARD = "divide-y divide-neutral-100 rounded-3xl border border-neutral-200 px-4 dark:divide-white/10 dark:border-white/10";
 const ROW = "flex min-h-14 items-center gap-3.5 py-3.5";
 const ICON = "shrink-0 text-neutral-600 dark:text-neutral-300 [&_svg]:size-5";
@@ -101,7 +102,7 @@ export function SecurityCentreScreen() {
         {/* Protection level */}
         <section className="mt-1 rounded-3xl bg-brand-50 p-5 dark:bg-brand-500/10" aria-label="Account protection">
           <div className="flex items-center gap-4">
-            <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand-600 text-white [&_svg]:size-6">
+            <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand-700 text-white [&_svg]:size-6">
               <ShieldCheckIcon />
             </span>
             <div className="min-w-0">

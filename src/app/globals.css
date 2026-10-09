@@ -58,6 +58,10 @@
   --color-brand-900: #105433;
   --color-brand-950: #04301b;
 
+  /* Secondary text grey, one step darker than Tailwind's default (#737373) so it
+     reads at 4.5:1 or more on white and on the grey pages (WCAG AA). */
+  --color-neutral-500: #6b6b6b;
+
   /* ------------------------------------------------------------------------
      Animations → `animate-<name>` utilities.
      Shared easing: a soft "expo out" curve (fast start, long gentle settle),

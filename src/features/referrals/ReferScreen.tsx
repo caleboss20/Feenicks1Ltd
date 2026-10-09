@@ -104,7 +104,7 @@ export function ReferScreen() {
             className="grid size-9 cursor-pointer place-items-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-white/10 dark:hover:text-white"
           >
             {codeCopied ? (
-              <CheckIcon className="size-[18px] text-brand-600" />
+              <CheckIcon className="size-[18px] text-brand-700" />
             ) : (
               <CopyIcon className="size-[18px]" />
             )}
@@ -113,7 +113,7 @@ export function ReferScreen() {
       </section>
 
       <div className="mt-5 flex items-center gap-3.5 rounded-2xl bg-brand-50 p-4 dark:bg-brand-500/10 [@media(max-height:700px)]:mt-3 [@media(max-height:700px)]:p-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand-600 dark:bg-white/10 dark:text-brand-400">
+        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand-700 dark:bg-white/10 dark:text-brand-400">
           <GiftIcon className="size-5" />
         </span>
         <p className="text-[0.8125rem] leading-relaxed text-brand-900 dark:text-brand-100">

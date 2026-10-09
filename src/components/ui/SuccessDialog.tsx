@@ -78,7 +78,7 @@ export function SuccessDialog({
     >
       <IconIllustration icon={<ShieldCheckIcon />} className="mx-auto size-36 lg:size-28" />
 
-      <h2 id={titleId} className="mt-6 text-[1.375rem] font-bold text-brand-600 lg:text-xl">
+      <h2 id={titleId} className="mt-6 text-[1.375rem] font-bold text-brand-700 lg:text-xl">
         {title}
       </h2>
       <p className="mt-3 text-[0.9375rem] text-neutral-600 lg:text-sm dark:text-neutral-400">

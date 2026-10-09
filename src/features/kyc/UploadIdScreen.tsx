@@ -177,7 +177,7 @@ export function UploadIdScreen() {
                   aria-current={isCurrent ? "step" : undefined}
                   className={cn(
                     "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.8125rem] font-semibold transition-colors",
-                    isDone && "bg-brand-600 text-white",
+                    isDone && "bg-brand-700 text-white",
                     isCurrent && "bg-brand-50 text-brand-700 ring-1 ring-brand-600 ring-inset dark:bg-brand-500/10",
                     !isDone && !isCurrent && "bg-neutral-100 text-neutral-500 dark:bg-white/5",
                   )}

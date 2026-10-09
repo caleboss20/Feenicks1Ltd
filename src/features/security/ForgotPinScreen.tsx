@@ -85,7 +85,7 @@ export function ForgotPinScreen() {
 
         {/* Reassurance: forgetting the PIN doesn't put anything else at risk. */}
         <p className="mt-6 flex gap-3 rounded-2xl border border-brand-100 bg-brand-50/60 p-4 text-sm leading-relaxed text-brand-900 lg:mt-5 dark:border-brand-500/20 dark:bg-brand-500/10 dark:text-brand-200">
-          <ShieldCheckIcon className="mt-0.5 size-5 text-brand-600" />
+          <ShieldCheckIcon className="mt-0.5 size-5 text-brand-700" />
           <span>
             Only your PIN changes. Your password, investments and money stay exactly as they are.
           </span>

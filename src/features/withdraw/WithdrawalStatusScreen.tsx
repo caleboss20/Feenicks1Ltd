@@ -146,7 +146,7 @@ export function WithdrawalStatusScreen({ id }: { id: string }) {
                 aria-hidden
                 className={cn(
                   "relative grid size-6 shrink-0 place-items-center rounded-full",
-                  step.state === "done" && "bg-brand-600 text-white",
+                  step.state === "done" && "bg-brand-700 text-white",
                   step.state === "current" && "bg-brand-50 ring-2 ring-brand-600 dark:bg-brand-500/15",
                   step.state === "todo" && "bg-neutral-200 dark:bg-white/15",
                 )}
@@ -155,7 +155,7 @@ export function WithdrawalStatusScreen({ id }: { id: string }) {
                 {step.state === "current" && <span className="size-2 animate-pulse rounded-full bg-brand-600" />}
               </span>
               <div className="min-w-0 pt-0.5">
-                <p className={cn("text-sm font-semibold", step.state === "todo" && "text-neutral-400")}>
+                <p className={cn("text-sm font-semibold", step.state === "todo" && "text-neutral-500")}>
                   {step.label}
                   <span className="sr-only">
                     {step.state === "done" ? ", done" : step.state === "current" ? ", in progress" : ", to come"}
@@ -221,7 +221,7 @@ function WithdrawalIcon({ done, muted }: { done: boolean; muted: boolean }) {
       aria-hidden
       className={cn(
         "mx-auto grid size-24 place-items-center rounded-full",
-        muted ? "bg-neutral-100 text-neutral-400 dark:bg-white/10" : "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300",
+        muted ? "bg-neutral-100 text-neutral-500 dark:bg-white/10" : "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300",
       )}
     >
       {done ? (

@@ -118,7 +118,7 @@ export function ProofOfResidencyScreen() {
               <span className="flex-1 text-[0.9375rem] font-semibold lg:text-sm">
                 {getCountryName(RESIDENCE_COUNTRY_CODE)}
               </span>
-              <LockIcon className="size-4 text-neutral-400" />
+              <LockIcon className="size-4 text-neutral-500" />
             </div>
             <p className="mt-2 text-[0.8125rem] text-neutral-500">
               Feenicks1 is currently available to people living in Ghana.
@@ -144,7 +144,7 @@ export function ProofOfResidencyScreen() {
               >
                 {getCountryName(nationality)}
               </span>
-              <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-600">
+              <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-700">
                 Change
                 <ChevronDownIcon className="size-4" />
               </span>
@@ -185,7 +185,7 @@ export function ProofOfResidencyScreen() {
                       onChange={() => setDocument(id)}
                       className="sr-only"
                     />
-                    <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-500/10 [&_svg]:size-6">
+                    <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700 dark:bg-brand-500/10 [&_svg]:size-6">
                       {DOCUMENT_ICONS[id]}
                     </span>
                     <span className="flex flex-1 flex-col gap-0.5">

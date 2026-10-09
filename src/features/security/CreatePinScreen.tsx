@@ -198,7 +198,7 @@ export function CreatePinScreen({ mode = "create" }: { mode?: Mode }) {
             <button
               type="button"
               onClick={startOver}
-              className="mx-auto cursor-pointer text-sm font-semibold text-brand-600 hover:underline"
+              className="mx-auto cursor-pointer text-sm font-semibold text-brand-700 hover:underline"
             >
               Start over
             </button>

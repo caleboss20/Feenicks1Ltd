@@ -117,7 +117,7 @@ export function ConfirmPaymentSheet({
           {isTopUp ? "You're adding" : "You're investing"}
         </p>
         <p className="mt-1.5 flex items-start justify-center gap-1.5 font-semibold tracking-tight tabular-nums">
-          <span className="mt-0.5 text-base text-neutral-400 dark:text-neutral-500">{CEDI_SYMBOL}</span>
+          <span className="mt-0.5 text-base text-neutral-500 dark:text-neutral-400">{CEDI_SYMBOL}</span>
           <span className="text-[2.25rem] leading-none max-[360px]:text-[2rem]">
             {formatCedisNumber(amount, { exact: true })}
           </span>

@@ -37,8 +37,9 @@ import { WITHDRAWAL_RULES } from "@/features/withdraw/withdrawalModel";
 import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { investmentOverview, type InvestmentOverview } from "./investmentOverview";
+import { SECTION_LABEL } from "@/components/ui/styles";
 
-const LABEL = "text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400";
+const LABEL = SECTION_LABEL;
 const DAY = 86_400_000;
 
 const date = (value: Date) => value.toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" });
@@ -86,7 +87,7 @@ export function InvestmentOverviewScreen() {
             Once your first payment arrives, you&apos;ll see your cycle, what you&apos;ve earned and what&apos;s next
             here.
           </p>
-          <ButtonLink href={ROUTES.invest} size="lg" className="mt-6 h-13! px-10">
+          <ButtonLink href={ROUTES.invest} size="lg" className="mt-6 px-10">
             Invest
           </ButtonLink>
         </div>
@@ -296,7 +297,7 @@ function Upcoming({ title, when, note, highlight = false }: { title: string; whe
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-sm font-semibold">{title}</p>
         {highlight && (
-          <span className="shrink-0 rounded-full bg-brand-600 px-2 py-0.5 text-[0.6875rem] font-semibold text-white">Now</span>
+          <span className="shrink-0 rounded-full bg-brand-700 px-2 py-0.5 text-[0.6875rem] font-semibold text-white">Now</span>
         )}
       </div>
       <p className="mt-0.5 text-sm text-neutral-700 tabular-nums dark:text-neutral-300">{when}</p>

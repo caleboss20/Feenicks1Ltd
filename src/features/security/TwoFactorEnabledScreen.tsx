@@ -70,7 +70,7 @@ export function TwoFactorEnabledScreen({
         </span>
       </span>
 
-      <span className="animate-fade-up text-[0.9375rem] font-semibold text-brand-600 [animation-delay:0.8s] motion-reduce:animate-none lg:text-sm">
+      <span className="animate-fade-up text-[0.9375rem] font-semibold text-brand-700 [animation-delay:0.8s] motion-reduce:animate-none lg:text-sm">
         Tap anywhere to continue
       </span>
     </button>

@@ -163,7 +163,7 @@ export function LoginTwoStepScreen() {
               type="button"
               onClick={switchToSms}
               disabled={isSwitching || isRestarting}
-              className="cursor-pointer font-semibold text-brand-600 hover:underline disabled:cursor-wait disabled:opacity-60"
+              className="cursor-pointer font-semibold text-brand-700 hover:underline disabled:cursor-wait disabled:opacity-60"
             >
               {isSwitching ? "Sending code…" : "Get a code by SMS"}
             </button>
@@ -176,8 +176,8 @@ export function LoginTwoStepScreen() {
         )}
 
         {/* Anti-scam reminder: the #1 way codes get stolen is people being asked for them. */}
-        <p className="flex items-start justify-center gap-2 text-center text-xs leading-relaxed text-neutral-400">
-          <ShieldCheckIcon className="mt-px size-4 text-brand-600" />
+        <p className="flex items-start justify-center gap-2 text-center text-xs leading-relaxed text-neutral-500">
+          <ShieldCheckIcon className="mt-px size-4 text-brand-700" />
           <span>Never share this code. Feenicks1 will never ask you for it.</span>
         </p>
       </div>

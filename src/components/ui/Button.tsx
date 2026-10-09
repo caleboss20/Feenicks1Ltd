@@ -27,7 +27,7 @@ const base =
 
 const variants: Record<Variant, string> = {
   /** Solid brand green: the main action on a screen (use once per screen). */
-  primary: "bg-brand-600 text-white hover:bg-brand-700",
+  primary: "bg-brand-700 text-white hover:bg-brand-800",
   /** White with green text: the alternative action. Works on photos and on white. */
   secondary:
     "bg-white text-brand-700 ring-1 ring-black/5 ring-inset hover:bg-brand-50",
@@ -39,8 +39,8 @@ const variants: Record<Variant, string> = {
 
 const sizes: Record<Size, string> = {
   md: "h-11 px-5 text-sm",
-  /** Large CTA: 60px thumb target on touch screens, a compact 52px on desktop. */
-  lg: "h-15 px-7 text-lg lg:h-13 lg:px-6 lg:text-base",
+  /** Large CTA: 52px everywhere (one height for every main button in the app). */
+  lg: "h-13 px-6 text-base",
 };
 
 type StyleProps = {

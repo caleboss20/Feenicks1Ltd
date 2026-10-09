@@ -95,7 +95,7 @@ export function TransactionsScreen() {
     transactions?.filter((transaction) => filterId === "all" || transaction.type === filterId) ?? [];
 
   return (
-    <div
+    <main
       className={cn(
         "mx-auto flex min-h-dvh w-full max-w-md flex-col bg-neutral-100 px-4 pt-[max(1.5rem,env(safe-area-inset-top))] dark:bg-background",
         appTabBarPadding,
@@ -167,7 +167,7 @@ export function TransactionsScreen() {
       )}
 
       <AppTabBar />
-    </div>
+    </main>
   );
 }
 
@@ -235,8 +235,8 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
         <p
           className={cn(
             "text-[0.9375rem] font-semibold whitespace-nowrap tabular-nums",
-            isFailed && "text-neutral-400 line-through",
-            !isFailed && type.direction === "in" && "text-brand-600 dark:text-brand-400",
+            isFailed && "text-neutral-500 line-through",
+            !isFailed && type.direction === "in" && "text-brand-700 dark:text-brand-400",
             !isFailed && type.direction === "out" && "text-red-600 dark:text-red-400",
           )}
         >

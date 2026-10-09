@@ -75,7 +75,7 @@ export function WithdrawWalletScreen() {
         {/* The one action, at the bottom of the screen and always in view on
             first load (stuck there even on short screens: no scrolling to find it). */}
         <div className={walletActionsClass}>
-          <ButtonLink href={ROUTES.withdrawAmount} size="lg" fullWidth className="h-13!">
+          <ButtonLink href={ROUTES.withdrawAmount} size="lg" fullWidth>
             Withdraw money
           </ButtonLink>
         </div>

@@ -102,7 +102,7 @@ export function AccountScreen() {
     "grid size-11 shrink-0 place-items-center rounded-full bg-black/5 transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15";
 
   return (
-    <div
+    <main
       className={cn(
         "mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 bg-neutral-100 px-4 pt-[max(1rem,env(safe-area-inset-top))] dark:bg-background",
         appTabBarPadding,
@@ -153,7 +153,7 @@ export function AccountScreen() {
             {username ? `@${username}` : email}
           </p>
         </div>
-        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-500 transition-transform group-hover:translate-x-0.5" />
       </Link>
 
       {/* Invite friends, where the reference has "Upgrade to Pro". */}
@@ -224,7 +224,7 @@ export function AccountScreen() {
       />
 
       <AppTabBar />
-    </div>
+    </main>
   );
 }
 
@@ -269,7 +269,7 @@ function LinkRow({
         {value && <span className="text-sm text-neutral-500 dark:text-neutral-400">{value}</span>}
         {trailing}
         {/* Chevron turned to point right ("open"). */}
-        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-500 transition-transform group-hover:translate-x-0.5" />
       </Link>
     </li>
   );
@@ -338,7 +338,7 @@ function HiddenBalanceRow() {
         </span>
         <span className="min-w-0 flex-1 truncate text-[0.9375rem]">Hidden balance</span>
         <span className="text-sm text-neutral-500 dark:text-neutral-400">{current.name.replace("The word ", "")}</span>
-        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-500 transition-transform group-hover:translate-x-0.5" />
       </button>
 
       {isOpen && (
@@ -378,7 +378,7 @@ function HiddenBalanceRow() {
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="mt-5 h-13 w-full cursor-pointer rounded-full bg-brand-600 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700"
+            className="mt-5 h-13 w-full cursor-pointer rounded-full bg-brand-700 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-800"
           >
             Done
           </button>

@@ -114,7 +114,7 @@ function RecentRow({ transaction, hideAmount }: { transaction: Transaction; hide
         aria-hidden
         className={cn(
           "grid size-11 shrink-0 place-items-center rounded-full bg-neutral-100 dark:bg-white/10 [&_svg]:size-[18px]",
-          isOut ? "text-red-600 dark:text-red-400" : "text-brand-600 dark:text-brand-400",
+          isOut ? "text-red-600 dark:text-red-400" : "text-brand-700 dark:text-brand-400",
         )}
       >
         <ArrowRight className={isOut ? "-rotate-45" : "rotate-[135deg]"} />
@@ -127,16 +127,16 @@ function RecentRow({ transaction, hideAmount }: { transaction: Transaction; hide
               narrower phones (360px is common) get "ID: …". */}
           <span className="max-[375px]:hidden">Transaction </span>ID: {transaction.id}
         </p>
-        <p className="mt-0.5 text-[0.6875rem] text-neutral-400 dark:text-neutral-500">{when}</p>
+        <p className="mt-0.5 text-[0.6875rem] text-neutral-500 dark:text-neutral-400">{when}</p>
       </div>
 
       <div className="shrink-0 text-right">
         <p
           className={cn(
             "text-[0.8125rem] font-semibold whitespace-nowrap tabular-nums",
-            isFailed && "text-neutral-400 line-through",
+            isFailed && "text-neutral-500 line-through",
             !isFailed && isOut && "text-red-600 dark:text-red-400",
-            !isFailed && sign === "+ " && "text-brand-600 dark:text-brand-400",
+            !isFailed && sign === "+ " && "text-brand-700 dark:text-brand-400",
           )}
         >
           {hideAmount ? (

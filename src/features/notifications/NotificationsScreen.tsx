@@ -44,7 +44,7 @@ const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
 const KIND_ICONS: Record<NotificationKind, { icon: React.ReactNode; className: string }> = {
   security: { icon: <ShieldCheckIcon />, className: "text-blue-600 dark:text-blue-400" },
   account: { icon: <UserIcon />, className: "text-neutral-700 dark:text-neutral-300" },
-  investing: { icon: <TrendUpIcon />, className: "text-brand-600 dark:text-brand-400" },
+  investing: { icon: <TrendUpIcon />, className: "text-brand-700 dark:text-brand-400" },
   support: { icon: <MessageIcon />, className: "text-amber-600 dark:text-amber-400" },
 };
 
@@ -162,7 +162,7 @@ function NotificationRow({
           </span>
           <time
             dateTime={notification.createdAt}
-            className="mt-1.5 block text-xs text-neutral-400 dark:text-neutral-500"
+            className="mt-1.5 block text-xs text-neutral-500 dark:text-neutral-400"
           >
             {when}
           </time>
