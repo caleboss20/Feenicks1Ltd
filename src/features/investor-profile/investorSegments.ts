@@ -15,6 +15,10 @@ import type { RiskLevel } from "./riskProfileQuestions";
  *                                                          Agribusiness Capital
  *   03 BUSINESS OWNER   Put capital to work.            → Real Estate Pool Fund
  *
+ * Who each profile covers is spelled out (CEO, October 2026: not everyone
+ * is a student or a business owner): "Student or beginner", "Investor",
+ * "Business owner or realtor", and the screen asks for the closest match.
+ *
  * The profile narrows the choice; the risk questions then pick the best
  * match among its portfolios (recommendedPortfolioIds). Every portfolio
  * stays open to everyone: the rest are listed under "Other portfolios".
@@ -29,6 +33,10 @@ export type InvestorSegmentInfo = {
   /** "01", "02", "03": the guide's numbering. */
   number: string;
   name: string;
+  /** Who else it's for, under the name: "or beginner", "or realtor". */
+  alsoFor: string | null;
+  /** In a sentence: "a student or beginner", "an investor". */
+  phrase: string;
   tagline: string;
   /** The portfolios built for this profile, in the guide's order. */
   packageIds: PackageId[];
@@ -49,6 +57,8 @@ export const INVESTOR_SEGMENTS: InvestorSegmentInfo[] = [
     id: "student",
     number: "01",
     name: "Student",
+    alsoFor: "or beginner",
+    phrase: "a student or beginner",
     tagline: "Start small. Build the habit.",
     packageIds: ["mfc"],
     photo: { src: "/images/profiles/student-graduate.jpg", alt: "A smiling young Ghanaian graduate in her cap and kente stole", focus: "60% 18%" },
@@ -58,6 +68,8 @@ export const INVESTOR_SEGMENTS: InvestorSegmentInfo[] = [
     id: "investor",
     number: "02",
     name: "Investor",
+    alsoFor: null,
+    phrase: "an investor",
     tagline: "Scale with structure.",
     packageIds: ["investwise", "abc"],
     photo: { src: "/images/profiles/investor.jpg", alt: "An investor in a suit checking his phone", focus: "50% 36%" },
@@ -67,6 +79,8 @@ export const INVESTOR_SEGMENTS: InvestorSegmentInfo[] = [
     id: "business-owner",
     number: "03",
     name: "Business owner",
+    alsoFor: "or realtor",
+    phrase: "a business owner or realtor",
     tagline: "Put capital to work.",
     packageIds: ["repf"],
     photo: { src: "/images/profiles/business-owner.jpg", alt: "A business owner in an apron using his phone at his stall", focus: "50% 26%" },

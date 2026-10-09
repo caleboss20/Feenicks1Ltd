@@ -72,7 +72,7 @@ export function SegmentPicker({
               type="radio"
               name="investor-segment"
               value={segment.id}
-              aria-label={`${segment.name}: ${segment.tagline}`}
+              aria-label={`${segment.name}${segment.alsoFor ? ` ${segment.alsoFor}` : ""}: ${segment.tagline}`}
               checked={selected === segment.id}
               onChange={() => onSelect(segment.id)}
               className="sr-only"
@@ -111,7 +111,14 @@ export function SegmentRow({
           <span className={cn("block leading-tight font-bold tracking-wide uppercase", compact ? "mt-1.5 text-xs" : "mt-2 text-[0.8125rem]")}>
             {segment.name}
           </span>
-          <span className={cn("mt-1 block text-[0.6875rem] leading-snug", tone.tagline)}>{segment.tagline}</span>
+          {/* Who else it's for ("or beginner"). The picker shows that in place of the
+              tagline (so all three still fit one screen); the result shows both. */}
+          {segment.alsoFor && (
+            <span className={cn("block text-[0.6875rem] leading-snug font-semibold", tone.tagline)}>{segment.alsoFor}</span>
+          )}
+          {(!compact || !segment.alsoFor) && (
+            <span className={cn("mt-1 block text-[0.6875rem] leading-snug", tone.tagline)}>{segment.tagline}</span>
+          )}
         </div>
         <div className={cn("relative flex-1", compact ? "min-h-11" : "min-h-[4.5rem]")}>
           <Image

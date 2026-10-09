@@ -36,7 +36,7 @@
  * those features are built.
  */
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -46,6 +46,7 @@ import {
   BellIcon,
   ChevronDownIcon,
   CompassIcon,
+  EyeOffIcon,
   FaceIdIcon,
   FingerprintIcon,
   GridIcon,
@@ -56,6 +57,7 @@ import {
   SupportIcon,
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
+import { BottomSheet } from "@/components/ui/BottomSheet";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Switch } from "@/components/ui/Switch";
 import { ROUTES } from "@/config/routes";
@@ -73,6 +75,7 @@ import { cn } from "@/lib/utils";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { GREY_PAGE_COLORS } from "@/config/pageColors";
 import { chosenDashboardColor, swatchGradient } from "@/features/dashboard/dashboardTheme";
+import { HIDDEN_BALANCE_STYLES } from "@/features/dashboard/hiddenBalance";
 
 export function AccountScreen() {
   const router = useRouter();
@@ -179,6 +182,7 @@ export function AccountScreen() {
       <RowGroup>
         <DarkModeRow />
         <DashboardColorRow />
+        <HiddenBalanceRow />
       </RowGroup>
 
       <RowGroup>
@@ -304,6 +308,89 @@ function DashboardColorRow() {
         </span>
       }
     />
+  );
+}
+
+/**
+ * How the dashboard shows the balance when the eye hides it: five styles,
+ * each previewed in the sheet (dots by default). Saved on this device.
+ */
+function HiddenBalanceRow() {
+  const style = useThemeStore((state) => state.hiddenBalanceStyle);
+  const setStyle = useThemeStore((state) => state.setHiddenBalanceStyle);
+  const [isOpen, setIsOpen] = useState(false);
+  const titleId = useId();
+  const current = HIDDEN_BALANCE_STYLES.find((item) => item.id === style) ?? HIDDEN_BALANCE_STYLES[0];
+
+  return (
+    <li>
+      <button type="button" onClick={() => setIsOpen(true)} className={cn(rowClass, "group w-full cursor-pointer text-left")}>
+        <span className={iconClass}>
+          <EyeOffIcon />
+        </span>
+        <span className="min-w-0 flex-1 truncate text-[0.9375rem]">Hidden balance</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-400">{current.name.replace("The word ", "")}</span>
+        <ChevronDownIcon className="size-[18px] -rotate-90 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+      </button>
+
+      {isOpen && (
+        <BottomSheet open onClose={() => setIsOpen(false)} labelledBy={titleId}>
+          <h2 id={titleId} className="text-lg font-bold tracking-tight">
+            Hidden balance
+          </h2>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            How your balance looks on Home when you tap the eye.
+          </p>
+          <fieldset className="mt-5 flex flex-col gap-2">
+            <legend className="sr-only">Hidden balance style</legend>
+            {HIDDEN_BALANCE_STYLES.map((option) => (
+              <label
+                key={option.id}
+                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl border border-neutral-200 px-4 py-3 transition-colors has-checked:border-brand-600 has-checked:bg-brand-50/60 dark:border-white/10 dark:has-checked:bg-brand-500/10"
+              >
+                <input
+                  type="radio"
+                  name="hidden-balance"
+                  value={option.id}
+                  checked={style === option.id}
+                  onChange={() => setStyle(option.id)}
+                  className="peer sr-only"
+                />
+                <span
+                  aria-hidden
+                  className="grid size-5 shrink-0 place-items-center rounded-full border-2 border-neutral-300 peer-checked:border-brand-600 peer-checked:[&>span]:scale-100 dark:border-white/20"
+                >
+                  <span className="size-2.5 scale-0 rounded-full bg-brand-600 transition-transform" />
+                </span>
+                <span className="flex-1 text-[0.9375rem]">{option.name}</span>
+                <HiddenBalancePreview mask={option.mask} />
+              </label>
+            ))}
+          </fieldset>
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="mt-5 h-13 w-full cursor-pointer rounded-full bg-brand-600 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            Done
+          </button>
+        </BottomSheet>
+      )}
+    </li>
+  );
+}
+
+/** A tiny dashboard-green chip showing the style: "GH₵ ••••••", or a blurred figure. */
+function HiddenBalancePreview({ mask }: { mask: string | null }) {
+  return (
+    <span aria-hidden className="flex items-baseline gap-1 rounded-lg bg-brand-600 px-2.5 py-1.5 text-white">
+      <span className="text-[0.6875rem] font-semibold text-white/85">GH₵</span>
+      {mask === null ? (
+        <span className="text-sm font-bold tabular-nums blur-[3px] select-none">2,450.00</span>
+      ) : (
+        <span className="text-sm font-bold tracking-wider">{mask}</span>
+      )}
+    </span>
   );
 }
 

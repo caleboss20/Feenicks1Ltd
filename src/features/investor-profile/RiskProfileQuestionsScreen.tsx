@@ -112,7 +112,7 @@ export function RiskProfileQuestionsScreen({ flow }: { flow: InvestingFlow }) {
             <div>
               <h2 className="text-xl leading-snug font-bold tracking-tight">Which best describes you?</h2>
               <p className="mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                You can still choose any portfolio later.
+                Choose the closest match. Any portfolio stays open to you.
               </p>
               <SegmentPicker selected={segment} onSelect={setSegment} className="mt-3" />
             </div>

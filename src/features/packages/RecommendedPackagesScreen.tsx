@@ -180,8 +180,7 @@ export function RecommendedPackagesScreen({ flow }: { flow: InvestingFlow }) {
             <>
               {segment ? (
                 <>
-                  As {segment === "investor" ? "an" : "a"}{" "}
-                  <span className="font-semibold text-foreground">{segmentInfo(segment).name.toLowerCase()}</span> with a{" "}
+                  As <span className="font-semibold text-foreground">{segmentInfo(segment).phrase}</span> with a{" "}
                 </>
               ) : (
                 "Based on your "

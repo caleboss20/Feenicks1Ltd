@@ -56,6 +56,7 @@ import {
 } from "@/components/icons";
 import { AppTabBar, appTabBarPadding } from "@/components/layout/AppTabBar";
 import { RollingNumber } from "@/components/ui/RollingNumber";
+import { hiddenMask } from "@/features/dashboard/hiddenBalance";
 import { packageDetailsHref } from "@/config/investingFlow";
 import { ROUTES } from "@/config/routes";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -129,6 +130,8 @@ export function DashboardScreen() {
     useThemeStore((state) => state.dashboardColor),
     useThemeStore((state) => state.customDashboardColor),
   );
+  // How a hidden balance looks (Account › Hidden balance): dots by default.
+  const hiddenBalanceStyle = useThemeStore((state) => state.hiddenBalanceStyle);
   useStatusBarColor({ light: color.top, dark: color.top });
   // A dot on the bell when something new happened (real events only).
   const unreadNotifications = useUnreadNotificationCount();
@@ -178,6 +181,8 @@ export function DashboardScreen() {
 
   // The balance, split so the pesewas can be drawn smaller: "1,250" + "50".
   const [balanceWhole, balanceFraction] = formatCedisNumber(portfolioValue, { exact: true }).split(".");
+  const balanceMask = hiddenMask(hiddenBalanceStyle);
+  const profitMask = hiddenMask(hiddenBalanceStyle, true);
 
   /** Cards in the swipeable carousel, all built from real data (no made-up offers). */
   const banners: Banner[] = [
@@ -328,20 +333,32 @@ export function DashboardScreen() {
         <div className="mt-3.5 flex items-center gap-3">
           <p className="flex items-baseline gap-2 leading-none">
             <span className="text-xl font-semibold text-white/90">{CEDI_SYMBOL}</span>
-            {/* Rolls up like an odometer when Home opens; hidden = blurred, not replaced. */}
-            {hideAmounts && <span className="sr-only">Amount hidden</span>}
-            <span
-              aria-hidden={hideAmounts || undefined}
-              className={cn(
-                "text-[2.6875rem] font-bold tracking-[-0.03em] tabular-nums transition-[filter] duration-300 select-none",
-                hideAmounts && "blur-[11px]",
-              )}
-            >
-              <RollingNumber
-                value={`${balanceWhole}.${balanceFraction}`}
-                fractionClassName="text-[1.6875rem] text-white/80"
-              />
-            </span>
+            {/* Rolls up like an odometer when Home opens. Hidden: dots, asterisks or a
+                blur, as chosen on Account › Hidden balance (dots by default). */}
+            {hideAmounts && balanceMask !== null ? (
+              <span
+                aria-label="Amount hidden"
+                className={cn("text-[2.0625rem] font-bold", hiddenBalanceStyle === "word" ? "tracking-tight" : "tracking-[0.1em]")}
+              >
+                {balanceMask}
+              </span>
+            ) : (
+              <>
+                {hideAmounts && <span className="sr-only">Amount hidden</span>}
+                <span
+                  aria-hidden={hideAmounts || undefined}
+                  className={cn(
+                    "text-[2.6875rem] font-bold tracking-[-0.03em] tabular-nums transition-[filter] duration-300 select-none",
+                    hideAmounts && "blur-[11px]",
+                  )}
+                >
+                  <RollingNumber
+                    value={`${balanceWhole}.${balanceFraction}`}
+                    fractionClassName="text-[1.6875rem] text-white/80"
+                  />
+                </span>
+              </>
+            )}
           </p>
           <button
             type="button"
@@ -368,9 +385,12 @@ export function DashboardScreen() {
           {hideAmounts && <span className="sr-only">hidden</span>}
           <span
             aria-hidden={hideAmounts || undefined}
-            className={cn("font-semibold text-white transition-[filter] duration-300 select-none", hideAmounts && "blur-[5px]")}
+            className={cn(
+              "font-semibold text-white transition-[filter] duration-300 select-none",
+              hideAmounts && profitMask === null && "blur-[5px]",
+            )}
           >
-            {formatCedis(profitEarned, { exact: true })}
+            {hideAmounts && profitMask !== null ? profitMask : formatCedis(profitEarned, { exact: true })}
           </span>
         </p>
       </section>

@@ -6,6 +6,7 @@ import {
   type CustomColor,
   type DashboardColorId,
 } from "@/features/dashboard/dashboardTheme";
+import { DEFAULT_HIDDEN_BALANCE_STYLE, type HiddenBalanceStyle } from "@/features/dashboard/hiddenBalance";
 
 /** How many colours "+" keeps (newest first; the oldest drops off). */
 const MAX_SAVED_COLORS = 8;
@@ -60,6 +61,9 @@ type ThemeStore = {
   saveDashboardColor: (color: CustomColor) => void;
   /** Back to the default (green): the picker's "Reset". */
   resetDashboardColor: () => void;
+  /** How a hidden balance looks on the dashboard (Account › Hidden balance): dots by default. */
+  hiddenBalanceStyle: HiddenBalanceStyle;
+  setHiddenBalanceStyle: (style: HiddenBalanceStyle) => void;
 };
 
 export const useThemeStore = create<ThemeStore>()(
@@ -84,6 +88,8 @@ export const useThemeStore = create<ThemeStore>()(
         })),
       resetDashboardColor: () =>
         set({ dashboardColor: DEFAULT_DASHBOARD_COLOR, customDashboardColor: null }),
+      hiddenBalanceStyle: DEFAULT_HIDDEN_BALANCE_STYLE,
+      setHiddenBalanceStyle: (hiddenBalanceStyle) => set({ hiddenBalanceStyle }),
     }),
     {
       name: THEME_STORAGE_KEY,
@@ -95,6 +101,7 @@ export const useThemeStore = create<ThemeStore>()(
         dashboardColor: state.dashboardColor,
         customDashboardColor: state.customDashboardColor,
         savedDashboardColors: state.savedDashboardColors,
+        hiddenBalanceStyle: state.hiddenBalanceStyle,
       }),
     },
   ),
