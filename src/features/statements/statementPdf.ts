@@ -1,4 +1,7 @@
+import { COMPANY, COMPANY_CONTACT_LINE, COMPANY_LINE } from "@/config/company";
+import { IS_DEMO_MODE } from "@/config/demoMode";
 import { ghs, periodLabel, type Statement } from "./statementModel";
+import { verifyUrl } from "./verifyLink";
 
 /**
  * The statement as a PDF (A4), made on the phone: nothing is uploaded.
@@ -18,7 +21,11 @@ import { ghs, periodLabel, type Statement } from "./statementModel";
  *   Monthly summary    Month · In · Returns · Out · Closing
  *   Transactions       Date · Reference · Type · Description · In · Out · Balance
  *   ─────────────────────────────────────────────────────────────
- *   Feenicks1 Solutions Ltd · Accra, Ghana   Statement F1S-…   Page 1 of 2
+ *   Feenicks1 Solutions Ltd · Reg. No. … · Ridge, Accra        Page 1 of 2
+ *   +233 54 572 8382 · email · website                   Statement F1S-…
+ *
+ * The QR code opens the verify page (verifyLink.ts). Demo data: a faint
+ * "SPECIMEN" across every page (drawSpecimenMark).
  *
  * Amounts say "GHS" (the PDF's built-in fonts have no ₵ sign). No shadows:
  * structure comes from the green band, light panels and hairlines.
@@ -64,20 +71,59 @@ export async function imageData(url: string): Promise<string | null> {
   }
 }
 
-/** What the QR code holds: the statement's key facts. TODO(api): the /verify/:number link instead. */
+/** The QR code: the verify page for this statement, carrying its key facts. */
 export function statementQrText(statement: Statement, meta: StatementMeta): string {
-  return [
-    "FEENICKS1 ACCOUNT STATEMENT",
-    `No: ${meta.number}`,
-    `Investor: ${meta.holderName}`,
-    meta.walletId ? `Wallet: ${meta.walletId}` : null,
-    `Period: ${periodLabel(statement.period)}`,
-    `Closing balance: ${ghs(statement.closingBalance)}`,
-    `Issued: ${dateTime(meta.issuedAt)}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  return verifyUrl({
+    kind: "statement",
+    number: meta.number,
+    holder: meta.holderName,
+    wallet: meta.walletId,
+    period: periodLabel(statement.period),
+    balance: ghs(statement.closingBalance),
+    issued: dateTime(meta.issuedAt),
+  });
 }
+
+/**
+ * Demo data only: a faint diagonal "SPECIMEN" on every page, so a document
+ * made from demo figures can't pass as a genuine statement or letter. Off
+ * automatically when the app runs on real data (IS_DEMO_MODE false).
+ */
+export function drawSpecimenMark(doc: import("jspdf").jsPDF) {
+  if (!IS_DEMO_MODE) return;
+  const pages = doc.getNumberOfPages();
+  for (let page = 1; page <= pages; page += 1) {
+    doc.setPage(page);
+    doc.saveGraphicsState();
+    // GState is a constructor at runtime; its typings describe it as a method.
+    const GState = doc.GState as unknown as new (options: { opacity: number }) => object;
+    doc.setGState(new GState({ opacity: 0.07 }));
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(96);
+    doc.setTextColor(17, 24, 39);
+    doc.text("SPECIMEN", PAGE_W / 2, PAGE_H / 2 + 20, { align: "center", angle: 35 });
+    doc.restoreGraphicsState();
+  }
+}
+
+/** The company footer on every page: who we are, how to reach us, and the document's reference and page. */
+export function drawCompanyFooter(doc: import("jspdf").jsPDF, reference: string) {
+  const pages = doc.getNumberOfPages();
+  for (let page = 1; page <= pages; page += 1) {
+    doc.setPage(page);
+    doc.setDrawColor(...HAIRLINE);
+    doc.setLineWidth(0.25);
+    doc.line(M, PAGE_H - 16, RIGHT, PAGE_H - 16);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(...MUTED);
+    doc.text(COMPANY_LINE, M, PAGE_H - 11.5);
+    doc.text(`${COMPANY_CONTACT_LINE} · ${COMPANY.website}`, M, PAGE_H - 7.5);
+    doc.text(pages > 1 ? `Page ${page} of ${pages}` : "", RIGHT, PAGE_H - 11.5, { align: "right" });
+    doc.text(reference, RIGHT, PAGE_H - 7.5, { align: "right" });
+  }
+}
+
 
 export async function statementPdf(statement: Statement, meta: StatementMeta): Promise<Blob> {
   const [{ jsPDF }, QRCode, logo] = await Promise.all([
@@ -142,7 +188,7 @@ export async function statementPdf(statement: Statement, meta: StatementMeta): P
   const qrSize = 27;
   doc.addImage(qr, "PNG", RIGHT - qrSize, 37, qrSize, qrSize, "qr", "FAST");
   font(6.5, "normal", MUTED);
-  text("Scan for the statement details", RIGHT - qrSize / 2, 37 + qrSize + 3.5, { align: "center" });
+  text("Scan to verify", RIGHT - qrSize / 2, 37 + qrSize + 3.5, { align: "center" });
   text(`Issued ${dateTime(meta.issuedAt)}`, RIGHT - qrSize / 2, 37 + qrSize + 7, { align: "center" });
 
   /* ── Summary panel ───────────────────────────────────────────── */
@@ -240,7 +286,7 @@ export async function statementPdf(statement: Statement, meta: StatementMeta): P
 
   /* ── Tables ──────────────────────────────────────────────────── */
   type Column = { title: string; x: number; align?: "right"; width?: number };
-  const bottom = PAGE_H - 22;
+  const bottom = PAGE_H - 24;
   const table = (title: string, columns: Column[], data: string[][], empty: string) => {
     const header = () => {
       doc.setFillColor(...BRAND_LIGHT);
@@ -375,16 +421,9 @@ export async function statementPdf(statement: Statement, meta: StatementMeta): P
     "(Account › Help & support in the app). The statement number and QR code identify this statement.";
   doc.text(doc.splitTextToSize(disclaimer, RIGHT - M) as string[], M, y);
 
-  /* ── Footer on every page ────────────────────────────────────── */
-  const pages = doc.getNumberOfPages();
-  for (let page = 1; page <= pages; page += 1) {
-    doc.setPage(page);
-    hairline(PAGE_H - 14);
-    font(7, "normal", MUTED);
-    text("Feenicks1 Solutions Ltd · Accra, Ghana", M, PAGE_H - 9);
-    text(`Statement ${meta.number}`, PAGE_W / 2, PAGE_H - 9, { align: "center" });
-    text(`Page ${page} of ${pages}`, RIGHT, PAGE_H - 9, { align: "right" });
-  }
+  /* ── Footer on every page, and the demo specimen mark ────────── */
+  drawCompanyFooter(doc, `Statement ${meta.number}`);
+  drawSpecimenMark(doc);
 
   return doc.output("blob");
 }

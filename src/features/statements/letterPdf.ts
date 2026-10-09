@@ -1,5 +1,21 @@
+import { COMPANY } from "@/config/company";
 import { ghs } from "./statementModel";
-import { BRAND, dateTime, HAIRLINE, imageData, INK, M, MUTED, PAGE_H, PAGE_W, PANEL, RIGHT, shortDate } from "./statementPdf";
+import {
+  BRAND,
+  dateTime,
+  drawCompanyFooter,
+  drawSpecimenMark,
+  HAIRLINE,
+  imageData,
+  INK,
+  M,
+  MUTED,
+  PAGE_W,
+  PANEL,
+  RIGHT,
+  shortDate,
+} from "./statementPdf";
+import { verifyUrl } from "./verifyLink";
 
 /**
  * Proof of funds letter (A4, one page): a formal letter on Feenicks1
@@ -22,9 +38,9 @@ import { BRAND, dateTime, HAIRLINE, imageData, INK, M, MUTED, PAGE_H, PAGE_W, PA
  *
  * It isn't signed by a person: it says it was issued electronically, and
  * the reference and QR code identify it.
- * TODO(api): the server issues and digitally signs the letter, and the QR
- * code links to /verify/:number. TODO(ceo): the company's registered
- * address, registration number and contact details for the letterhead.
+ * The letterhead and footer carry the company's details (config/company.ts),
+ * and the QR code opens the verify page. Demo data: a faint "SPECIMEN".
+ * TODO(api): the server issues and digitally signs the letter.
  */
 
 export type LetterDetails = {
@@ -44,18 +60,17 @@ export type LetterDetails = {
 
 const longDate = (date: Date) => date.toLocaleDateString("en-GH", { day: "numeric", month: "long", year: "numeric" });
 
-/** What the QR code holds: the letter's key facts. TODO(api): the /verify/:number link instead. */
+/** The QR code: the verify page for this letter, carrying its key facts. */
 export function letterQrText(letter: LetterDetails): string {
-  return [
-    "FEENICKS1 PROOF OF FUNDS",
-    `Ref: ${letter.number}`,
-    `Account holder: ${letter.holderName}`,
-    letter.walletId ? `Wallet: ${letter.walletId}` : null,
-    `Balance as of ${shortDate(letter.asOf)}: ${ghs(letter.balance)}`,
-    `Issued: ${dateTime(letter.issuedAt)}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  return verifyUrl({
+    kind: "letter",
+    number: letter.number,
+    holder: letter.holderName,
+    wallet: letter.walletId,
+    period: shortDate(letter.asOf),
+    balance: ghs(letter.balance),
+    issued: dateTime(letter.issuedAt),
+  });
 }
 
 export async function letterPdf(letter: LetterDetails): Promise<Blob> {
@@ -91,13 +106,22 @@ export async function letterPdf(letter: LetterDetails): Promise<Blob> {
   font(11, "bold", [255, 255, 255]);
   doc.text("PROOF OF FUNDS", RIGHT, 15, { align: "right" });
   font(8.5, "normal", [255, 255, 255]);
-  doc.text("Feenicks1 Solutions Ltd · Accra, Ghana", RIGHT, 21, { align: "right" });
+  doc.text(COMPANY.legalName, RIGHT, 21, { align: "right" });
+
+  // Letterhead contact line, under the band.
+  font(7.5, "normal", MUTED);
+  doc.text(
+    `${COMPANY.address} · Reg. No. ${COMPANY.registrationNumber} · ${COMPANY.phones.join(" / ")} · ${COMPANY.email}`,
+    PAGE_W / 2,
+    35,
+    { align: "center" },
+  );
 
   /* ── Date, reference, addressee, QR ─────────────────────────── */
   const qrSize = 27;
   doc.addImage(qr, "PNG", RIGHT - qrSize, 40, qrSize, qrSize, "qr", "FAST");
   font(6.5, "normal", MUTED);
-  doc.text("Scan for the letter details", RIGHT - qrSize / 2, 40 + qrSize + 3.5, { align: "center" });
+  doc.text("Scan to verify", RIGHT - qrSize / 2, 40 + qrSize + 3.5, { align: "center" });
 
   let y = 44;
   font(10);
@@ -174,14 +198,12 @@ export async function letterPdf(letter: LetterDetails): Promise<Blob> {
   y += 5;
   font(8.5, "normal", MUTED);
   doc.text(`Issued electronically on ${dateTime(letter.issuedAt)}. Valid without a signature.`, M, y);
+  y += 4.5;
+  doc.text(`Verify at ${COMPANY.website}/verify/${letter.number}`, M, y);
 
-  /* ── Footer ──────────────────────────────────────────────────── */
-  doc.setDrawColor(...HAIRLINE);
-  doc.setLineWidth(0.25);
-  doc.line(M, PAGE_H - 14, RIGHT, PAGE_H - 14);
-  font(7, "normal", MUTED);
-  doc.text("Feenicks1 Solutions Ltd · Accra, Ghana", M, PAGE_H - 9);
-  doc.text(`Ref ${letter.number}`, RIGHT, PAGE_H - 9, { align: "right" });
+  /* ── Footer, and the demo specimen mark ──────────────────────── */
+  drawCompanyFooter(doc, `Ref ${letter.number}`);
+  drawSpecimenMark(doc);
 
   return doc.output("blob");
 }
