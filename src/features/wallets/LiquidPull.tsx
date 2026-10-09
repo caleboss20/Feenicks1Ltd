@@ -6,7 +6,7 @@
  * always does the same thing (and is what screen readers use).
  *
  *            ╭───────────────────╮
- *            │ ↓ Pull to invest  │      ← a bubble of near-black "liquid",
+ *            │ ↓ Pull to invest  │      ← a bubble of ash-grey "liquid",
  *            ╰─────────┬─────────╯        joined to the card by a stretching
  *                     ╲│╱                 neck (an SVG "goo" filter melts the
  *        ┌─────────────┴─────────────┐    shapes together)
@@ -41,11 +41,11 @@ const DEAD_ZONE = 6;
 /** Remembers that the investor has used the pull (then the hint stops). */
 const HINT_KEY = "feenicks1-liquid-pull-used";
 /**
- * The liquid's colour: near-black (ash in dark mode), so the bubble stands
+ * The liquid's colour: ash grey (dark enough for its white label), so the bubble stands
  * apart from the green card. The flood after a release is a faint ash grey
  * (--flood), soft on the eye between pages. Both are set on the wrapper.
  */
-const LIQUID_CLASS = "[--liquid:#1c1c1e] [--flood:#e5e5e7] dark:[--liquid:#48484a] dark:[--flood:#2c2c2e]";
+const LIQUID_CLASS = "[--liquid:#6e6e73] [--flood:#e5e5e7] dark:[--liquid:#636366] dark:[--flood:#2c2c2e]";
 const LIQUID = "var(--liquid)";
 
 /** Finger distance → card distance: 1:1 at first, then heavier and heavier (about 140 px of finger to trigger). */
