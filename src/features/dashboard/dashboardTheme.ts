@@ -53,8 +53,9 @@ export type CustomColor = { hue: number; saturation: number; brightness: number 
 
 /** The ready-made choices, in the order shown on the picker (greens, blues, purples, reds, warm, neutrals). */
 export const DASHBOARD_COLORS: (DashboardColor & { id: DashboardColorId })[] = [
-  // Feenicks1 green (brand-700 → brand-600): the default, as designed.
-  { id: "green", name: "Green", top: "#0f8249", main: "#13934f" },
+  // Forest green (CEO, October 2026): the default, as on the splash. The id stays
+  // "green" so everyone who kept the default gets the new colour.
+  { id: "green", name: "Forest", top: "#0a2e22", main: "#0e3b2c" },
   { id: "emerald", name: "Emerald", top: "#064e3b", main: "#047857" },
   { id: "teal", name: "Teal", top: "#134e4a", main: "#0f766e" },
   { id: "ocean", name: "Ocean", top: "#164e63", main: "#0e7490" },

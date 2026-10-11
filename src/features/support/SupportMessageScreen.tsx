@@ -40,7 +40,7 @@ import {
 } from "./supportService";
 import { SECTION_LABEL } from "@/components/ui/styles";
 
-const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
+const PAGE_COLORS = { light: "#f4f4ef", dark: "#0a0a0a" };
 const LABEL = SECTION_LABEL;
 
 /** The topic that fits a transaction, so a message about one starts on the right topic. */

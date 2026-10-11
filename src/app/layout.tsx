@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Inter, Inter_Tight } from "next/font/google";
 import { ConnectionBanner } from "@/components/feedback/ConnectionBanner";
 import { IS_PUBLIC_LAUNCH } from "@/config/launch";
 import { siteConfig } from "@/config/site";
@@ -23,6 +23,14 @@ const brandSans = Inter({
   variable: "--font-brand-sans",
   subsets: ["latin", "latin-ext"],
   axes: ["opsz"],
+  display: "swap",
+});
+
+/** Headings: Inter Tight (a free match for the tight grotesque the CEO liked on Bamboo). */
+const brandDisplay = Inter_Tight({
+  variable: "--font-brand-display",
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
@@ -95,7 +103,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${brandSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${brandSans.variable} ${brandDisplay.variable} ${geistMono.variable} h-full antialiased`}
       // The theme script may add `class="dark"` before React loads; this tells
       // React that difference on <html> is expected, not a bug.
       suppressHydrationWarning

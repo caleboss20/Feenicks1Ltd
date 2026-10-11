@@ -43,7 +43,7 @@ export function WalletCard({
       aria-label={`${pkg.name} wallet, ID ${formatWalletId(wallet.id)}`}
       className={cn(
         "relative isolate flex aspect-[1.75] w-full flex-col overflow-hidden rounded-xl p-5 text-white",
-        "bg-[linear-gradient(135deg,#1fa862_0%,#13934f_50%,#0d7a40_100%)]",
+        "bg-[linear-gradient(135deg,#2a6b50_0%,#164a39_50%,#0e3b2c_100%)]",
         className,
       )}
     >

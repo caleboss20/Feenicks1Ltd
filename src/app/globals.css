@@ -22,8 +22,9 @@
 
 :root {
   color-scheme: light;
-  --background: #ffffff;
-  --foreground: #0f172a;
+  /* Greyish white (CEO, October 2026): softer than pure white; cards stay white. */
+  --background: #f4f4ef;
+  --foreground: #10201a;
 }
 
 /* Dark theme: a neutral near-black (no blue tint) for a clean, trustworthy feel. */
@@ -40,23 +41,43 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-brand-sans);
+  /* Headings: Inter Tight, a free match for the tight grotesque the CEO liked. */
+  --font-display: var(--font-brand-display);
   --font-mono: var(--font-geist-mono);
 }
 
 @theme {
-  /* Feenicks1 brand green. 600 is the primary brand colour (buttons, links,
-     splash); keep it in sync with `siteConfig.themeColor` (browser UI / PWA). */
-  --color-brand-50: #effcf5;
-  --color-brand-100: #dcf9e8;
-  --color-brand-200: #bbf2d1;
-  --color-brand-300: #86e6ae;
-  --color-brand-400: #4ad487;
-  --color-brand-500: #22bd6a;
-  --color-brand-600: #13934f;
-  --color-brand-700: #0f8249;
-  --color-brand-800: #11663c;
-  --color-brand-900: #105433;
-  --color-brand-950: #04301b;
+  /* Feenicks1 brand (CEO, October 2026, after the Bamboo review): a forest
+     green family, from pale beige green (50–200: soft cards and tints) to deep
+     forest (800: splash, headers). 700 carries buttons and links (10:1 with
+     white text). Keep `siteConfig.themeColor` in sync with brand-800. */
+  --color-brand-50: #f1f3ea;
+  --color-brand-100: #e3e8d6;
+  --color-brand-200: #d9dfcc;
+  --color-brand-300: #a9bc9b;
+  --color-brand-400: #6f9a7e;
+  --color-brand-500: #3e7a5e;
+  --color-brand-600: #1f5e45;
+  --color-brand-700: #164a39;
+  --color-brand-800: #0e3b2c;
+  --color-brand-900: #0a2e22;
+  --color-brand-950: #061c15;
+
+  /* Gold accent: the headline and main button on dark screens, highlights.
+     Dark green text on gold-500 reads at 5:1. */
+  --color-gold-50: #fbf6e6;
+  --color-gold-100: #f5e9bf;
+  --color-gold-300: #e2c36a;
+  --color-gold-500: #c9a227;
+  --color-gold-600: #a9851b;
+  --color-gold-700: #876916;
+
+  /* The original Feenicks1 green, kept for success and gains. */
+  --color-success-600: #13934f;
+
+  /* Warm the light greys to sit with the greyish-white page. */
+  --color-neutral-50: #f7f7f3;
+  --color-neutral-100: #eeeee8;
 
   /* Secondary text grey, one step darker than Tailwind's default (#737373) so it
      reads at 4.5:1 or more on white and on the grey pages (WCAG AA). */
@@ -436,4 +457,14 @@ body {
 }
 *::-webkit-scrollbar {
   display: none;
+}
+
+/* Headings in the display face (Inter Tight), slightly tightened. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
 }

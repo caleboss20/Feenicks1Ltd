@@ -45,7 +45,7 @@ import { cn } from "@/lib/utils";
 import { useThemeStore } from "@/stores/useThemeStore";
 
 /** White page in light mode, black in dark (the phone's status bar matches). */
-const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
+const PAGE_COLORS = { light: "#f4f4ef", dark: "#0a0a0a" };
 
 /** Small, spaced capitals, like the reference's labels. */
 const LABEL = "text-[0.6875rem] font-semibold tracking-[0.14em] uppercase";

@@ -32,7 +32,7 @@ import { cn } from "@/lib/utils";
 import { searchFaqs, wordMatch, wordsOf, type Faq } from "./faqs";
 
 /** White page in light mode, black in dark (the phone's status bar matches). */
-const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
+const PAGE_COLORS = { light: "#f4f4ef", dark: "#0a0a0a" };
 
 export function SupportScreen() {
   useStatusBarColor(PAGE_COLORS);

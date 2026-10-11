@@ -51,7 +51,7 @@ import { isSampleTransaction } from "./transactionsService";
 import { useTransactions } from "./useTransactions";
 
 /** White page in light mode, black in dark (the phone's status bar matches). */
-const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
+const PAGE_COLORS = { light: "#f4f4ef", dark: "#0a0a0a" };
 
 const TYPE_LABELS: Record<Transaction["type"], string> = {
   investment: "Investment",

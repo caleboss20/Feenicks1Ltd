@@ -28,8 +28,8 @@ const COLORS = {
   ink: "#171717",
   muted: "#737373",
   rule: "#d4d4d4",
-  brand: "#13934f",
-  brandSoft: "#e8f6ee",
+  brand: "#164a39",
+  brandSoft: "#e3e8d6",
 };
 
 /** The page's own font (Inter, loaded by next/font), so the image matches the app. */

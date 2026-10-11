@@ -38,7 +38,7 @@ import { deleteNotification, markNotificationRead } from "./notificationsService
 import { useNotifications } from "./useNotifications";
 
 /** White page in light mode, black in dark (the phone's status bar matches). */
-const PAGE_COLORS = { light: "#ffffff", dark: "#0a0a0a" };
+const PAGE_COLORS = { light: "#f4f4ef", dark: "#0a0a0a" };
 
 /** Each kind's icon and colour, like the reference's coloured icons. */
 const KIND_ICONS: Record<NotificationKind, { icon: React.ReactNode; className: string }> = {

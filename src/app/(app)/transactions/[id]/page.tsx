@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 /** Status bar in the page's colour: white (black in dark mode: useStatusBarColor). */
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#f4f4ef",
 };
 
 export default async function TransactionDetailsPage({ params }: Props) {

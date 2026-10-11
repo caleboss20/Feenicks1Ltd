@@ -34,7 +34,7 @@ export const siteConfig = {
   ],
 
   /** Browser UI / PWA colour. Keep in sync with `--color-brand-600` in globals.css. */
-  themeColor: "#13934f",
+  themeColor: "#0e3b2c",
   /** Splash background colour used by the installed PWA. */
-  backgroundColor: "#13934f",
+  backgroundColor: "#0e3b2c",
 } as const;
