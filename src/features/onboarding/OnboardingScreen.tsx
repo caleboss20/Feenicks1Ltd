@@ -30,12 +30,17 @@ import { LogoWordmark } from "@/components/brand/Logo";
 import { ROUTES } from "@/config/routes";
 import { useAppStore } from "@/stores/useAppStore";
 
-/** The photos, in order. (grow-wealth.jpg is left out: it's a watermarked preview.) */
+/**
+ * The photos, in order.
+ * TODO(launch): grow-wealth.jpg is a Rawpixel preview with a small watermark in
+ * its bottom-left corner (hidden here under the forest shading). Buy the
+ * licensed file from Rawpixel and replace it before launch.
+ */
 const PHOTOS = [
   { src: "/onboarding/track-portfolio.jpg", alt: "A young woman smiling at her phone as she checks her investments", focus: "50% 20%" },
   { src: "/onboarding/invest.jpg", alt: "A smiling woman checking her investments on her phone", focus: "60% 30%" },
   { src: "/onboarding/peace-of-mind.jpg", alt: "A relaxed woman on a sofa, smiling at her phone", focus: "50% 30%" },
-  { src: "/onboarding/start.jpg", alt: "A confident chef smiling and pointing towards the camera", focus: "50% 25%" },
+  { src: "/onboarding/grow-wealth.jpg", alt: "A smiling man in a blazer looking at his phone", focus: "35% 30%" },
 ];
 const PHOTO_MS = 5000;
 
