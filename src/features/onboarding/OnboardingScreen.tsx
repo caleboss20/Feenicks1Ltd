@@ -7,41 +7,72 @@
  *   ┌───────────────────────────┐
  *   │        Feenicks1 (gold)    │
  *   │                           │
- *   │   full-bleed photo of an  │  ← shaded into forest green at the
- *   │   investor on her phone   │    bottom (no shadows), so text reads
+ *   │   full-bleed photos that  │  ← shaded into forest green at the
+ *   │   slowly cross-fade       │    bottom (no shadows), so text reads
  *   │                           │
  *   │   Plan.                   │  ← gold, Inter Tight, very large
  *   │   Invest.                 │
  *   │   Grow.                   │
  *   │  (Create account)( Log in )│  ← gold / dark green
  *   │   Our portfolios and fees ›│
- *   │   Investments can go down… │
  *   └───────────────────────────┘
  *
+ * The photos change on their own every few seconds with a slow cross-fade
+ * and a gentle zoom: no carousel, no dots, nothing to swipe; the headline
+ * and buttons never move. Reduced motion: the first photo only.
  * Both actions mark onboarding as seen (useAppStore), as before.
  */
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { ROUTES } from "@/config/routes";
 import { useAppStore } from "@/stores/useAppStore";
 
+/** The photos, in order. (grow-wealth.jpg is left out: it's a watermarked preview.) */
+const PHOTOS = [
+  { src: "/onboarding/track-portfolio.jpg", alt: "A young woman smiling at her phone as she checks her investments", focus: "50% 20%" },
+  { src: "/onboarding/invest.jpg", alt: "A smiling woman checking her investments on her phone", focus: "60% 30%" },
+  { src: "/onboarding/peace-of-mind.jpg", alt: "A relaxed woman on a sofa, smiling at her phone", focus: "50% 30%" },
+  { src: "/onboarding/start.jpg", alt: "A confident chef smiling and pointing towards the camera", focus: "50% 25%" },
+];
+const PHOTO_MS = 5000;
+
 export function OnboardingScreen() {
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
+  const [photo, setPhoto] = useState(0);
+
+  // Next photo every few seconds (not with reduced motion).
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => setPhoto((index) => (index + 1) % PHOTOS.length), PHOTO_MS);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
     <main className="relative isolate flex min-h-dvh flex-col overflow-hidden bg-brand-800 text-white">
       <h1 className="sr-only">Welcome to Feenicks1</h1>
 
-      <Image
-        src="/onboarding/track-portfolio.jpg"
-        alt="A young woman smiling at her phone as she checks her investments"
-        fill
-        priority
-        sizes="(min-width: 1024px) 50vw, 100vw"
-        className="-z-20 object-cover object-[50%_20%]"
-      />
+      {/* All photos stacked; only the current one is visible, fading in slowly
+          while it drifts a little closer. */}
+      <div aria-hidden className="absolute inset-0 -z-20">
+        {PHOTOS.map((item, index) => (
+          <Image
+            key={item.src}
+            src={item.src}
+            alt=""
+            fill
+            priority={index === 0}
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className={`object-cover transition-[opacity,transform] ease-out motion-reduce:transition-none ${
+              index === photo ? "scale-105 opacity-100 duration-[1400ms,7000ms]" : "scale-100 opacity-0 duration-[1400ms,0ms]"
+            }`}
+            style={{ objectPosition: item.focus }}
+          />
+        ))}
+      </div>
+      <p className="sr-only">{PHOTOS[0].alt}</p>
       {/* Forest-green shading: light at the top (for the logo), solid at the
           bottom (for the headline and buttons). */}
       <span
@@ -91,7 +122,6 @@ export function OnboardingScreen() {
           </span>
         </Link>
 
-        <p className="mt-6 text-center text-xs text-white/75">Investments can go down as well as up.</p>
       </div>
     </main>
   );

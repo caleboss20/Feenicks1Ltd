@@ -375,13 +375,14 @@ export function DashboardScreen() {
           </button>
         </div>
 
-        <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/15 py-1.5 pr-3.5 pl-1.5 text-xs text-white/90">
-          {/* Stock-ticker arrow: green ▲ for a gain (or nothing yet), red ▼ for a loss. */}
-          <span className="grid size-6 place-items-center rounded-full bg-white">
+        {/* Gold, the brand accent (CEO, October 2026), with dark forest text. */}
+        <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-gold-500 py-1.5 pr-3.5 pl-1.5 text-xs font-medium text-brand-900">
+          {/* Stock-ticker arrow: gold ▲ for a gain (or nothing yet), red ▼ for a loss. */}
+          <span className="grid size-6 place-items-center rounded-full bg-brand-800">
             <TriangleUpIcon
               className={cn(
                 "size-3",
-                profitEarned < 0 ? "rotate-180 text-red-600" : "text-brand-700",
+                profitEarned < 0 ? "rotate-180 text-red-400" : "text-gold-300",
               )}
             />
           </span>
@@ -390,7 +391,7 @@ export function DashboardScreen() {
           <span
             aria-hidden={hideAmounts || undefined}
             className={cn(
-              "font-semibold text-white transition-[filter] duration-300 select-none",
+              "font-semibold text-brand-900 transition-[filter] duration-300 select-none",
               hideAmounts && profitMask === null && "blur-[5px]",
             )}
           >
