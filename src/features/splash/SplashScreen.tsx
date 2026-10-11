@@ -42,20 +42,20 @@ const SHEEN_MASK = {
 
 export function SplashScreen() {
   return (
-    // Solid brand green background (no gradient), per the brand direction.
-    <main className="flex min-h-dvh flex-col items-center overflow-hidden bg-brand-600 px-6 text-white">
+    // Solid forest green with the logo in gold (CEO, October 2026; no gradient).
+    <main className="flex min-h-dvh flex-col items-center overflow-hidden bg-brand-800 px-6 text-white">
       {/* ── Brand: symbol + wordmark ──────────────────────────────────────── */}
       <div className="flex flex-1 flex-col items-center justify-center gap-4 py-12 sm:gap-5">
         {/* Symbol + sheen overlay share one wrapper, so the reveal applies to both. */}
         <div className="relative animate-logo-reveal motion-reduce:animate-none">
           {/* Sized deliberately modest (64 to 80px): calm and premium, not overpowering. */}
-          <LogoMark preload decorative className="h-16 sm:h-[4.5rem] lg:h-20" />
+          <LogoMark tone="gold" decorative className="h-16 sm:h-[4.5rem] lg:h-20" />
 
           {/* Sheen: a mint light band, clipped to the logo's shape by the
               mask, slides across once after the reveal. */}
           <span
             aria-hidden
-            className="absolute inset-0 animate-logo-sheen bg-[linear-gradient(115deg,transparent_35%,var(--color-brand-200)_50%,transparent_65%)] bg-size-[250%_100%] [animation-delay:1s] motion-reduce:hidden"
+            className="absolute inset-0 animate-logo-sheen bg-[linear-gradient(115deg,transparent_35%,var(--color-gold-100)_50%,transparent_65%)] bg-size-[250%_100%] [animation-delay:1s] motion-reduce:hidden"
             style={SHEEN_MASK}
           />
         </div>
@@ -63,7 +63,7 @@ export function SplashScreen() {
         {/* The <h1> is the page's main heading for SEO; its text comes from
             the image alt ("Feenicks1"). */}
         <h1 className="animate-soft-rise [animation-delay:700ms] motion-reduce:animate-none">
-          <LogoWordmark preload className="h-6 sm:h-7 lg:h-8" />
+          <LogoWordmark tone="gold" className="h-6 sm:h-7 lg:h-8" />
         </h1>
       </div>
 

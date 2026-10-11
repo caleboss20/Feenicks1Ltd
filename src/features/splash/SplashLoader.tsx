@@ -10,11 +10,11 @@ export function SplashLoader() {
     <div
       role="status"
       aria-label="Loading"
-      className="relative h-[3px] w-20 overflow-hidden rounded-full bg-white/20 sm:w-24"
+      className="relative h-[3px] w-20 overflow-hidden rounded-full bg-gold-500/25 sm:w-24"
     >
       <span
         aria-hidden
-        className="absolute inset-y-0 left-0 w-2/5 animate-loader-slide rounded-full bg-white motion-reduce:animate-none"
+        className="absolute inset-y-0 left-0 w-2/5 animate-loader-slide rounded-full bg-gold-500 motion-reduce:animate-none"
       />
     </div>
   );
