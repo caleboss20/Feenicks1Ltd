@@ -40,10 +40,14 @@ import { useAppStore } from "@/stores/useAppStore";
  * its photo, in three single-word lines (at most 7 characters, so each fits a
  * 320px-wide phone at full size). No word is used on more than one slide.
  * `dim` (optional): a bright photo is darkened a little so the gold text reads.
+ * `zoom` (optional): enlarges the photo from its bottom edge, lifting a face
+ * that sits mid-photo up and clear of the headline.
  */
 const PHOTOS = [
   { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Tap.", "Invest.", "Relax."] }, // 19863396
-  { src: "/onboarding/market-trader.jpg", alt: "A market trader laughing at her fruit stall", focus: "50% 25%", headline: ["Trade.", "Save.", "Thrive."] }, // 40045554
+  // TODO(launch): market-fabric.jpg is an Adobe Stock preview (#1481916956,
+  // watermarked, 667x1000). Buy the licensed full-size file and replace it.
+  { src: "/onboarding/market-fabric.jpg", alt: "A smiling trader at her shop of colourful African print fabrics", focus: "30% 50%", zoom: 1.35, headline: ["Trade.", "Save.", "Thrive."] },
   { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
   { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Fund.", "Homes.", "Profit."] }, // 4971255
@@ -79,17 +83,22 @@ export function OnboardingScreen() {
               index === photo ? "opacity-100" : "opacity-0"
             }`}
           >
-            <Image
-              src={item.src}
-              alt=""
-              fill
-              priority={index === 0}
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className={`object-cover transition-transform ease-out motion-reduce:transition-none ${
-                index === photo ? "scale-105 duration-[7000ms]" : "scale-100 duration-0"
-              }`}
-              style={{ objectPosition: item.focus, filter: "dim" in item ? "brightness(0.7)" : undefined }}
-            />
+            <div
+              className="absolute inset-0"
+              style={"zoom" in item ? { transform: `scale(${item.zoom})`, transformOrigin: `${item.focus.split(" ")[0]} 100%` } : undefined}
+            >
+              <Image
+                src={item.src}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className={`object-cover transition-transform ease-out motion-reduce:transition-none ${
+                  index === photo ? "scale-105 duration-[7000ms]" : "scale-100 duration-0"
+                }`}
+                style={{ objectPosition: item.focus, filter: "dim" in item ? "brightness(0.7)" : undefined }}
+              />
+            </div>
           </div>
         ))}
       </div>
