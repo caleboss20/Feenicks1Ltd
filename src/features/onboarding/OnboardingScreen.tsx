@@ -18,7 +18,7 @@
  *   └───────────────────────────┘
  *
  * Background: a slideshow of the people Feenicks1 is for (CEO, October
- * 2026): students, individuals, farmers, market women, home buyers and
+ * 2026): students, individuals, families, farmers, market women, home buyers and
  * business partners. Each photo fades in slowly with a gentle zoom every few
  * seconds: no carousel, no dots, nothing to swipe. Reduced motion: the first
  * photo only. Photos: Pexels (free licence), 1600px; each is cropped (focus)
@@ -48,6 +48,8 @@ const PHOTOS = [
   // TODO(launch): market-fabric.jpg is an Adobe Stock preview (#1481916956,
   // watermarked, 667x1000). Buy the licensed full-size file and replace it.
   { src: "/onboarding/market-fabric.jpg", alt: "A smiling trader at her shop of colourful African print fabrics", focus: "30% 50%", zoom: 1.35, headline: ["Trade.", "Save.", "Thrive."] },
+  // Supplied by the team (October 2026); confirm its licence before launch.
+  { src: "/onboarding/family.jpg", alt: "A happy family laughing together on their sofa at home", focus: "72% 50%", zoom: 1.22, headline: ["Secure.", "Their.", "Future."] },
   { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
   { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Fund.", "Homes.", "Profit."] }, // 4971255
