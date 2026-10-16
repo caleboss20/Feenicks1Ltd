@@ -136,7 +136,7 @@ export function TransactionsScreen() {
               className={cn(
                 "h-9 shrink-0 cursor-pointer rounded-full px-4 text-[0.8125rem] font-medium transition-colors",
                 isActive
-                  ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                  ? "bg-brand-800 text-white dark:bg-white dark:text-neutral-900"
                   : "bg-white text-neutral-700 hover:bg-neutral-50 dark:bg-white/10 dark:text-neutral-300 dark:hover:bg-white/15",
               )}
             >
@@ -284,7 +284,7 @@ function EmptyState({
       <p className="mt-2 max-w-72 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{text}</p>
       <Link
         href={action.href}
-        className="mt-6 inline-flex h-12 w-full max-w-xs items-center justify-center gap-2 rounded-full bg-neutral-900 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 [&_svg]:size-[18px]"
+        className="mt-6 inline-flex h-12 w-full max-w-xs items-center justify-center gap-2 rounded-full bg-brand-800 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 [&_svg]:size-[18px]"
       >
         {action.icon}
         {action.label}

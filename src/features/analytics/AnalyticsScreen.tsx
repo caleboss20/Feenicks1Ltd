@@ -171,7 +171,7 @@ export function AnalyticsScreen() {
             const chip = cn(
               "h-9 w-full cursor-pointer rounded-full text-[0.8125rem] font-semibold transition-colors",
               isActive
-                ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                ? "bg-brand-800 text-white dark:bg-white dark:text-neutral-900"
                 : "text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-white/10",
             );
 
@@ -240,7 +240,7 @@ export function AnalyticsScreen() {
                     </p>
                     <Link
                       href={ROUTES.invest}
-                      className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-full bg-neutral-900 px-4 text-xs font-semibold text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 [&_svg]:size-4"
+                      className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-full bg-brand-800 px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-700 dark:bg-white dark:text-neutral-900 [&_svg]:size-4"
                     >
                       <PlusIcon />
                       Start investing

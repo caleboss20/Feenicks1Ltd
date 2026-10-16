@@ -41,12 +41,16 @@ import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { roiRangeLabel, shortWithdrawalLabel, type InvestmentPackage } from "./investmentPackages";
 
-/** Icon + soft background colour per package accent (details page). */
+/**
+ * Icon + soft background colour per package accent (details page), all from
+ * the brand palette: two greens and two golds. (The accent names are the
+ * original ids kept in investmentPackages.ts.)
+ */
 const ACCENTS: Record<InvestmentPackage["accent"], string> = {
-  teal: "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300",
-  green: "bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300",
-  lime: "bg-lime-50 text-lime-700 dark:bg-lime-500/10 dark:text-lime-300",
-  amber: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300",
+  teal: "bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-300",
+  green: "bg-brand-100 text-brand-800 dark:bg-brand-500/15 dark:text-brand-200",
+  lime: "bg-gold-50 text-gold-600 dark:bg-gold-500/10 dark:text-gold-300",
+  amber: "bg-gold-100 text-gold-700 dark:bg-gold-500/15 dark:text-gold-300",
 };
 
 const ICONS: Record<InvestmentPackage["icon"], React.ReactNode> = {

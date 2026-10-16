@@ -55,8 +55,8 @@ export function InviteCarousel({ email }: { email: string }) {
       text: `Earn ${REFERRAL_POINTS_LABEL} (${REFERRAL_REWARD_LABEL}) for every friend who signs up.`,
       image: "/illustrations/invite-friend.jpg",
       imagePosition: "50% 25%",
-      // Feenicks1 green.
-      colors: ["#0c6236", "#23a05e"],
+      // Feenicks1 forest green.
+      colors: ["#0e3b2c", "#2a6b50"],
       action: {
         label: "Invite for free",
         onClick: async () => ((await shareReferralLink(email)) === "copied" ? "copied" : "done"),
@@ -99,12 +99,13 @@ export function InviteCarousel({ email }: { email: string }) {
 }
 
 /**
- * The coin card's background, all CSS (no image): deep green behind the text
- * fading to mint and warm cream, with a golden glow behind the coins.
+ * The coin card's background, all CSS (no image): forest green behind the
+ * text fading to sage and the brand's beige green, with a golden glow behind
+ * the coins.
  */
 const COIN_CARD_BACKGROUND = [
   "radial-gradient(55% 90% at 82% 45%, rgba(255, 221, 140, 0.55), transparent 70%)",
-  "linear-gradient(115deg, #0b5a32 0%, #178a4f 42%, #6fbf95 70%, #e9e2bf 100%)",
+  "linear-gradient(115deg, #0a2e22 0%, #164a39 42%, #6f9a7e 70%, #e3e8d6 100%)",
 ].join(", ");
 
 /** A fine grain over the gradient, like the reference (SVG noise, no image file). */

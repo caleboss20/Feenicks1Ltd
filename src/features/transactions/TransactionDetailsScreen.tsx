@@ -110,7 +110,7 @@ export function TransactionDetailsScreen({ id }: { id: string }) {
           </p>
           <Link
             href={ROUTES.transactions}
-            className="mt-6 inline-flex h-11 items-center rounded-full bg-neutral-900 px-6 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900"
+            className="mt-6 inline-flex h-11 items-center rounded-full bg-brand-800 px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-700 dark:bg-white dark:text-neutral-900"
           >
             Go to Transactions
           </Link>

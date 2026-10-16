@@ -97,11 +97,11 @@ export function WalletCard({
 function CardChip() {
   return (
     <svg aria-hidden viewBox="0 0 44 34" className="h-8 w-[2.6rem] shrink-0">
-      <rect x="0.5" y="0.5" width="43" height="33" rx="6" fill="#d4f24a" />
+      <rect x="0.5" y="0.5" width="43" height="33" rx="6" fill="#e2c36a" />
       <path
         d="M15 1v9m14-9v9M15 24v9m14-9v9M1 12h12m18 0h12M1 22h12m18 0h12M13 10h18v14H13z"
         fill="none"
-        stroke="#9fbf1e"
+        stroke="#a9851b"
         strokeWidth="1.6"
         strokeLinejoin="round"
       />
