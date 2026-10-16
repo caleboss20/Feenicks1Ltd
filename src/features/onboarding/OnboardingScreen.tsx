@@ -92,7 +92,11 @@ export function OnboardingScreen() {
                 alt=""
                 fill
                 priority={index === 0}
-                sizes="(min-width: 1024px) 50vw, 100vw"
+                // On a tall phone a full-screen photo is drawn about as wide
+                // as the screen is tall, so ask for that width (not 100vw),
+                // at high quality: otherwise it is stretched and looks blurry.
+                sizes="(min-width: 1024px) 50vw, 100vh"
+                quality={90}
                 className={`object-cover transition-transform ease-out motion-reduce:transition-none ${
                   index === photo ? "scale-105 duration-[7000ms]" : "scale-100 duration-0"
                 }`}

@@ -43,6 +43,10 @@ const nextConfig: NextConfig = {
   // Don't send the "X-Powered-By: Next.js" header (hides our stack from scanners).
   poweredByHeader: false,
 
+  // Image qualities next/image may use: 75 (default) and 90 for full-screen
+  // photos such as the welcome slideshow, where compression shows.
+  images: { qualities: [75, 90] },
+
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
