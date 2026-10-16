@@ -7,8 +7,8 @@
  *   ┌───────────────────────────┐
  *   │        Feenicks1 (gold)    │
  *   │                           │
- *   │   full-bleed video (or    │  ← shaded into forest green at the
- *   │   cross-fading photos)    │    bottom (no shadows), so text reads
+ *   │   full-bleed photo        │  ← shaded into forest green at the
+ *   │   slideshow (cross-fade)  │    bottom (no shadows), so text reads
  *   │                           │
  *   │   Plan.                   │  ← gold, Inter Tight, very large
  *   │   Invest.                 │
@@ -17,56 +17,39 @@
  *   │   Our portfolios and fees ›│
  *   └───────────────────────────┘
  *
- * Background: a short muted video on a loop, like Bamboo's welcome
- * (public/onboarding/welcome.mp4, free Pexels licence, video 8275083). The
- * first photo shows until the video can play. With reduced motion or the
- * browser's data saver on, there is no video: the photos change on their own
- * every few seconds with a slow cross-fade instead (reduced motion: the first
- * photo only). No carousel, no dots, nothing to swipe.
+ * Background: a slideshow of the people Feenicks1 is for (CEO, October
+ * 2026): students, individuals, farmers, market women, home buyers and
+ * business partners. Each photo fades in slowly with a gentle zoom every few
+ * seconds: no carousel, no dots, nothing to swipe. Reduced motion: the first
+ * photo only. Photos: Pexels (free licence), 1600px; each is cropped (focus)
+ * so faces sit in the top half, clear of the shading and the headline.
  * Both actions mark onboarding as seen (useAppStore), as before.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { ROUTES } from "@/config/routes";
 import { useAppStore } from "@/stores/useAppStore";
 
-/**
- * The photos, in order.
- * TODO(launch): grow-wealth.jpg is a Rawpixel preview with a small watermark in
- * its bottom-left corner (hidden here under the forest shading). Buy the
- * licensed file from Rawpixel and replace it before launch.
- */
+/** The photos, in order (Pexels photo IDs in brackets). */
 const PHOTOS = [
-  { src: "/onboarding/track-portfolio.jpg", alt: "A young woman smiling at her phone as she checks her investments", focus: "50% 20%" },
-  { src: "/onboarding/invest.jpg", alt: "A smiling woman checking her investments on her phone", focus: "60% 30%" },
-  { src: "/onboarding/peace-of-mind.jpg", alt: "A relaxed woman on a sofa, smiling at her phone", focus: "50% 30%" },
-  { src: "/onboarding/grow-wealth.jpg", alt: "A smiling man in a blazer looking at his phone", focus: "35% 30%" },
+  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%" }, // 19863396
+  { src: "/onboarding/market-woman.jpg", alt: "A smiling market woman in a colourful headwrap at her vegetable stall", focus: "50% 25%" }, // 12024075
+  { src: "/onboarding/student.jpg", alt: "A smiling graduate in cap and gown", focus: "50% 20%" }, // 8093018
+  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%" }, // 33993456
+  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%" }, // 4971255
+  { src: "/onboarding/partners.jpg", alt: "Two business partners shaking hands in an office", focus: "50% 25%" }, // 8069440
 ];
 const PHOTO_MS = 5000;
-const VIDEO_SRC = "/onboarding/welcome.mp4";
-
-/** No video for reduced motion or data saver; the photos are used instead. */
-function videoAllowed() {
-  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-  return !window.matchMedia("(prefers-reduced-motion: reduce)").matches && !connection?.saveData;
-}
 
 export function OnboardingScreen() {
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const [photo, setPhoto] = useState(0);
-  const [videoReady, setVideoReady] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Start the video when allowed (it fetches nothing until then); otherwise
-  // the next photo every few seconds (not with reduced motion).
+  // Next photo every few seconds (not with reduced motion).
   useEffect(() => {
-    if (videoAllowed()) {
-      videoRef.current?.play().catch(() => {});
-      return;
-    }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setInterval(() => setPhoto((index) => (index + 1) % PHOTOS.length), PHOTO_MS);
     return () => window.clearInterval(timer);
@@ -93,17 +76,6 @@ export function OnboardingScreen() {
             style={{ objectPosition: item.focus }}
           />
         ))}
-        {/* Hidden until it is actually playing; if it fails, the first photo stays. */}
-        <video
-          ref={videoRef}
-          src={VIDEO_SRC}
-          muted
-          loop
-          playsInline
-          preload="none"
-          onPlaying={() => setVideoReady(true)}
-          className={`absolute inset-0 size-full object-cover object-[50%_30%] transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
-        />
       </div>
       <p className="sr-only">{PHOTOS[0].alt}</p>
       {/* Forest-green shading: light at the top (for the logo), solid at the
