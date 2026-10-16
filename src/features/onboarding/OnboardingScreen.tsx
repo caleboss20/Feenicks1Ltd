@@ -7,7 +7,7 @@
  *   ┌───────────────────────────┐
  *   │        Feenicks1 (gold)    │
  *   │                           │
- *   │   full-bleed photo        │  ← tinted forest green, darker towards
+ *   │   full-bleed photo        │  ← slight dark overlay, darker towards
  *   │   slideshow (cross-fade)  │    the bottom (no shadows), so text reads
  *   │                           │
  *   │   Plant.                  │  ← gold, Inter Tight, very large, one
@@ -36,9 +36,10 @@ import { ROUTES } from "@/config/routes";
 import { useAppStore } from "@/stores/useAppStore";
 
 /**
- * The slides, in order (Pexels photo IDs in comments). Each headline says what
+ * The slides, in order (Pexels photo IDs in comments). Each headline matches
  * its photo, in three single-word lines (at most 7 characters, so each fits a
  * 320px-wide phone at full size). No word is used on more than one slide.
+ * `dim` (optional): a bright photo is darkened a little so the gold text reads.
  * `height` (optional): a near-square photo fills only the top of the screen,
  * so a tall phone crop keeps everyone in the picture.
  */
@@ -47,10 +48,10 @@ const PHOTOS = [
   { src: "/onboarding/market-trader.jpg", alt: "A market trader laughing at her fruit stall", focus: "50% 25%", headline: ["Trade.", "Save.", "Thrive."] }, // 40045554
   { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
-  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Build.", "Own.", "Gain."] }, // 4971255
+  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Build.", "Own.", "Gain."] }, // 4971255
   // TODO(launch): partners.webp is a Rawpixel preview with a watermark in its
-  // bottom-left corner (hidden under the forest shading). Buy the licensed
-  // file from Rawpixel and replace it before launch.
+  // bottom-left corner (hidden by the fade at the photo's bottom edge). Buy
+  // the licensed file from Rawpixel and replace it before launch.
   { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Join.", "Plan.", "Grow."] },
 ];
 const PHOTO_MS = 5000;
@@ -67,7 +68,7 @@ export function OnboardingScreen() {
   }, []);
 
   return (
-    <main className="relative isolate flex min-h-dvh flex-col overflow-hidden bg-brand-800 text-white">
+    <main className="relative isolate flex min-h-dvh flex-col overflow-hidden bg-neutral-950 text-white">
       <h1 className="sr-only">Welcome to Feenicks1</h1>
 
       {/* All photos stacked; only the current one is visible, fading in slowly
@@ -92,17 +93,18 @@ export function OnboardingScreen() {
               className={`object-cover transition-[opacity,transform] ease-out motion-reduce:transition-none ${
                 index === photo ? "scale-105 opacity-100 duration-[1400ms,7000ms]" : "scale-100 opacity-0 duration-[1400ms,0ms]"
               }`}
-              style={{ objectPosition: item.focus }}
+              style={{ objectPosition: item.focus, filter: "dim" in item ? "brightness(0.7)" : undefined }}
             />
           </div>
         ))}
       </div>
       <p className="sr-only">{PHOTOS[0].alt}</p>
-      {/* Forest-green tint, as in Bamboo's welcome: the photo stays visible
-          behind the headline, darker at the top (logo) and bottom (buttons). */}
+      {/* A slight dark overlay, as in Bamboo's welcome (no colour tint): the
+          photo keeps its own colours, a little darker at the top (logo) and
+          bottom (headline and buttons). */}
       <span
         aria-hidden
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(14,59,44,0.8)_0%,rgba(14,59,44,0.3)_9%,rgba(14,59,44,0.1)_22%,rgba(14,59,44,0.55)_48%,rgba(14,59,44,0.85)_72%,rgba(14,59,44,0.92)_100%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.3)_14%,rgba(0,0,0,0.35)_45%,rgba(0,0,0,0.55)_75%,rgba(0,0,0,0.65)_100%)]"
       />
 
       <header className="flex justify-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
