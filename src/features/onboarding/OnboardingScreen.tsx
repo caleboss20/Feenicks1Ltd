@@ -37,16 +37,21 @@ import { ROUTES } from "@/config/routes";
 import { useAppStore } from "@/stores/useAppStore";
 
 /**
- * The slides, in order (Pexels photo IDs in comments). Headline lines stay
+ * The slides, in order (Pexels photo IDs in comments). No word is used on
+ * more than one slide. `height` (optional): a near-square photo fills only
+ * the top of the screen, so a tall phone crop keeps everyone in the picture. Headline lines stay
  * short (9 characters at most) so they fit a 320px-wide phone at full size.
  */
 const PHOTOS = [
-  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Start", "small.", "Grow."] }, // 19863396
-  { src: "/onboarding/market-woman.jpg", alt: "A smiling market woman in a colourful headwrap at her vegetable stall", focus: "50% 25%", headline: ["Sell.", "Save.", "Grow."] }, // 12024075
-  { src: "/onboarding/student.jpg", alt: "A smiling graduate in cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Invest."] }, // 8093018
+  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Start", "where", "you are."] }, // 19863396
+  { src: "/onboarding/market-woman.jpg", alt: "A smiling market woman in a colourful headwrap at her vegetable stall", focus: "50% 25%", headline: ["Every", "cedi", "counts."] }, // 12024075
+  { src: "/onboarding/student.jpg", alt: "A smiling graduate in cap and gown", focus: "50% 20%", headline: ["Smart", "money,", "early."] }, // 8093018
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Harvest."] }, // 33993456
   { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Build.", "Own.", "Prosper."] }, // 4971255
-  { src: "/onboarding/partners.jpg", alt: "Two business partners shaking hands in an office", focus: "50% 25%", headline: ["Plan.", "Invest.", "Grow."] }, // 8069440
+  // TODO(launch): partners.webp is a Rawpixel preview with a watermark in its
+  // bottom-left corner (hidden under the forest shading). Buy the licensed
+  // file from Rawpixel and replace it before launch.
+  { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Plan.", "Invest.", "Grow."] },
 ];
 const PHOTO_MS = 5000;
 
@@ -69,18 +74,27 @@ export function OnboardingScreen() {
           while it drifts a little closer. */}
       <div aria-hidden className="absolute inset-0 -z-20">
         {PHOTOS.map((item, index) => (
-          <Image
+          <div
             key={item.src}
-            src={item.src}
-            alt=""
-            fill
-            priority={index === 0}
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className={`object-cover transition-[opacity,transform] ease-out motion-reduce:transition-none ${
-              index === photo ? "scale-105 opacity-100 duration-[1400ms,7000ms]" : "scale-100 opacity-0 duration-[1400ms,0ms]"
-            }`}
-            style={{ objectPosition: item.focus }}
-          />
+            className="absolute inset-x-0 top-0"
+            style={{
+              height: "height" in item ? item.height : "100%",
+              // A shorter photo fades out at its bottom edge into the green.
+              maskImage: "height" in item ? "linear-gradient(to bottom, black 65%, transparent)" : undefined,
+            }}
+          >
+            <Image
+              src={item.src}
+              alt=""
+              fill
+              priority={index === 0}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className={`object-cover transition-[opacity,transform] ease-out motion-reduce:transition-none ${
+                index === photo ? "scale-105 opacity-100 duration-[1400ms,7000ms]" : "scale-100 opacity-0 duration-[1400ms,0ms]"
+              }`}
+              style={{ objectPosition: item.focus }}
+            />
+          </div>
         ))}
       </div>
       <p className="sr-only">{PHOTOS[0].alt}</p>
