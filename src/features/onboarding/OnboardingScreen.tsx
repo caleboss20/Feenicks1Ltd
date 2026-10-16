@@ -48,7 +48,7 @@ const PHOTOS = [
   // Supplied by the team (October 2026); confirm its licence before launch.
   { src: "/onboarding/phone-smile.jpg", alt: "A young woman smiling at her phone", focus: "50% 30%", headline: ["Invest.", "Daily.", "Thrive."] },
   // Supplied by the team (October 2026); confirm its licence before launch.
-  { src: "/onboarding/family-home.jpg", alt: "A laughing father lifting his son in the air as the mother cuddles their baby on the sofa", focus: "55% 50%", zoom: 1.1, headline: ["Secure.", "Their.", "Future."] },
+  { src: "/onboarding/family-father-son.jpg", alt: "A laughing father carrying his young son on his shoulders", focus: "24% 50%", zoom: 1.1, headline: ["Secure.", "Their.", "Future."] },
   { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
   { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Fund.", "Homes.", "Profit."] }, // 4971255
