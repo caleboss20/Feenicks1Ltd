@@ -44,7 +44,7 @@ import { useAppStore } from "@/stores/useAppStore";
  * that sits mid-photo up and clear of the headline.
  */
 const PHOTOS = [
-  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Tap.", "Track.", "Relax."] }, // 19863396
+  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Start.", "Small.", "Today."] }, // 19863396
   // Supplied by the team (October 2026); confirm its licence before launch.
   { src: "/onboarding/phone-smile.jpg", alt: "A young woman smiling at her phone", focus: "50% 30%", headline: ["Invest.", "Daily.", "Thrive."] },
   // Supplied by the team (October 2026); confirm its licence before launch.
