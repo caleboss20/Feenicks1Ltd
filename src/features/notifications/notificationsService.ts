@@ -1,5 +1,6 @@
 import { IS_DEMO_MODE } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { subscribeToRefresh } from "@/lib/refresh";
 import type { AppNotification } from "./notificationModel";
 
 /**
@@ -18,10 +19,18 @@ export async function getNotifications(): Promise<AppNotification[]> {
   return [];
 }
 
-/** Calls `listener` when the notifications may have changed. Returns an unsubscribe function. */
+/**
+ * Calls `listener` when the notifications may have changed, or when the user
+ * pulls to refresh. Returns an unsubscribe function.
+ */
 export function subscribeToNotifications(listener: () => void): () => void {
   // TODO(api): live updates (e.g. server-sent events) or refetch on focus.
-  return IS_DEMO_MODE ? demo.subscribeToSession(listener) : () => {};
+  const offSession = IS_DEMO_MODE ? demo.subscribeToSession(listener) : () => {};
+  const offRefresh = subscribeToRefresh(listener);
+  return () => {
+    offSession();
+    offRefresh();
+  };
 }
 
 /** Demo: changes the logged-in account's notifications with `change`. */

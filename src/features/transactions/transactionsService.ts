@@ -1,5 +1,6 @@
 import { IS_DEMO_MODE } from "@/config/demoMode";
 import * as demo from "@/demo/demoAccounts";
+import { subscribeToRefresh } from "@/lib/refresh";
 import { SAMPLE_ID_PREFIX, SAMPLE_VERSION, sampleYearOfActivity } from "@/demo/sampleActivity";
 import { settleDemoPayments } from "@/features/payments/paymentService";
 import { settleDemoWithdrawals } from "@/features/withdraw/withdrawalService";
@@ -43,10 +44,18 @@ export async function getTransactions(): Promise<Transaction[]> {
   return [];
 }
 
-/** Calls `listener` when the transactions may have changed. Returns an unsubscribe function. */
+/**
+ * Calls `listener` when the transactions may have changed, or when the user
+ * pulls to refresh. Returns an unsubscribe function.
+ */
 export function subscribeToTransactions(listener: () => void): () => void {
-  // TODO(api): refetch on focus / after a payment instead.
-  return IS_DEMO_MODE ? demo.subscribeToSession(listener) : () => {};
+  // TODO(api): also refetch on focus / after a payment.
+  const offSession = IS_DEMO_MODE ? demo.subscribeToSession(listener) : () => {};
+  const offRefresh = subscribeToRefresh(listener);
+  return () => {
+    offSession();
+    offRefresh();
+  };
 }
 
 /* ── Demo only: preview the app as an active investor ───────────────── */

@@ -37,6 +37,7 @@ import { formatWhen } from "./transactionFormat";
 import type { Transaction, TransactionType } from "./transactionModel";
 import { SampleDataNotice } from "./SampleData";
 import { useTransactions } from "./useTransactions";
+import { PullToRefresh } from "@/components/feedback/PullToRefresh";
 
 /** How each kind of transaction is shown. */
 const TYPES: Record<
@@ -166,6 +167,8 @@ export function TransactionsScreen() {
         />
       )}
 
+      {/* Pull down at the top to reload the data. */}
+      <PullToRefresh />
       <AppTabBar />
     </main>
   );

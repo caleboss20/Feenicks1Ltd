@@ -87,6 +87,7 @@ import { FirstInvestmentSheet } from "./FirstInvestmentSheet";
 import { PerformanceCard } from "./PerformanceCard";
 import { SkeletonCard } from "@/components/feedback/Skeleton";
 import { InstallAppCard } from "@/features/install/InstallAppCard";
+import { PullToRefresh } from "@/components/feedback/PullToRefresh";
 
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
@@ -445,6 +446,8 @@ export function DashboardScreen() {
         <RecentTransactions transactions={transactions} hideAmounts={hideAmounts} />
       </div>
 
+      {/* Pull down at the top to reload the data. */}
+      <PullToRefresh />
       <AppTabBar />
 
       {/* Not invested yet: a milestone sheet nudging the first investment. */}
