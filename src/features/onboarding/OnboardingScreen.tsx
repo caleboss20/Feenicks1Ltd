@@ -77,24 +77,35 @@ export function OnboardingScreen() {
         {PHOTOS.map((item, index) => (
           <div
             key={item.src}
-            className="absolute inset-x-0 top-0"
-            style={{
-              height: "height" in item ? item.height : "100%",
-              // A shorter photo fades out at its bottom edge into the green.
-              maskImage: "height" in item ? "linear-gradient(to bottom, black 65%, transparent)" : undefined,
-            }}
+            className={`absolute inset-0 transition-opacity duration-[1400ms] ease-out motion-reduce:transition-none ${
+              index === photo ? "opacity-100" : "opacity-0"
+            }`}
           >
-            <Image
-              src={item.src}
-              alt=""
-              fill
-              priority={index === 0}
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className={`object-cover transition-[opacity,transform] ease-out motion-reduce:transition-none ${
-                index === photo ? "scale-105 opacity-100 duration-[1400ms,7000ms]" : "scale-100 opacity-0 duration-[1400ms,0ms]"
-              }`}
-              style={{ objectPosition: item.focus, filter: "dim" in item ? "brightness(0.7)" : undefined }}
-            />
+            {/* Below a shorter photo: the same photo, blurred, so the screen is
+                photo all the way down and the overlay looks like every slide. */}
+            {"height" in item && (
+              <Image src={item.src} alt="" fill sizes="256px" className="scale-110 object-cover blur-2xl" />
+            )}
+            <div
+              className="absolute inset-x-0 top-0"
+              style={{
+                height: "height" in item ? item.height : "100%",
+                // A shorter photo fades out at its bottom edge into the blur.
+                maskImage: "height" in item ? "linear-gradient(to bottom, black 65%, transparent)" : undefined,
+              }}
+            >
+              <Image
+                src={item.src}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className={`object-cover transition-transform ease-out motion-reduce:transition-none ${
+                  index === photo ? "scale-105 duration-[7000ms]" : "scale-100 duration-0"
+                }`}
+                style={{ objectPosition: item.focus, filter: "dim" in item ? "brightness(0.7)" : undefined }}
+              />
+            </div>
           </div>
         ))}
       </div>
