@@ -18,8 +18,8 @@
  *   └───────────────────────────┘
  *
  * Background: a slideshow of the people Feenicks1 is for (CEO, October
- * 2026): students, individuals, families, farmers, market women, home buyers and
- * business partners. Each photo fades in slowly with a gentle zoom every few
+ * 2026): individuals, families, students, farmers and property investors.
+ * Each photo fades in slowly with a gentle zoom every few
  * seconds: no carousel, no dots, nothing to swipe. Reduced motion: the first
  * photo only. Photos: Pexels (free licence), 1600px; each is cropped (focus)
  * so faces sit in the top half, clear of the shading and the headline.
@@ -52,9 +52,6 @@ const PHOTOS = [
   { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
   { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Fund.", "Homes.", "Profit."] }, // 4971255
-  // Supplied by the team (October 2026; 626x417, low resolution): confirm its
-  // licence and get the full-size file before launch.
-  { src: "/onboarding/hands-together.jpg", alt: "Hands of a team stacked together", focus: "55% 50%", headline: ["Join.", "Plan.", "Grow."] },
 ];
 const PHOTO_MS = 5000;
 
