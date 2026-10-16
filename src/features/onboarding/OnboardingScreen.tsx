@@ -10,9 +10,9 @@
  *   │   full-bleed photo        │  ← shaded into forest green at the
  *   │   slideshow (cross-fade)  │    bottom (no shadows), so text reads
  *   │                           │
- *   │   Plant.                  │  ← gold, Inter Tight, very large;
- *   │   Tend.                   │    changes with each photo
- *   │   Harvest.                │
+ *   │   Back                    │  ← gold, Inter Tight, very large;
+ *   │   Ghana's                 │    changes with each photo
+ *   │   farmers.                │
  *   │  (Create account)( Log in )│  ← gold / dark green
  *   │   Our portfolios and fees ›│
  *   └───────────────────────────┘
@@ -25,7 +25,7 @@
  * so faces sit in the top half, clear of the shading and the headline.
  * Each photo has its own headline, which fades with the photo. All headlines
  * share one grid cell, so the buttons never move. The last slide ends on the
- * brand line, "Plan. Invest. Grow."
+ * partners: "Grow wealth together."
  * Both actions mark onboarding as seen (useAppStore), as before.
  */
 
@@ -38,20 +38,21 @@ import { useAppStore } from "@/stores/useAppStore";
 
 /**
  * The slides, in order (Pexels photo IDs in comments). No word is used on
- * more than one slide. `height` (optional): a near-square photo fills only
+ * more than one slide, and each headline says what its photo shows: investing
+ * from a phone, a trader's profits, a student, farming, property, partners. `height` (optional): a near-square photo fills only
  * the top of the screen, so a tall phone crop keeps everyone in the picture. Headline lines stay
  * short (9 characters at most) so they fit a 320px-wide phone at full size.
  */
 const PHOTOS = [
-  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Start", "where", "you are."] }, // 19863396
-  { src: "/onboarding/market-woman.jpg", alt: "A smiling market woman in a colourful headwrap at her vegetable stall", focus: "50% 25%", headline: ["Every", "cedi", "counts."] }, // 12024075
-  { src: "/onboarding/student.jpg", alt: "A smiling graduate in cap and gown", focus: "50% 20%", headline: ["Smart", "money,", "early."] }, // 8093018
-  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Harvest."] }, // 33993456
-  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Build.", "Own.", "Prosper."] }, // 4971255
+  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Invest", "from your", "phone."] }, // 19863396
+  { src: "/onboarding/market-trader.jpg", alt: "A market trader laughing at her fruit stall", focus: "50% 25%", headline: ["Put", "profits", "to work."] }, // 40045554
+  { src: "/onboarding/student-window.jpg", alt: "A smiling young student by a bright window", focus: "25% 45%", headline: ["Start", "while", "studying."] }, // 8197501
+  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Back", "Ghana's", "farmers."] }, // 33993456
+  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Own a", "share in", "property."] }, // 4971255
   // TODO(launch): partners.webp is a Rawpixel preview with a watermark in its
   // bottom-left corner (hidden under the forest shading). Buy the licensed
   // file from Rawpixel and replace it before launch.
-  { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Plan.", "Invest.", "Grow."] },
+  { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Grow", "wealth", "together."] },
 ];
 const PHOTO_MS = 5000;
 
@@ -102,11 +103,11 @@ export function OnboardingScreen() {
           bottom (for the headline and buttons). */}
       <span
         aria-hidden
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(14,59,44,0.55)_0%,rgba(14,59,44,0)_22%,rgba(14,59,44,0.15)_42%,rgba(14,59,44,0.85)_62%,#0e3b2c_78%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(14,59,44,0.8)_0%,rgba(14,59,44,0.35)_9%,rgba(14,59,44,0)_22%,rgba(14,59,44,0.15)_42%,rgba(14,59,44,0.85)_62%,#0e3b2c_78%)]"
       />
 
       <header className="flex justify-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
-        <LogoWordmark tone="gold" className="h-8" />
+        <LogoWordmark tone="gold" className="h-6" />
       </header>
 
       <div className="mx-auto mt-auto flex w-full max-w-md flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:max-w-lg">
