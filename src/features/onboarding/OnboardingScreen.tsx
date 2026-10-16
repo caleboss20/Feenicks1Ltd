@@ -53,10 +53,9 @@ const PHOTOS = [
   { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
   { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Fund.", "Homes.", "Profit."] }, // 4971255
-  // TODO(launch): partners.webp is a Rawpixel preview with a watermark in its
-  // bottom-left corner (outside this crop, which centres on her). Buy the
-  // licensed file from Rawpixel and replace it before launch.
-  { src: "/onboarding/partners.webp", alt: "A smiling businesswoman shaking hands with a client", focus: "55% 30%", headline: ["Join.", "Plan.", "Grow."] },
+  // Supplied by the team (October 2026; 626x417, low resolution): confirm its
+  // licence and get the full-size file before launch.
+  { src: "/onboarding/hands-together.jpg", alt: "Hands of a team stacked together", focus: "55% 50%", headline: ["Join.", "Plan.", "Grow."] },
 ];
 const PHOTO_MS = 5000;
 
