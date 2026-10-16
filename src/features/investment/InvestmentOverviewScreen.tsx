@@ -26,7 +26,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { StepScreenLayout } from "@/components/layout/StepScreenLayout";
 import { ButtonLink } from "@/components/ui/Button";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { SkeletonCard, SkeletonList } from "@/components/feedback/Skeleton";
 import { ROUTES } from "@/config/routes";
 import { INVESTMENT_PACKAGES } from "@/features/packages/investmentPackages";
 import { heldPackageIds } from "@/features/packages/packagePolicy";
@@ -67,9 +67,8 @@ export function InvestmentOverviewScreen() {
   if (transactions === null) {
     return (
       <StepScreenLayout title="My investment" centeredTitle stickyHeader onBack={back}>
-        <div className="grid flex-1 place-items-center py-20">
-          <LoadingSpinner />
-        </div>
+        <SkeletonCard label="Loading your investment" className="mt-6 h-44" />
+        <SkeletonList rows={3} label="Loading your investment" className="mt-8" />
       </StepScreenLayout>
     );
   }

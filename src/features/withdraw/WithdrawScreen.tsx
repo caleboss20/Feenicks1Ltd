@@ -57,6 +57,7 @@ import {
   type WithdrawalTerms,
 } from "./withdrawalModel";
 import { getWithdrawals, requestWithdrawal, subscribeToWithdrawals } from "./withdrawalService";
+import { ScreenSkeleton } from "@/components/feedback/Skeleton";
 
 /** "241234567" → "024 ••• 4567": enough to recognise, not to copy. */
 function maskedNumber(phone: string): string {
@@ -111,7 +112,7 @@ function useWithdrawalInProgress(): WithdrawalRequest | null {
 export function WithdrawScreen() {
   const current = useCurrentAccount();
   const transactions = useTransactions();
-  if (current.status !== "signed-in" || transactions === null) return null;
+  if (current.status !== "signed-in" || transactions === null) return <ScreenSkeleton label="Loading withdrawal" />;
 
   const heldId = heldPackageIds(transactions)[0] ?? null;
   const startedAt = heldId ? firstDeposit(transactions, heldId) : null;

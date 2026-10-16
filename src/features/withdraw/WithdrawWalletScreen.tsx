@@ -33,6 +33,7 @@ import { walletBalance } from "@/features/wallets/walletModel";
 import { useHideAmounts } from "@/hooks/useHideAmounts";
 import { firstDeposit } from "./withdrawalModel";
 import { NothingToWithdraw } from "./WithdrawScreen";
+import { ScreenSkeleton } from "@/components/feedback/Skeleton";
 
 export function WithdrawWalletScreen() {
   const current = useCurrentAccount();
@@ -41,7 +42,7 @@ export function WithdrawWalletScreen() {
   const wallet = useWallet(heldId);
   const [hideAmounts, toggleHideAmounts] = useHideAmounts();
 
-  if (current.status !== "signed-in" || transactions === null) return null;
+  if (current.status !== "signed-in" || transactions === null) return <ScreenSkeleton label="Loading your wallet" />;
 
   const startedAt = heldId ? firstDeposit(transactions, heldId) : null;
   const phone = current.account.phone;

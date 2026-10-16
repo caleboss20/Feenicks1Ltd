@@ -85,6 +85,7 @@ import { useThemeStore } from "@/stores/useThemeStore";
 import { chosenDashboardColor, dashboardGradient } from "./dashboardTheme";
 import { FirstInvestmentSheet } from "./FirstInvestmentSheet";
 import { PerformanceCard } from "./PerformanceCard";
+import { SkeletonCard } from "@/components/feedback/Skeleton";
 
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
@@ -426,8 +427,8 @@ export function DashboardScreen() {
       {/* Investors: the chart's title sits closer, inside the solid green. */}
       <div className={cn("px-4", hasInvested ? "mt-7" : "mt-10")}>
         {transactions === null ? (
-          // Loading (a moment): empty space, so neither flashes up.
-          <div aria-hidden className="h-48" />
+          // Loading (a moment): a placeholder card, so neither flashes up.
+          <SkeletonCard label="Loading your portfolio" className="h-48" />
         ) : hasInvested ? (
           <PerformanceCard transactions={transactions} hideAmounts={hideAmounts} color={color} />
         ) : (

@@ -44,6 +44,7 @@ import { walletBalance } from "@/features/wallets/walletModel";
 import { useHideAmounts } from "@/hooks/useHideAmounts";
 import { INVESTMENT_PACKAGES } from "./investmentPackages";
 import { canInvest, heldPackageIds, investOptionFor } from "./packagePolicy";
+import { ScreenSkeleton } from "@/components/feedback/Skeleton";
 
 export function InvestStartScreen() {
   const router = useRouter();
@@ -63,7 +64,7 @@ export function InvestStartScreen() {
     if (isReady && !packageId) router.replace(ROUTES.investPackages);
   }, [isReady, packageId, router]);
 
-  if (current.status !== "signed-in" || transactions === null || !packageId) return null;
+  if (current.status !== "signed-in" || transactions === null || !packageId) return <ScreenSkeleton label="Loading your portfolio" />;
 
   const pkg = INVESTMENT_PACKAGES[packageId];
   const option = investOptionFor(transactions, packageId);

@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import type { AppNotification, NotificationKind } from "./notificationModel";
 import { deleteNotification, markNotificationRead } from "./notificationsService";
 import { useNotifications } from "./useNotifications";
+import { SkeletonList } from "@/components/feedback/Skeleton";
 
 /** White page in light mode, black in dark (the phone's status bar matches). */
 const PAGE_COLORS = { light: "#f4f4ef", dark: "#0a0a0a" };
@@ -96,7 +97,9 @@ export function NotificationsScreen() {
         <h1 className="text-center text-sm font-semibold tracking-[0.12em] uppercase">Notifications</h1>
       </header>
 
-      {notifications === null ? null : notifications.length === 0 ? (
+      {notifications === null ? (
+        <SkeletonList rows={4} label="Loading notifications" className="mt-6 px-5" />
+      ) : notifications.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center px-6 pb-20 text-center">
           {/* Grey bell on a grey circle (no green). */}
           <span className="grid size-16 place-items-center rounded-full bg-neutral-100 text-neutral-600 dark:bg-white/10 dark:text-neutral-300">

@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 import { StepScreenLayout, stickyActionsClass } from "@/components/layout/StepScreenLayout";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { ButtonLink } from "@/components/ui/Button";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { SkeletonCard, SkeletonList } from "@/components/feedback/Skeleton";
 import { ROUTES } from "@/config/routes";
 import { valueAt } from "@/features/analytics/portfolioHistory";
 import { useCurrentAccount } from "@/features/auth/useCurrentAccount";
@@ -137,9 +137,8 @@ export function StatementsScreen() {
   if (current.status !== "signed-in" || transactions === null || withdrawals === null) {
     return (
       <StepScreenLayout title="Statements" centeredTitle stickyHeader onBack={back}>
-        <div className="grid flex-1 place-items-center py-20">
-          <LoadingSpinner />
-        </div>
+        <SkeletonCard label="Loading statements" className="mt-6 h-44" />
+        <SkeletonList rows={3} label="Loading statements" className="mt-8" />
       </StepScreenLayout>
     );
   }

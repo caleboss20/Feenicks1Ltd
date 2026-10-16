@@ -25,6 +25,7 @@ import { formatCedis } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { formatWhen, transactionTitle } from "./transactionFormat";
 import type { Transaction } from "./transactionModel";
+import { SkeletonList } from "@/components/feedback/Skeleton";
 
 export function RecentTransactions({
   transactions,
@@ -56,18 +57,7 @@ export function RecentTransactions({
       </div>
 
       {transactions === null ? (
-        <ul aria-busy="true" aria-label="Loading activity" className="mt-6 flex flex-col gap-7">
-          {[0, 1, 2].map((index) => (
-            <li key={index} className="flex animate-pulse items-start gap-4 motion-reduce:animate-none">
-              <span className="size-11 shrink-0 rounded-full bg-neutral-100 dark:bg-white/10" />
-              <span className="flex-1 pt-1">
-                <span className="block h-3.5 w-3/5 rounded bg-neutral-200 dark:bg-white/10" />
-                <span className="mt-2.5 block h-3 w-2/5 rounded bg-neutral-100 dark:bg-white/5" />
-              </span>
-              <span className="mt-1 h-3.5 w-16 rounded bg-neutral-200 dark:bg-white/10" />
-            </li>
-          ))}
-        </ul>
+        <SkeletonList rows={3} label="Loading activity" className="mt-6" />
       ) : latest.length === 0 ? (
         <div className="mt-6 flex items-center gap-4">
           <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-neutral-100 text-neutral-500 dark:bg-white/10">
