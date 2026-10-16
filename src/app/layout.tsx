@@ -4,6 +4,7 @@ import { ConnectionBanner } from "@/components/feedback/ConnectionBanner";
 import { IS_PUBLIC_LAUNCH } from "@/config/launch";
 import { siteConfig } from "@/config/site";
 import { themeInitScript } from "@/config/theme";
+import { InstallPromptListener } from "@/features/install/InstallPromptListener";
 import "./globals.css";
 
 /* ---------------------------------------------------------------------------
@@ -116,6 +117,8 @@ export default function RootLayout({
         {children}
         {/* Offline / back online, on every screen. */}
         <ConnectionBanner />
+        {/* Catches the browser's one-time "can be installed" event early. */}
+        <InstallPromptListener />
       </body>
     </html>
   );

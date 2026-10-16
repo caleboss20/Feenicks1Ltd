@@ -86,6 +86,7 @@ import { chosenDashboardColor, dashboardGradient } from "./dashboardTheme";
 import { FirstInvestmentSheet } from "./FirstInvestmentSheet";
 import { PerformanceCard } from "./PerformanceCard";
 import { SkeletonCard } from "@/components/feedback/Skeleton";
+import { InstallAppCard } from "@/features/install/InstallAppCard";
 
 /** Remembers "hide amounts" on this device (a convenience, not security). */
 const HIDE_AMOUNTS_KEY = "feenicks1-hide-amounts";
@@ -435,6 +436,9 @@ export function DashboardScreen() {
           <BannerCarousel label="Offers and tips" banners={banners} />
         )}
       </div>
+
+      {/* ── Get the app (only when installing is possible and it isn't installed) ── */}
+      <InstallAppCard className="mt-8 px-4" />
 
       {/* ── Recent activity: the latest transactions (all of them on the Transactions tab) ── */}
       <div className="mt-12 px-4">
