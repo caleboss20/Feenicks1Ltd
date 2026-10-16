@@ -10,9 +10,9 @@
  *   │   full-bleed photo        │  ← shaded into forest green at the
  *   │   slideshow (cross-fade)  │    bottom (no shadows), so text reads
  *   │                           │
- *   │   Plan.                   │  ← gold, Inter Tight, very large
- *   │   Invest.                 │
- *   │   Grow.                   │
+ *   │   Plant.                  │  ← gold, Inter Tight, very large;
+ *   │   Tend.                   │    changes with each photo
+ *   │   Harvest.                │
  *   │  (Create account)( Log in )│  ← gold / dark green
  *   │   Our portfolios and fees ›│
  *   └───────────────────────────┘
@@ -23,6 +23,9 @@
  * seconds: no carousel, no dots, nothing to swipe. Reduced motion: the first
  * photo only. Photos: Pexels (free licence), 1600px; each is cropped (focus)
  * so faces sit in the top half, clear of the shading and the headline.
+ * Each photo has its own headline, which fades with the photo. All headlines
+ * share one grid cell, so the buttons never move. The last slide ends on the
+ * brand line, "Plan. Invest. Grow."
  * Both actions mark onboarding as seen (useAppStore), as before.
  */
 
@@ -33,14 +36,17 @@ import { LogoWordmark } from "@/components/brand/Logo";
 import { ROUTES } from "@/config/routes";
 import { useAppStore } from "@/stores/useAppStore";
 
-/** The photos, in order (Pexels photo IDs in brackets). */
+/**
+ * The slides, in order (Pexels photo IDs in comments). Headline lines stay
+ * short (9 characters at most) so they fit a 320px-wide phone at full size.
+ */
 const PHOTOS = [
-  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%" }, // 19863396
-  { src: "/onboarding/market-woman.jpg", alt: "A smiling market woman in a colourful headwrap at her vegetable stall", focus: "50% 25%" }, // 12024075
-  { src: "/onboarding/student.jpg", alt: "A smiling graduate in cap and gown", focus: "50% 20%" }, // 8093018
-  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%" }, // 33993456
-  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%" }, // 4971255
-  { src: "/onboarding/partners.jpg", alt: "Two business partners shaking hands in an office", focus: "50% 25%" }, // 8069440
+  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Start", "small.", "Grow."] }, // 19863396
+  { src: "/onboarding/market-woman.jpg", alt: "A smiling market woman in a colourful headwrap at her vegetable stall", focus: "50% 25%", headline: ["Sell.", "Save.", "Grow."] }, // 12024075
+  { src: "/onboarding/student.jpg", alt: "A smiling graduate in cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Invest."] }, // 8093018
+  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Harvest."] }, // 33993456
+  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Build.", "Own.", "Prosper."] }, // 4971255
+  { src: "/onboarding/partners.jpg", alt: "Two business partners shaking hands in an office", focus: "50% 25%", headline: ["Plan.", "Invest.", "Grow."] }, // 8069440
 ];
 const PHOTO_MS = 5000;
 
@@ -90,13 +96,26 @@ export function OnboardingScreen() {
       </header>
 
       <div className="mx-auto mt-auto flex w-full max-w-md flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:max-w-lg">
-        <p className="animate-fade-up font-display text-[4.25rem] leading-[0.92] font-semibold tracking-[-0.03em] text-gold-500 motion-reduce:animate-none sm:text-[5rem]">
-          Plan.
-          <br />
-          Invest.
-          <br />
-          Grow.
-        </p>
+        {/* Every slide's text in the same grid cell: only the current one shows. */}
+        <div className="grid animate-fade-up motion-reduce:animate-none">
+          {PHOTOS.map((item, index) => (
+            <div
+              key={item.src}
+              aria-hidden={index !== photo}
+              className={`col-start-1 row-start-1 transition-[opacity,translate] duration-700 ease-out motion-reduce:transition-none ${
+                index === photo ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+              }`}
+            >
+              <p className="font-display text-[4.25rem] leading-[0.92] font-semibold tracking-[-0.03em] text-gold-500 sm:text-[5rem]">
+                {item.headline.map((word, wordIndex) => (
+                  <span key={wordIndex} className="block">
+                    {word}
+                  </span>
+                ))}
+              </p>
+            </div>
+          ))}
+        </div>
 
         <div className="mt-9 grid grid-cols-2 gap-3">
           <Link
