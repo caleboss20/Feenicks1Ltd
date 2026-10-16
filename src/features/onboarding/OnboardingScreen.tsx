@@ -7,12 +7,12 @@
  *   ┌───────────────────────────┐
  *   │        Feenicks1 (gold)    │
  *   │                           │
- *   │   full-bleed photo        │  ← shaded into forest green at the
- *   │   slideshow (cross-fade)  │    bottom (no shadows), so text reads
+ *   │   full-bleed photo        │  ← tinted forest green, darker towards
+ *   │   slideshow (cross-fade)  │    the bottom (no shadows), so text reads
  *   │                           │
- *   │                           │
- *   │   Back Ghana's            │  ← gold, Inter Tight, large; changes
- *   │   farmers.                │    with each photo, low on the screen
+ *   │   Plant.                  │  ← gold, Inter Tight, very large, one
+ *   │   Tend.                   │    word per line (as in Bamboo's
+ *   │   Reap.                   │    welcome); changes with each photo
  *   │  (Create account)( Log in )│  ← gold / dark green
  *   │   Our portfolios and fees ›│
  *   └───────────────────────────┘
@@ -37,22 +37,21 @@ import { useAppStore } from "@/stores/useAppStore";
 
 /**
  * The slides, in order (Pexels photo IDs in comments). Each headline says what
- * its photo shows, in at most three words on two short lines, so the text sits
- * low (under the faces) and fits a 320px-wide phone. No word is used on more
- * than one slide.
+ * its photo, in three single-word lines (at most 7 characters, so each fits a
+ * 320px-wide phone at full size). No word is used on more than one slide.
  * `height` (optional): a near-square photo fills only the top of the screen,
  * so a tall phone crop keeps everyone in the picture.
  */
 const PHOTOS = [
-  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Invest by", "phone."] }, // 19863396
-  { src: "/onboarding/market-trader.jpg", alt: "A market trader laughing at her fruit stall", focus: "50% 25%", headline: ["Trade. Save.", "Prosper."] }, // 40045554
-  { src: "/onboarding/student-window.jpg", alt: "A smiling young student by a bright window", focus: "25% 45%", headline: ["Start while", "studying."] }, // 8197501
-  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Back Ghana's", "farmers."] }, // 33993456
-  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Own real", "estate."] }, // 4971255
+  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Tap.", "Invest.", "Relax."] }, // 19863396
+  { src: "/onboarding/market-trader.jpg", alt: "A market trader laughing at her fruit stall", focus: "50% 25%", headline: ["Trade.", "Save.", "Thrive."] }, // 40045554
+  { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
+  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
+  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Build.", "Own.", "Gain."] }, // 4971255
   // TODO(launch): partners.webp is a Rawpixel preview with a watermark in its
   // bottom-left corner (hidden under the forest shading). Buy the licensed
   // file from Rawpixel and replace it before launch.
-  { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Grow wealth", "together."] },
+  { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Join.", "Plan.", "Grow."] },
 ];
 const PHOTO_MS = 5000;
 
@@ -99,11 +98,11 @@ export function OnboardingScreen() {
         ))}
       </div>
       <p className="sr-only">{PHOTOS[0].alt}</p>
-      {/* Forest-green shading: light at the top (for the logo), solid at the
-          bottom (for the headline and buttons). */}
+      {/* Forest-green tint, as in Bamboo's welcome: the photo stays visible
+          behind the headline, darker at the top (logo) and bottom (buttons). */}
       <span
         aria-hidden
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(14,59,44,0.8)_0%,rgba(14,59,44,0.35)_9%,rgba(14,59,44,0)_22%,rgba(14,59,44,0.15)_42%,rgba(14,59,44,0.85)_62%,#0e3b2c_78%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(14,59,44,0.8)_0%,rgba(14,59,44,0.3)_9%,rgba(14,59,44,0.1)_22%,rgba(14,59,44,0.55)_48%,rgba(14,59,44,0.85)_72%,rgba(14,59,44,0.92)_100%)]"
       />
 
       <header className="flex justify-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
@@ -121,7 +120,7 @@ export function OnboardingScreen() {
                 index === photo ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
               }`}
             >
-              <p className="font-display text-[2.875rem] leading-[0.95] font-semibold tracking-[-0.03em] text-gold-500 sm:text-[3.5rem]">
+              <p className="font-display text-[min(5.5rem,25vw)] leading-[0.92] font-semibold tracking-[-0.03em] text-gold-500">
                 {item.headline.map((word, wordIndex) => (
                   <span key={wordIndex} className="block">
                     {word}
@@ -132,7 +131,7 @@ export function OnboardingScreen() {
           ))}
         </div>
 
-        <div className="mt-9 grid grid-cols-2 gap-3">
+        <div className="mt-8 grid grid-cols-[3fr_2fr] gap-3">
           <Link
             href={ROUTES.signUp}
             onClick={completeOnboarding}
