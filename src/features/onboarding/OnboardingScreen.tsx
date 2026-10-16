@@ -48,7 +48,7 @@ const PHOTOS = [
   { src: "/onboarding/market-trader.jpg", alt: "A market trader laughing at her fruit stall", focus: "50% 25%", headline: ["Trade.", "Save.", "Thrive."] }, // 40045554
   { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
-  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Build.", "Own.", "Gain."] }, // 4971255
+  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Fund.", "Homes.", "Profit."] }, // 4971255
   // TODO(launch): partners.webp is a Rawpixel preview with a watermark in its
   // bottom-left corner (hidden by the fade at the photo's bottom edge). Buy
   // the licensed file from Rawpixel and replace it before launch.
