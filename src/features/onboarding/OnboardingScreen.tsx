@@ -10,9 +10,9 @@
  *   │   full-bleed photo        │  ← shaded into forest green at the
  *   │   slideshow (cross-fade)  │    bottom (no shadows), so text reads
  *   │                           │
- *   │   Back                    │  ← gold, Inter Tight, very large;
- *   │   Ghana's                 │    changes with each photo
- *   │   farmers.                │
+ *   │                           │
+ *   │   Back Ghana's            │  ← gold, Inter Tight, large; changes
+ *   │   farmers.                │    with each photo, low on the screen
  *   │  (Create account)( Log in )│  ← gold / dark green
  *   │   Our portfolios and fees ›│
  *   └───────────────────────────┘
@@ -24,8 +24,7 @@
  * photo only. Photos: Pexels (free licence), 1600px; each is cropped (focus)
  * so faces sit in the top half, clear of the shading and the headline.
  * Each photo has its own headline, which fades with the photo. All headlines
- * share one grid cell, so the buttons never move. The last slide ends on the
- * partners: "Grow wealth together."
+ * share one grid cell, so the buttons never move.
  * Both actions mark onboarding as seen (useAppStore), as before.
  */
 
@@ -37,22 +36,23 @@ import { ROUTES } from "@/config/routes";
 import { useAppStore } from "@/stores/useAppStore";
 
 /**
- * The slides, in order (Pexels photo IDs in comments). No word is used on
- * more than one slide, and each headline says what its photo shows: investing
- * from a phone, a trader's profits, a student, farming, property, partners. `height` (optional): a near-square photo fills only
- * the top of the screen, so a tall phone crop keeps everyone in the picture. Headline lines stay
- * short (9 characters at most) so they fit a 320px-wide phone at full size.
+ * The slides, in order (Pexels photo IDs in comments). Each headline says what
+ * its photo shows, in at most three words on two short lines, so the text sits
+ * low (under the faces) and fits a 320px-wide phone. No word is used on more
+ * than one slide.
+ * `height` (optional): a near-square photo fills only the top of the screen,
+ * so a tall phone crop keeps everyone in the picture.
  */
 const PHOTOS = [
-  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Invest", "from your", "phone."] }, // 19863396
-  { src: "/onboarding/market-trader.jpg", alt: "A market trader laughing at her fruit stall", focus: "50% 25%", headline: ["Put", "profits", "to work."] }, // 40045554
-  { src: "/onboarding/student-window.jpg", alt: "A smiling young student by a bright window", focus: "25% 45%", headline: ["Start", "while", "studying."] }, // 8197501
-  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Back", "Ghana's", "farmers."] }, // 33993456
-  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Own a", "share in", "property."] }, // 4971255
+  { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Invest by", "phone."] }, // 19863396
+  { src: "/onboarding/market-trader.jpg", alt: "A market trader laughing at her fruit stall", focus: "50% 25%", headline: ["Trade. Save.", "Prosper."] }, // 40045554
+  { src: "/onboarding/student-window.jpg", alt: "A smiling young student by a bright window", focus: "25% 45%", headline: ["Start while", "studying."] }, // 8197501
+  { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Back Ghana's", "farmers."] }, // 33993456
+  { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", headline: ["Own real", "estate."] }, // 4971255
   // TODO(launch): partners.webp is a Rawpixel preview with a watermark in its
   // bottom-left corner (hidden under the forest shading). Buy the licensed
   // file from Rawpixel and replace it before launch.
-  { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Grow", "wealth", "together."] },
+  { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Grow wealth", "together."] },
 ];
 const PHOTO_MS = 5000;
 
@@ -121,7 +121,7 @@ export function OnboardingScreen() {
                 index === photo ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
               }`}
             >
-              <p className="font-display text-[4.25rem] leading-[0.92] font-semibold tracking-[-0.03em] text-gold-500 sm:text-[5rem]">
+              <p className="font-display text-[2.875rem] leading-[0.95] font-semibold tracking-[-0.03em] text-gold-500 sm:text-[3.5rem]">
                 {item.headline.map((word, wordIndex) => (
                   <span key={wordIndex} className="block">
                     {word}
