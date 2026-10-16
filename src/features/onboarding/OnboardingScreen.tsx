@@ -40,8 +40,6 @@ import { useAppStore } from "@/stores/useAppStore";
  * its photo, in three single-word lines (at most 7 characters, so each fits a
  * 320px-wide phone at full size). No word is used on more than one slide.
  * `dim` (optional): a bright photo is darkened a little so the gold text reads.
- * `height` (optional): a near-square photo fills only the top of the screen,
- * so a tall phone crop keeps everyone in the picture.
  */
 const PHOTOS = [
   { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Tap.", "Invest.", "Relax."] }, // 19863396
@@ -50,9 +48,9 @@ const PHOTOS = [
   { src: "/onboarding/farmer.jpg", alt: "A smiling farmer in a woven cap in his field", focus: "50% 30%", headline: ["Plant.", "Tend.", "Reap."] }, // 33993456
   { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Fund.", "Homes.", "Profit."] }, // 4971255
   // TODO(launch): partners.webp is a Rawpixel preview with a watermark in its
-  // bottom-left corner (hidden by the fade at the photo's bottom edge). Buy
-  // the licensed file from Rawpixel and replace it before launch.
-  { src: "/onboarding/partners.webp", alt: "A businesswoman shaking hands with a client as her smiling colleague looks on", focus: "30% 20%", height: "60%", headline: ["Join.", "Plan.", "Grow."] },
+  // bottom-left corner (outside this crop, which centres on her). Buy the
+  // licensed file from Rawpixel and replace it before launch.
+  { src: "/onboarding/partners.webp", alt: "A smiling businesswoman shaking hands with a client", focus: "55% 30%", headline: ["Join.", "Plan.", "Grow."] },
 ];
 const PHOTO_MS = 5000;
 
@@ -81,31 +79,17 @@ export function OnboardingScreen() {
               index === photo ? "opacity-100" : "opacity-0"
             }`}
           >
-            {/* Below a shorter photo: the same photo, blurred, so the screen is
-                photo all the way down and the overlay looks like every slide. */}
-            {"height" in item && (
-              <Image src={item.src} alt="" fill sizes="256px" className="scale-110 object-cover blur-2xl" />
-            )}
-            <div
-              className="absolute inset-x-0 top-0"
-              style={{
-                height: "height" in item ? item.height : "100%",
-                // A shorter photo fades out at its bottom edge into the blur.
-                maskImage: "height" in item ? "linear-gradient(to bottom, black 65%, transparent)" : undefined,
-              }}
-            >
-              <Image
-                src={item.src}
-                alt=""
-                fill
-                priority={index === 0}
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className={`object-cover transition-transform ease-out motion-reduce:transition-none ${
-                  index === photo ? "scale-105 duration-[7000ms]" : "scale-100 duration-0"
-                }`}
-                style={{ objectPosition: item.focus, filter: "dim" in item ? "brightness(0.7)" : undefined }}
-              />
-            </div>
+            <Image
+              src={item.src}
+              alt=""
+              fill
+              priority={index === 0}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className={`object-cover transition-transform ease-out motion-reduce:transition-none ${
+                index === photo ? "scale-105 duration-[7000ms]" : "scale-100 duration-0"
+              }`}
+              style={{ objectPosition: item.focus, filter: "dim" in item ? "brightness(0.7)" : undefined }}
+            />
           </div>
         ))}
       </div>
