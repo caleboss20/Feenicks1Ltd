@@ -2,9 +2,9 @@
  * AuthScreenLayout: the shared frame for every auth screen (sign up, login, and
  * later forgot/reset password), so they all look and behave identically.
  *
- *   ←                       ← back link (top-left of the page on larger screens)
- *   Big bold                ← title
- *   Title
+ *   ←      Feenicks1        ← back link · logo (brand green), as after the welcome
+ *   Welcome                 ← title: Inter Tight, large, tight lines (the
+ *   back.                     welcome screen's headline style)
  *
  *   {children}              ← the screen's form, social buttons, etc.
  *
@@ -17,6 +17,7 @@
  */
 
 import Link from "next/link";
+import { LogoWordmark } from "@/components/brand/Logo";
 import { ArrowLeft } from "@/components/icons";
 
 type AuthScreenLayoutProps = {
@@ -32,17 +33,20 @@ type AuthScreenLayoutProps = {
 export function AuthScreenLayout({ title, backHref, footer, children }: AuthScreenLayoutProps) {
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] sm:justify-center sm:py-8 lg:max-w-sm">
-      <Link
-        href={backHref}
-        aria-label="Back"
-        className="-ml-2 grid size-11 place-items-center rounded-full transition-colors hover:bg-foreground/5 sm:fixed sm:top-6 sm:left-6 sm:ml-0"
-      >
-        <ArrowLeft className="size-6" />
-      </Link>
+      <div className="grid grid-cols-[2.75rem_1fr_2.75rem] items-center">
+        <Link
+          href={backHref}
+          aria-label="Back"
+          className="-ml-2 grid size-11 place-items-center rounded-full transition-colors hover:bg-foreground/5 sm:fixed sm:top-6 sm:left-6 sm:ml-0"
+        >
+          <ArrowLeft className="size-6" />
+        </Link>
+        <LogoWordmark tone="brand" className="mx-auto h-5 sm:hidden" />
+      </div>
 
-      {/* Capped at 40px on large screens so longer titles ("Log in to your")
-          don't dominate the narrow form column. */}
-      <h1 className="mt-8 text-[1.75rem] leading-[1.15] font-bold sm:mt-0 sm:text-[clamp(2rem,5vh,2.5rem)]">
+      {/* The welcome screen's headline style, smaller: capped on large screens
+          so it doesn't dominate the narrow form column. */}
+      <h1 className="mt-8 font-display text-[2.75rem] leading-[0.98] font-semibold tracking-[-0.03em] text-brand-800 sm:mt-0 sm:text-[clamp(2.25rem,5.5vh,2.75rem)] dark:text-white">
         {title}
       </h1>
 

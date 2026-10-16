@@ -7,9 +7,12 @@ import { siteConfig } from "@/config/site";
  *
  * The logo files live in `public/brand/` as transparent PNGs in two tones:
  *   - "light": white, for green or photo backgrounds (splash, onboarding)
- *   - "brand": brand green, for white / light backgrounds (forms, desktop panels)
- *   - "gold": gold on forest green (splash, welcome): the white file used as a
- *     mask and filled with gold-500, so there is no third set of files
+ *   - "brand": forest green (brand-800), for white / light backgrounds (forms,
+ *     desktop panels)
+ *   - "gold": gold on forest green or photos (splash, welcome)
+ * "brand" and "gold" are painted: the PNG is used as a mask and filled with
+ * the colour from the theme, so they always match the palette (the old green
+ * PNG predates the forest-green rebrand) and no extra files are needed.
  *
  * Intrinsic sizes are declared below so Next.js reserves the right space
  * before the image loads (no layout shift). Size the logo with a height
@@ -36,16 +39,24 @@ const WORDMARK_SRC: Record<Tone, string> = {
   gold: "/brand/logo-wordmark.png",
 };
 
-/** The logo as a gold shape: the PNG is the mask, gold-500 the paint. */
-function GoldLogo({
+/** Paint for the painted tones (light/dark mode aware). */
+const PAINT: Partial<Record<Tone, string>> = {
+  brand: "bg-brand-800 dark:bg-white",
+  gold: "bg-gold-500",
+};
+
+/** The logo as a coloured shape: the PNG is the mask, a theme colour the paint. */
+function PaintedLogo({
   src,
   size,
   label,
+  paint,
   className,
 }: {
   src: string;
   size: { width: number; height: number };
   label: string | null;
+  paint: string;
   className?: string;
 }) {
   const mask = `url(${src}) center / contain no-repeat`;
@@ -54,7 +65,7 @@ function GoldLogo({
       role={label ? "img" : undefined}
       aria-label={label ?? undefined}
       aria-hidden={label ? undefined : true}
-      className={cn("inline-block bg-gold-500 select-none", className)}
+      className={cn("inline-block select-none", paint, className)}
       style={{ aspectRatio: `${size.width} / ${size.height}`, mask, WebkitMask: mask }}
     />
   );
@@ -78,8 +89,9 @@ type LogoProps = {
 
 /** The "F1" symbol on its own (app icons, headers, loaders). */
 export function LogoMark({ className, tone = "light", preload, decorative }: LogoProps) {
-  if (tone === "gold") {
-    return <GoldLogo src={MARK_SRC.gold} size={MARK_SIZE} label={decorative ? null : `${siteConfig.name} logo`} className={className} />;
+  const paint = PAINT[tone];
+  if (paint) {
+    return <PaintedLogo src={MARK_SRC[tone]} size={MARK_SIZE} label={decorative ? null : `${siteConfig.name} logo`} paint={paint} className={className} />;
   }
   return (
     <Image
@@ -95,8 +107,9 @@ export function LogoMark({ className, tone = "light", preload, decorative }: Log
 
 /** The "Feenicks1" wordmark text. */
 export function LogoWordmark({ className, tone = "light", preload, decorative }: LogoProps) {
-  if (tone === "gold") {
-    return <GoldLogo src={WORDMARK_SRC.gold} size={WORDMARK_SIZE} label={decorative ? null : siteConfig.name} className={className} />;
+  const paint = PAINT[tone];
+  if (paint) {
+    return <PaintedLogo src={WORDMARK_SRC[tone]} size={WORDMARK_SIZE} label={decorative ? null : siteConfig.name} paint={paint} className={className} />;
   }
   return (
     <Image

@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * "Log in to your Account" screen.
+ * "Welcome back." log-in screen.
  *
- *   ←
- *   Log in to your
- *   Account              ← large bold title
+ *   ←      Feenicks1
+ *   Welcome
+ *   back.                ← large Inter Tight title
  *
  *   [✉ Email          ]  ← grey fields, green when focused
  *   [🔒 Password    👁 ]
@@ -98,9 +98,9 @@ export function LoginForm() {
       backHref={ROUTES.onboarding}
       title={
         <>
-          Log in to your
+          Welcome
           <br />
-          Account
+          back.
         </>
       }
       footer={

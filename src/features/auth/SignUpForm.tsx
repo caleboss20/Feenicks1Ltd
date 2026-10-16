@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * "Create your Account" screen.
+ * "Open your account." sign-up screen.
  *
- *   ←
- *   Create your
- *   Account              ← large bold title
+ *   ←      Feenicks1
+ *   Open your
+ *   account.             ← large Inter Tight title
  *
  *   (🎁 Invited by a friend · F1ABC123)   ← only with ?ref= (invite link / QR)
  *   [✉ Email          ]  ← grey fields, green when focused
@@ -89,9 +89,9 @@ export function SignUpForm({ referralCode }: SignUpFormProps) {
       backHref={ROUTES.onboarding}
       title={
         <>
-          Create your
+          Open your
           <br />
-          Account
+          account.
         </>
       }
       footer={
