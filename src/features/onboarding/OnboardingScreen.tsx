@@ -45,9 +45,8 @@ import { useAppStore } from "@/stores/useAppStore";
  */
 const PHOTOS = [
   { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Tap.", "Invest.", "Relax."] }, // 19863396
-  // TODO(launch): market-fabric.jpg is an Adobe Stock preview (#1481916956,
-  // watermarked, 667x1000). Buy the licensed full-size file and replace it.
-  { src: "/onboarding/market-fabric.jpg", alt: "A smiling trader at her shop of colourful African print fabrics", focus: "30% 50%", zoom: 1.35, headline: ["Trade.", "Save.", "Thrive."] },
+  // Supplied by the team (October 2026); confirm its licence before launch.
+  { src: "/onboarding/phone-smile.jpg", alt: "A young woman smiling at her phone", focus: "50% 30%", headline: ["Save.", "Daily.", "Thrive."] },
   // Supplied by the team (October 2026); confirm its licence before launch.
   { src: "/onboarding/family-home.jpg", alt: "A laughing father lifting his son in the air as the mother cuddles their baby on the sofa", focus: "55% 50%", zoom: 1.1, headline: ["Secure.", "Their.", "Future."] },
   { src: "/onboarding/student-graduate.jpg", alt: "A smiling graduate in a green cap and gown", focus: "50% 20%", headline: ["Learn.", "Earn.", "Rise."] }, // 30419739
