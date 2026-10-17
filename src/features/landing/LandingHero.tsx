@@ -12,7 +12,7 @@ import { ROUTES } from "@/config/routes";
  * medium-weight headline, one short line, one button, then one big visual.
  *
  *   ┌────────────────────────────────────────────────────────────────┐
- *   │ 🔥 Feenicks1    Portfolios & fees   Legal   Log in (Get started) │
+ *   │ 🔥 Feenicks1  Portfolios & fees  Legal        Log in (Get started) │
  *   │                                                                │
  *   │                     Grow your money,                           │
  *   │                   one cedi at a time.                          │
@@ -37,25 +37,30 @@ const NAV_LINKS = [
 export function LandingHero() {
   return (
     <main className="flex h-dvh min-h-[44rem] flex-col overflow-hidden bg-white text-brand-900">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-8 py-5">
-        <Link href="/" className="flex items-center gap-2.5" aria-label="Feenicks1 home">
-          <PhoenixMark tone="light" label={null} className="size-8" />
-          <LogoWordmark tone="brand" decorative className="h-5" />
-        </Link>
-        <nav aria-label="Main" className="flex items-center gap-9 text-[0.9375rem] font-medium text-neutral-600">
-          {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="transition-colors hover:text-brand-900">
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="flex items-center gap-5">
-          <Link href={ROUTES.login} className="text-[0.9375rem] font-semibold text-brand-900 transition-colors hover:text-brand-600">
+      {/* Top bar, as on acorns.com: full width, 92px tall, white with a hairline
+          underneath (no shadow); logo and links on the left; Log in and a big
+          "Get started" pill on the right, all 16px semibold. */}
+      <header className="flex h-[5.75rem] w-full shrink-0 items-center justify-between border-b border-black/5 px-10">
+        <div className="flex items-center gap-12">
+          <Link href="/" className="flex items-center gap-2.5" aria-label="Feenicks1 home">
+            <PhoenixMark tone="light" label={null} className="size-9" />
+            <LogoWordmark tone="brand" decorative className="h-[1.375rem]" />
+          </Link>
+          <nav aria-label="Main" className="flex items-center gap-9">
+            {NAV_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className="text-base font-semibold text-brand-900 transition-colors hover:text-brand-600">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+        <div className="flex items-center gap-9">
+          <Link href={ROUTES.login} className="text-base font-semibold text-brand-900 transition-colors hover:text-brand-600">
             Log in
           </Link>
           <Link
             href={ROUTES.signUp}
-            className="flex h-11 items-center rounded-full bg-brand-800 px-6 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700"
+            className="flex h-14 items-center rounded-full bg-brand-800 px-[2.125rem] text-base font-semibold text-white transition-colors hover:bg-brand-700"
           >
             Get started
           </Link>
