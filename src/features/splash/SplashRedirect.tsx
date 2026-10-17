@@ -37,6 +37,9 @@ import { cn } from "@/lib/utils";
 
 /** How long the splash screen stays visible, in milliseconds. */
 export const SPLASH_DURATION_MS = 6500;
+/** Screens that get the landing page (Tailwind's lg breakpoint). */
+const LARGE_SCREEN = "(min-width: 1024px)";
+
 /** How long the pop takes. */
 const POP_MS = 650;
 
@@ -48,6 +51,10 @@ export function SplashRedirect() {
   const [next, setNext] = useState<string | null>(null);
 
   useEffect(() => {
+    // Laptops and desktops see the landing page instead of the splash
+    // (app/page.tsx), so they stay on it: no pop, no redirect.
+    if (window.matchMedia(LARGE_SCREEN).matches) return;
+
     // Read the store with getState() instead of the hook: we only need the
     // value at redirect time, and this avoids any hydration mismatch.
     const getNextRoute = () =>
