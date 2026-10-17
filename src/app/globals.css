@@ -479,7 +479,7 @@ body {
      1.45s  a gold glow swells and the bird lifts a little         (phoenix-glow, phoenix-lift)
      then   until it leaves: the wings beat softly, a wave from the
             top feather down; the glow breathes; the bird floats   (phoenix-flap, -breathe, -float)
-     5.85s  the next screen slides up over it like a sheet         (SplashRedirect)
+     5.85s  it pops out as the next screen pops in                (SplashRedirect, .splash-brand)
    Users with "reduce motion" see the finished mark straight away.
    --------------------------------------------------------------------------- */
 .phoenix-feather,
@@ -620,6 +620,29 @@ body {
   }
   50% {
     transform: translateY(-11px);
+  }
+}
+
+/* The splash leaving: the logo and name zoom gently forward and fade
+   ("pops out") while SplashRedirect pops the next screen in. */
+.splash-brand {
+  transition:
+    scale 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.4s ease-out,
+    filter 0.5s ease-out;
+}
+html[data-splash-leaving] .splash-brand {
+  scale: 1.12;
+  opacity: 0;
+  filter: blur(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash-brand {
+    transition: opacity 0.3s ease-out;
+  }
+  html[data-splash-leaving] .splash-brand {
+    scale: 1;
+    filter: none;
   }
 }
 

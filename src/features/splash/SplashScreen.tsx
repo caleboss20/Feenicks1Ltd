@@ -28,7 +28,7 @@ import { SplashRedirect } from "./SplashRedirect";
  *   1.60s  wordmark rises in from a soft blur                   (soft-rise)
  *   2.00s  loader fades in                                      (fade-up)
  *   then   the phoenix keeps moving (wings beat, glow breathes, it floats)
- *   5.85s  the next screen slides up over the splash like a sheet
+ *   5.85s  the logo pops out and the next screen pops in
  *          (SplashRedirect); it opens at 6.5s
  * Every animation is disabled for users with "reduce motion" turned on.
  */
@@ -38,7 +38,8 @@ export function SplashScreen() {
     // Solid forest green with the logo in gold (CEO, October 2026; no gradient).
     <main className="flex min-h-dvh flex-col items-center overflow-hidden bg-brand-800 px-6 text-white">
       {/* ── Brand: symbol + wordmark ──────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 py-12 sm:gap-5">
+      {/* splash-brand: pops out (zooms forward and fades) as the next screen pops in. */}
+      <div className="splash-brand flex flex-1 flex-col items-center justify-center gap-4 py-12 sm:gap-5">
         {/* The phoenix (new mark, October 2026), larger than the old F1 symbol
             so the animation reads. Decorative: the <h1> below names the app. */}
         <PhoenixMark animated label={null} className="size-32 sm:size-36 lg:size-40" />
