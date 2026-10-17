@@ -13,7 +13,13 @@ import { cn } from "@/lib/utils";
  * rising"): the body rises like a flame, the head sparks, the wings unfold
  * feather by feather, a gold glow pulses and the bird lifts a little.
  * Without it (or with "reduce motion") the mark simply shows.
+ *
+ * `tone`: "dark" (default) for forest green or photo backgrounds, beige
+ * wings; "light" for white backgrounds, forest green wings (beige would
+ * vanish on white). The body and head stay gold in both.
  */
+
+const WING_COLOUR = { dark: "#EFE6CF", light: "#0E3B2C" } as const;
 
 /** One wing, drawn on the left; the right wing is the same, mirrored. */
 const FEATHERS = [
@@ -25,9 +31,9 @@ const FEATHERS = [
   "M97 132 C58 136 28 120 8 92 C38 98 72 100 99 100 Z",
 ];
 
-function Wing({ mirrored }: { mirrored?: boolean }) {
+function Wing({ mirrored, colour }: { mirrored?: boolean; colour: string }) {
   return (
-    <g fill="#EFE6CF" transform={mirrored ? "translate(200 0) scale(-1 1)" : undefined}>
+    <g fill={colour} transform={mirrored ? "translate(200 0) scale(-1 1)" : undefined}>
       {FEATHERS.map((d, index) => (
         <path key={index} className={`phoenix-feather phoenix-feather-${index + 1}`} d={d} />
       ))}
@@ -39,9 +45,11 @@ export function PhoenixMark({
   className,
   animated = false,
   label = "Feenicks1",
+  tone = "dark",
 }: {
   className?: string;
   animated?: boolean;
+  tone?: keyof typeof WING_COLOUR;
   /** Read by screen readers; pass null when the name is announced elsewhere. */
   label?: string | null;
 }) {
@@ -54,8 +62,8 @@ export function PhoenixMark({
       className={cn("phoenix overflow-visible", animated && "phoenix-rise", className)}
     >
       <g className="phoenix-lift">
-        <Wing />
-        <Wing mirrored />
+        <Wing colour={WING_COLOUR[tone]} />
+        <Wing mirrored colour={WING_COLOUR[tone]} />
         <path className="phoenix-body" fill="#C9A227" d="M100 50 L111 82 L104.5 138 L100 182 L95.5 138 L89 82 Z" />
         <path className="phoenix-head" fill="#C9A227" d="M100 30 L105.5 39 L100 48 L94.5 39 Z" />
       </g>

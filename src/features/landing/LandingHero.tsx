@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { LogoWordmark } from "@/components/brand/Logo";
 import { PhoenixMark } from "@/components/brand/PhoenixMark";
@@ -7,20 +8,25 @@ import { ROUTES } from "@/config/routes";
  * Landing page hero for laptops and desktops (lg and up). Phones see the
  * splash and the welcome slideshow instead (app/page.tsx).
  *
- *   ┌────────────────────────────────────────────────────────────────┐
- *   │ 🔥 Feenicks1      Portfolios & fees  Legal      Log in [Create] │
- *   │                                                                │
- *   │  INVESTING MADE SIMPLE IN GHANA             ┌────────┐         │
- *   │  Grow your money,                           │ phone  │         │
- *   │  one cedi at a time.                        │ mock-up│         │
- *   │  Start from GH₵ 140 with Mobile Money…      │ of Home│         │
- *   │  [Create account]  [Log in]                 └────────┘         │
- *   │  ✓ PIN & 2FA  ✓ Verifiable statements  ✓ Mobile Money          │
- *   └────────────────────────────────────────────────────────────────┘
+ * Laid out like the best investing sites (Acorns, Bamboo): centred, one
+ * medium-weight headline, one short line, one button, then one big visual.
  *
- * Forest green with a soft gold glow; no shadows (brand rule). The phone is
- * drawn in HTML/CSS from the real Home screen's design (sharp at any size).
- * Its figures are illustrative and labelled as such for screen readers.
+ *   ┌────────────────────────────────────────────────────────────────┐
+ *   │ 🔥 Feenicks1    Portfolios & fees   Legal   Log in (Get started) │
+ *   │                                                                │
+ *   │                     Grow your money,                           │
+ *   │                   one cedi at a time.                          │
+ *   │        Start investing from GH₵ 140 with Mobile Money.         │
+ *   │                      ( Get started )                           │
+ *   │               Already have an account? Log in                  │
+ *   │            ╭──────────────┬───────┬──────────────╮             │
+ *   │            │  sage → gold │ phone │  band        │             │
+ *   └────────────┴──────────────┴───────┴──────────────┴─────────────┘
+ *
+ * White, Inter Tight headline at weight 500 (large but not heavy), Inter
+ * text. The phone shows a real screenshot of the Home screen
+ * (public/landing/home-screen.jpg), rising from a soft band and cut off by
+ * the bottom of the screen. No shadows (brand rule).
  */
 
 const NAV_LINKS = [
@@ -28,145 +34,74 @@ const NAV_LINKS = [
   { label: "Legal", href: ROUTES.legal },
 ];
 
-const TRUST_POINTS = ["PIN and two-factor security", "Verifiable statements", "Pay in with Mobile Money"];
-
-function Check() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-4 text-gold-500" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="m5 12 5 5 9-10" />
-    </svg>
-  );
-}
-
-/** The Home screen in a phone frame (illustrative figures). */
-function PhoneMockup() {
-  return (
-    <div
-      role="img"
-      aria-label="The Feenicks1 app's home screen, showing a portfolio value and recent activity (illustrative figures)"
-      className="relative w-[19rem] rounded-[3rem] bg-neutral-950 p-2.5 ring-1 ring-white/15 xl:w-[21rem]"
-    >
-      <div aria-hidden className="overflow-hidden rounded-[2.4rem] bg-[#f4f4ef]">
-        {/* Forest header with the balance */}
-        <div className="bg-[linear-gradient(to_bottom,#0a2e22,#0e3b2c)] px-5 pt-3 pb-6 text-white">
-          <div className="flex items-center justify-between text-[0.625rem] font-semibold">
-            <span>9:41</span>
-            <span className="h-5 w-20 rounded-full bg-black" />
-            <span>100%</span>
-          </div>
-          <div className="mt-4 flex items-center gap-2.5">
-            <span className="grid size-8 place-items-center rounded-full bg-white/15 text-[0.625rem] font-semibold">AM</span>
-            <div className="leading-tight">
-              <p className="text-[0.625rem] text-white/70">Good morning</p>
-              <p className="text-xs font-semibold">Ama</p>
-            </div>
-          </div>
-          <p className="mt-5 text-[0.625rem] text-white/70">Portfolio value</p>
-          <p className="mt-1 font-display text-3xl font-semibold tracking-tight">
-            <span className="text-lg">GH₵ </span>2,450<span className="text-white/60">.00</span>
-          </p>
-          <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-gold-500 px-2.5 py-1 text-[0.625rem] font-semibold text-brand-900">
-            <span className="grid size-3.5 place-items-center rounded-full bg-brand-800 text-[0.5rem] text-gold-300">▲</span>
-            Profit earned GH₵ 245.00
-          </span>
-          <div className="mt-4 grid grid-cols-[1fr_1fr_2.5rem] gap-2">
-            <span className="rounded-xl bg-white py-2 text-center text-[0.625rem] font-semibold text-brand-900">+ Invest</span>
-            <span className="rounded-xl bg-white py-2 text-center text-[0.625rem] font-semibold text-brand-900">↓ Withdraw</span>
-            <span className="rounded-xl bg-gold-500" />
-          </div>
-        </div>
-        {/* Recent activity */}
-        <div className="px-5 pt-4 pb-6 text-neutral-900">
-          <p className="text-xs font-semibold">Recent activity</p>
-          {[
-            { title: "Invested in InvestWise Capital", meta: "Today, 9:12 am", amount: "GH₵ 900.00" },
-            { title: "Monthly return", meta: "1 Oct", amount: "+ GH₵ 72.40" },
-            { title: "Invested in InvestWise Capital", meta: "12 Sep", amount: "GH₵ 1,550.00" },
-          ].map((row) => (
-            <div key={row.title + row.meta} className="mt-3.5 flex items-center gap-3">
-              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-100 text-[0.625rem] text-brand-800">↗</span>
-              <div className="min-w-0 flex-1 leading-tight">
-                <p className="truncate text-[0.6875rem] font-semibold">{row.title}</p>
-                <p className="text-[0.5625rem] text-neutral-500">{row.meta}</p>
-              </div>
-              <span className="text-[0.6875rem] font-semibold tabular-nums">{row.amount}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function LandingHero() {
   return (
-    <main className="relative isolate flex min-h-dvh flex-col overflow-hidden bg-brand-950 text-white">
-      {/* Soft glows behind the content (gold behind the phone, green top left). */}
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(40%_55%_at_72%_55%,rgba(201,162,39,0.18),transparent_70%),radial-gradient(45%_50%_at_15%_10%,rgba(31,94,69,0.45),transparent_70%)]" />
-
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-8 py-6">
+    <main className="flex h-dvh min-h-[44rem] flex-col overflow-hidden bg-white text-brand-900">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-8 py-5">
         <Link href="/" className="flex items-center gap-2.5" aria-label="Feenicks1 home">
-          <PhoenixMark label={null} className="size-9" />
-          <LogoWordmark tone="gold" decorative className="h-5" />
+          <PhoenixMark tone="light" label={null} className="size-8" />
+          <LogoWordmark tone="brand" decorative className="h-5" />
         </Link>
-        <nav aria-label="Main" className="flex items-center gap-8 text-sm font-medium text-white/75">
+        <nav aria-label="Main" className="flex items-center gap-9 text-[0.9375rem] font-medium text-neutral-600">
           {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="transition-colors hover:text-white">
+            <Link key={link.href} href={link.href} className="transition-colors hover:text-brand-900">
               {link.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-3">
-          <Link href={ROUTES.login} className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 transition-colors hover:text-white">
+        <div className="flex items-center gap-5">
+          <Link href={ROUTES.login} className="text-[0.9375rem] font-semibold text-brand-900 transition-colors hover:text-brand-600">
             Log in
           </Link>
           <Link
             href={ROUTES.signUp}
-            className="rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-brand-900 transition-colors hover:bg-gold-300"
+            className="flex h-11 items-center rounded-full bg-brand-800 px-6 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-brand-700"
           >
-            Create account
+            Get started
           </Link>
         </div>
       </header>
 
-      <section className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-[1.1fr_1fr] items-center gap-12 px-8 pb-16">
-        <div>
-          <p className="text-xs font-semibold tracking-[0.18em] text-gold-300 uppercase">Investing made simple in Ghana</p>
-          <h1 className="mt-5 font-display text-[clamp(2.75rem,4.4vw,4rem)] leading-[1.02] font-semibold tracking-[-0.03em]">
-            Grow your money,
-            <br />
-            <span className="text-gold-500">one cedi at a time.</span>
-          </h1>
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-white/75">
-            Start investing from GH₵ 140 with Mobile Money. Four portfolios, clear fees, and withdrawals on published
-            terms, all from your phone.
-          </p>
-          <div className="mt-9 flex items-center gap-3">
-            <Link
-              href={ROUTES.signUp}
-              className="rounded-full bg-gold-500 px-7 py-3.5 text-[0.9375rem] font-semibold text-brand-900 transition-colors hover:bg-gold-300"
-            >
-              Create account
-            </Link>
-            <Link
-              href={ROUTES.login}
-              className="rounded-full px-7 py-3.5 text-[0.9375rem] font-semibold text-white ring-1 ring-white/25 transition-colors hover:bg-white/5"
-            >
-              Log in
-            </Link>
-          </div>
-          <ul className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/70">
-            {TRUST_POINTS.map((point) => (
-              <li key={point} className="flex items-center gap-2">
-                <Check />
-                {point}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <section className="flex flex-1 flex-col items-center px-8 pt-[clamp(2rem,6vh,4.5rem)] text-center">
+        <h1 className="font-display text-[clamp(3rem,5.2vw,4.75rem)] leading-[1.04] font-medium tracking-[-0.025em]">
+          Grow your money,
+          <br />
+          one cedi at a time.
+        </h1>
+        <p className="mt-5 max-w-xl text-lg leading-relaxed text-neutral-600">
+          Start investing from GH₵ 140 with Mobile Money, and watch it grow from your phone.
+        </p>
+        <Link
+          href={ROUTES.signUp}
+          className="mt-8 flex h-14 items-center rounded-full bg-brand-800 px-9 text-base font-semibold text-white transition-colors hover:bg-brand-700"
+        >
+          Get started
+        </Link>
+        <p className="mt-4 text-sm text-neutral-500">
+          Already have an account?{" "}
+          <Link href={ROUTES.login} className="font-semibold text-brand-800 hover:underline">
+            Log in
+          </Link>
+        </p>
 
-        <div className="flex justify-center">
-          <PhoneMockup />
+        {/* The phone rises from a soft band and is cut off by the screen's
+            bottom edge, so the eye lands on the balance and the buttons. */}
+        <div className="relative mt-10 flex w-full max-w-5xl flex-1 justify-center">
+          <div aria-hidden className="absolute inset-x-0 top-24 bottom-0 rounded-t-[3rem] bg-[linear-gradient(135deg,var(--color-brand-100),var(--color-gold-50))]" />
+          <div className="relative h-fit w-[19rem] rounded-[2.75rem] bg-neutral-950 p-2.5 xl:w-[20rem]">
+            <div className="overflow-hidden rounded-[2.25rem]">
+              <Image
+                src="/landing/home-screen.jpg"
+                alt="The Feenicks1 app's Home screen: portfolio value, profit earned, Invest and Withdraw buttons, and a performance chart"
+                width={720}
+                height={1408}
+                priority
+                sizes="320px"
+                quality={90}
+                className="block h-auto w-full"
+              />
+            </div>
+          </div>
         </div>
       </section>
     </main>
