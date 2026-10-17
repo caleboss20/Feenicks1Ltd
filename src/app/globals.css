@@ -471,12 +471,16 @@ body {
 
 /* ---------------------------------------------------------------------------
    Splash: the phoenix rising (components/brand/PhoenixMark, animated).
-   About 2 seconds, then it rests:
+   It stays alive the whole time the splash is on screen:
      0.00s  the gold body rises from its point, like a flame      (phoenix-body)
      0.55s  the head sparks: pops in with a flash                  (phoenix-head)
      0.80s  the wings unfold from the body, feather by feather,
             top → middle → low, 0.12s apart                         (phoenix-feather)
-     1.45s  a gold glow pulses and the bird lifts a little         (phoenix-glow, phoenix-lift)
+     1.45s  a gold glow swells and the bird lifts a little         (phoenix-glow, phoenix-lift)
+     then   until it leaves: the wings beat softly, a wave from the
+            top feather down; the glow breathes; the bird floats   (phoenix-flap, -breathe, -float)
+     6.00s  it flies up and fades, just before the welcome screen
+            opens at 6.5s (SPLASH_DURATION_MS)                      (splash-exit, SplashScreen)
    Users with "reduce motion" see the finished mark straight away.
    --------------------------------------------------------------------------- */
 .phoenix-feather,
@@ -504,23 +508,37 @@ body {
   .phoenix-rise .phoenix-head {
     animation: phoenix-head 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s both;
   }
-  .phoenix-rise .phoenix-feather {
-    animation: phoenix-feather 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
+  /* Unfold once, then beat softly for as long as the splash shows. */
   .phoenix-rise .phoenix-feather-1 {
-    animation-delay: 0.8s;
+    animation:
+      phoenix-feather 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.8s both,
+      phoenix-flap 1.6s ease-in-out 1.7s infinite;
   }
   .phoenix-rise .phoenix-feather-2 {
-    animation-delay: 0.92s;
+    animation:
+      phoenix-feather 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.92s both,
+      phoenix-flap 1.6s ease-in-out 1.78s infinite;
   }
   .phoenix-rise .phoenix-feather-3 {
-    animation-delay: 1.04s;
+    animation:
+      phoenix-feather 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.04s both,
+      phoenix-flap 1.6s ease-in-out 1.86s infinite;
   }
+  /* Glow swells once, then breathes. */
   .phoenix-rise {
-    animation: phoenix-glow 1.4s ease-out 1.45s both;
+    animation:
+      phoenix-glow 1.4s ease-out 1.45s both,
+      phoenix-breathe 3.2s ease-in-out 2.85s infinite;
   }
+  /* Lifts once, then floats. */
   .phoenix-rise .phoenix-lift {
-    animation: phoenix-lift 1.2s cubic-bezier(0.22, 1, 0.36, 1) 1.45s both;
+    animation:
+      phoenix-lift 1.2s cubic-bezier(0.22, 1, 0.36, 1) 1.45s both,
+      phoenix-float 3.2s ease-in-out 2.65s infinite;
+  }
+  /* Leaving: the brand flies up and fades just before the welcome screen. */
+  .splash-exit {
+    animation: splash-exit 0.5s cubic-bezier(0.55, 0, 1, 0.45) 6s forwards;
   }
 }
 
@@ -574,6 +592,47 @@ body {
   }
   to {
     filter: drop-shadow(0 0 8px rgb(201 162 39 / 0.18));
+  }
+}
+
+/* A soft wing beat: each feather dips toward the body and back. */
+@keyframes phoenix-flap {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  50% {
+    transform: rotate(7deg) scale(0.97);
+  }
+}
+
+/* The halo around the bird, gently brighter and softer. */
+@keyframes phoenix-breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgb(201 162 39 / 0.18));
+  }
+  50% {
+    filter: drop-shadow(0 0 18px rgb(201 162 39 / 0.38));
+  }
+}
+
+/* Hovering: up and down a few units, from where the lift left it. */
+@keyframes phoenix-float {
+  0%,
+  100% {
+    transform: translateY(-6px);
+  }
+  50% {
+    transform: translateY(-11px);
+  }
+}
+
+/* The splash leaving: up and away. */
+@keyframes splash-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-36px);
   }
 }
 
