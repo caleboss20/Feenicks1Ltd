@@ -2,308 +2,131 @@
 
 # Feenicks1
 
-**Smart investing, simplified.**
+**A mobile-first investment app for Ghana: invest from GH₵ 140 with Mobile Money, track your portfolio and withdraw on clear terms.**
 
-Full-stack investment platform for **Feenicks1 Solutions Ltd**: a mobile-first web app that feels like a native app, running in any browser.
+Built for **Feenicks1 Solutions Ltd** · [Live demo](https://feenicksoneltd.vercel.app) (demo mode, no real money)
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=000)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=fff)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=fff)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=fff)
-![Status](https://img.shields.io/badge/status-in%20development-13934f)
+![Status](https://img.shields.io/badge/status-frontend%20complete%2C%20backend%20pending-c9a227)
 
 </div>
 
 ---
 
-## Contents
+## What it is
 
-- [About](#about)
-- [Screens built so far](#screens-built-so-far)
-- [Tech stack](#tech-stack)
-- [Getting started](#getting-started)
-- [Available scripts](#available-scripts)
-- [Project structure](#project-structure)
-- [Naming conventions](#naming-conventions)
-- [Coding guidelines](#coding-guidelines)
-- [Design system](#design-system)
-- [Security](#security)
-- [SEO](#seo)
-- [Demo mode](#demo-mode)
-- [Git workflow](#git-workflow)
-- [Roadmap](#roadmap)
+Feenicks1 is the customer app for a Ghanaian investment company. People sign up, verify their identity, pick one of four portfolios (from GH₵ 140), pay in with Mobile Money, follow their returns and withdraw under published rules. It's a web app that installs on a phone like a native app.
 
----
+**Honest status:** the whole customer experience is built and works end to end, but it runs on a **demo backend in the browser** (no server, no real payments yet). Every place that will call the real API is marked `TODO(api)`, so connecting a backend doesn't mean rewriting screens. See [What's not built yet](#whats-not-built-yet).
 
-## About
+## What works today
 
-Feenicks1 is a full-stack investment platform for **Feenicks1 Solutions Ltd**. It helps people grow their money through simple, secure investing. The platform covers:
+**Getting started**
+- Animated splash, a welcome slideshow, sign-up, log-in and a three-step password reset
+- Identity verification flow: Ghana Card upload, selfie, proof of residency, profile
+- Investor risk questionnaire that recommends a portfolio, with a plain-language guide to each
 
-- **User registration and authentication**
-- **Investment plan selection**
-- **Deposits and withdrawals**
-- **Portfolio dashboard**
-- **Transaction history**
-- **Admin panel** for managing users and investments
+**Investing and money**
+- Four portfolios with their terms, minimums, fees and return ranges, and a returns calculator
+- Investing with Mobile Money: amount, confirmation, then a simulated approval prompt
+- Wallet card per portfolio, with a hidden-balance mode
+- Withdrawals with the company's rules built in (each portfolio's withdrawal window, a fee-free period, processing time), a step-by-step guide and status tracking
+- Transactions with filters, details, and shareable receipts (as images)
 
-The app is built mobile-first, so it looks and behaves like a native app on phones and adapts to tablets and desktops.
+**Records and trust**
+- Account statements as **PDF or Excel**, plus a proof-of-funds letter. Each document carries a reference number and QR code that anyone can check at `/verify/[number]`
+- Notifications for real account events (log-ins, security changes, payments)
+- Security centre: devices, recent activity, sign out everywhere
+- Legal centre (terms, privacy, fees), currently marked "draft for legal review"
 
-> **Status:** in active development. The frontend onboarding and authentication screens are built; the backend is not connected yet (see [Demo mode](#demo-mode) and the [Roadmap](#roadmap)).
+**Security features**
+- 4-digit PIN that locks the app after 5 minutes idle
+- Two-factor options: SMS code, authenticator app (TOTP, RFC 6238), fingerprint or Face ID (WebAuthn)
+- Passwords and PINs are stored only as salted PBKDF2 hashes, even in demo mode
+- Security headers on every page (CSP `frame-ancestors`, HSTS, `nosniff`, a strict referrer policy and a Permissions-Policy)
 
-## Screens built so far
+**Everything else**
+- Referral programme with a personal QR code and WhatsApp sharing
+- Help centre with FAQs and a contact form
+- Analytics: portfolio value over time, with a labelled "sample data" preview mode
+- Installable as an app (with an "Add to home screen" prompt), pull down to refresh, loading skeletons, offline banner and error screens
 
-| Screen | Route | Notes |
-|---|---|---|
-| Splash | `/` | Animated brand logo on solid brand green, then auto-redirects |
-| Onboarding | `/onboarding` | Story-style photo slides: tap, swipe or hold to pause. Two columns on desktop |
-| Sign up | `/sign-up` | "Create your Account": email, password, social buttons |
-| Log in | `/login` | "Log in to your Account" with a "Forgot the password?" link |
-| Forgot password, step 1 | `/forgot-password` | Choose SMS or email to receive a code |
-| Forgot password, step 2 | `/forgot-password/verify-code` | 4-digit code, resend countdown |
-| Forgot password, step 3 | `/forgot-password/new-password` | New password with a live requirements checklist, then a success popup |
+## Engineering decisions worth noting
 
-Every screen is responsive (phone, tablet, desktop) and fits within one screen height on laptops.
+- **A service layer between screens and data.** Screens never fetch data directly; they call `…Service.ts` files. Today those read the demo store, and later they call the API. The demo is a stand-in backend, not mock data baked into the UI.
+- **Money is handled carefully.** Amounts are formatted in one place (`lib/money.ts`), fees and returns are calculated in one module (`features/packages/investmentPackages.ts`), and withdrawal rules come from one source shared by the screens, the guide and the legal text.
+- **Honest data.** There are no fake balances. A new account is empty until it invests. A clearly labelled sample year can be switched on for previews, and it never mixes with real activity.
+- **Accessibility.** Screens were audited with axe-core. The app supports keyboard and screen-reader use, reduced motion is respected everywhere (every animation has a still fallback), and colour contrast was checked against the brand palette.
+- **Performance on real networks.** Full-screen images are sized for tall phone screens, all welcome slides load up front and never appear half-loaded, and the PDF and Excel libraries load only when you export.
+- **Readable code.** Every file opens with a comment explaining what it does and why, names describe contents (`WithdrawScreen.tsx`, `withdrawalService.ts`), and there's one `ROUTES` map for every URL.
+
+## What's not built yet
+
+| Area | Status |
+|---|---|
+| Backend and database | Not started. The demo stores accounts in the browser's localStorage |
+| Real payments | Mobile Money is simulated; it needs a licensed provider (e.g. Paystack or Hubtel) |
+| Real identity checks | The KYC screens exist; ID and selfie verification need a KYC provider |
+| SMS and email delivery | Codes are accepted but not sent; any code of the right length works in demo mode |
+| Admin panel | Not started |
+| Automated tests | None yet. Quality so far relies on TypeScript (strict), ESLint and manual testing on phone-sized screens |
+| Legal text | Drafts awaiting a lawyer's review |
 
 ## Tech stack
 
-| Area | Choice | Why |
-|---|---|---|
-| Framework | [Next.js 16](https://nextjs.org) (App Router, Turbopack) | Server rendering for speed and SEO; file-based routing |
-| Language | TypeScript (strict) | Catches mistakes before they reach users |
-| Styling | [Tailwind CSS v4](https://tailwindcss.com) | Design tokens in one CSS file, consistent spacing and colours |
-| State | [Zustand](https://zustand.docs.pmnd.rs) | Small, simple global state (onboarding progress, theme, reset flow) |
-| Forms | [react-hook-form](https://react-hook-form.com) + [zod](https://zod.dev) | Fast forms; one set of validation rules for browser and server |
-| Font | Plus Jakarta Sans (self-hosted via `next/font`) | Modern, trustworthy; no layout shift |
+| Area | Choice |
+|---|---|
+| Framework | Next.js 16 (App Router), React 19 |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS v4 with design tokens in `src/app/globals.css` (forest green, gold, Inter and Inter Tight) |
+| State | Zustand |
+| Forms and validation | react-hook-form + zod |
+| Documents | jsPDF (PDF), write-excel-file (Excel), qrcode |
+| Hosting | Vercel (every push to `main` deploys) |
 
-## Getting started
+## Run it locally
 
-**Requirements:** Node.js 20.9 or newer (developed on Node 24) and npm.
+Requires Node.js 20.9 or newer.
 
 ```bash
-# 1. Clone
 git clone https://github.com/caleboss20/Feenicks1Ltd.git
 cd Feenicks1Ltd
-
-# 2. Install dependencies
 npm install
-
-# 3. Set up environment variables
-cp .env.example .env.local      # then edit the values
-
-# 4. Start the dev server
+cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-### Environment variables
-
-| Variable | Required | Example | Used for |
-|---|---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Yes (production) | `https://feenicks1.com` | Canonical links, sitemap, social share images |
-
-Never commit `.env.local` or any real secrets. Only `.env.example` belongs in git.
-
-## Available scripts
+Open http://localhost:3000. Demo mode is on by default (`NEXT_PUBLIC_DEMO_MODE`): create any account, and any verification code of the right length is accepted. To start over, clear the site's data in your browser.
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Starts the development server with hot reload |
-| `npm run build` | Creates an optimised production build (also runs the TypeScript check) |
-| `npm run start` | Serves the production build |
-| `npm run lint` | Checks code quality with ESLint |
-
-Before opening a pull request, run `npm run lint` and `npm run build`; both must pass.
+| `npm run dev` | Development server |
+| `npm run build` | Production build (includes the TypeScript check) |
+| `npm run lint` | ESLint |
 
 ## Project structure
 
-File names describe what's inside, so you shouldn't need to open a file to know what it is.
-
 ```
 src/
-├── app/                        ROUTES ONLY. Each folder is a URL; files here stay thin.
-│   ├── layout.tsx                Wraps every page: fonts, SEO metadata, theme
-│   ├── page.tsx                  /            → splash screen
-│   ├── onboarding/               /onboarding
-│   ├── (auth)/                   Auth pages. "(…)" groups them without adding to the URL
-│   │   ├── sign-up/              /sign-up
-│   │   ├── login/                /login
-│   │   └── forgot-password/      /forgot-password, /verify-code, /new-password
-│   ├── globals.css               Brand colours, animations, light/dark theme
-│   └── manifest.ts, robots.ts, sitemap.ts, icon.png …   SEO and app-install files
-│
-├── features/                   One folder per part of the app: its screens and logic
-│   ├── splash/
-│   ├── onboarding/
-│   ├── auth/                     Sign up, log in, shared auth layout, validation, service
-│   └── forgot-password/          The 3-step reset flow, its store, service and validation
-│
-├── components/                 Reusable building blocks shared across screens
-│   ├── ui/                       Button, TextField, PasswordField, Checkbox,
-│   │                             VerificationCodeInput, PasswordRequirements,
-│   │                             FormErrorMessage, LoadingSpinner, IconIllustration
-│   ├── icons/                    All app icons (inline SVG)
-│   └── brand/                    Logo: symbol and wordmark, white and green versions
-│
-├── stores/                     App-wide state (Zustand): useAppStore, useThemeStore
-├── config/                     site.ts (name, SEO), routes.ts (every URL), theme.ts
-├── hooks/                      Shared custom React hooks
-├── lib/                        Small helpers (utils.ts, maskContactDetails.ts)
-└── types/                      Shared TypeScript types
-
-public/
-├── brand/                      Logo files
-└── onboarding/                 Onboarding photos
+├── app/          Routes only: each folder is a URL; pages stay thin
+├── features/     One folder per area (auth, kyc, packages, payments, withdraw,
+│                 statements, security, …): its screens, logic and service
+├── components/   Shared UI (buttons, fields, sheets, skeletons), icons, brand
+├── demo/         The in-browser stand-in backend (delete when the API is live)
+├── config/       Site settings, ROUTES, demo-mode switch, company details
+├── lib/          Small helpers: money, phone numbers, TOTP, WebAuthn, refresh
+└── stores/       App-wide state (Zustand)
 ```
 
-## Naming conventions
-
-| Kind of file | Pattern | Example |
-|---|---|---|
-| A full screen | `…Screen.tsx` | `OnboardingScreen.tsx` |
-| A form | `…Form.tsx` | `LoginForm.tsx` |
-| A shared page frame | `…Layout.tsx` | `AuthScreenLayout.tsx` |
-| Server calls | `…Service.ts` | `authService.ts` |
-| Validation rules | `…Validation.ts` | `authValidation.ts` |
-| State store | `use…Store.ts` | `useThemeStore.ts` |
-| Custom hook | `use….ts` | `useOnboardingSlideshow.ts` |
-| URL folders | kebab-case | `forgot-password/verify-code` |
-
-**UI wording:** always **"Log in"** and **"Sign up"**, never "Sign in", "Login" (as a verb) or "Register".
-
-## Coding guidelines
-
-- **`app/` holds routes only.** A page file sets metadata and renders a screen from `features/`.
-- **Server Components by default.** Add `"use client"` only when a file needs state, effects, event handlers or browser APIs.
-- **Import with `@/`** (`@/` = `src/`), e.g. `import { cn } from "@/lib/utils"`.
-- **Navigate with `ROUTES`** from `config/routes.ts`, never with hard-coded URLs.
-- **Screens never call `fetch` directly.** All server calls go through a `…Service.ts` file.
-- **Validation rules live in one place** (`…Validation.ts`) and are reused, never copied.
-- **Comment the *why*.** Every file starts with a short explanation of what it does.
-
-## Design system
-
-| Token | Value | Use |
-|---|---|---|
-| Brand green | `#13934f` (`brand-600`) | Primary buttons, links, splash screen, active states |
-| Background | `#ffffff` | Every screen (light by default) |
-| Text | `#0f172a` | Body text |
-| Font | Plus Jakarta Sans | All UI text |
-| Buttons | Pill-shaped, 60px on touch screens, 52px on desktop | |
-| Fields | Soft grey, green when focused, red on error | |
-
-- **Theme:** always white by default, even if the device is in dark mode. Dark mode applies **only** when a user turns it on in Settings (`useThemeStore.setTheme("dark")`); the Settings toggle is still to be built.
-- **Motion:** every animation respects the user's "reduce motion" setting.
-- Colours and animations are defined once in `src/app/globals.css`.
-
-## Security
-
-This is a financial product, so security is built in from the start.
-
-**In place:**
-
-- Security headers on every page (`next.config.ts`): clickjacking protection (`X-Frame-Options`, CSP `frame-ancestors`), no content-type sniffing, strict referrer policy, HTTPS-only (HSTS), unused browser features disabled. The `X-Powered-By` header is removed.
-- All form input is validated with zod. The same rules must be re-checked on the server.
-- Password policy is defined once and shown to users as a live checklist.
-- Password-reset details live in memory only, never in browser storage, and are cleared when the flow ends.
-- Contact details are masked on screen (`and***ley@…`, `+234 ********78`).
-- Login errors will use one generic message, so nobody can discover which emails have accounts.
-
-**Rules:**
-
-- Never store tokens or secrets in `localStorage`. Sessions will use secure `httpOnly` cookies.
-- Never commit `.env.local` or credentials.
-
-**Needs the backend:** rate limiting and lockouts, reset codes that expire, secure session cookies, and a strict script Content-Security-Policy.
-
-## SEO
-
-- Server-rendered pages with full metadata (titles, descriptions, canonical links)
-- Open Graph / Twitter share image, web app manifest, `robots.txt`, `sitemap.xml`
-- Private mid-flow pages (e.g. verify code) are marked `noindex`
-
-## Demo mode
-
-The backend isn't built yet, so the app runs in **demo mode** (`NEXT_PUBLIC_DEMO_MODE`, on unless set to `false`) and can be used end to end:
-
-- Accounts are saved **in your own browser** (`src/demo/demoAccounts.ts`). Passwords and PINs are stored only as salted hashes.
-- Your progress through registration is remembered. Log out, log back in, and you continue where you left off; once registered, log-in asks for your PIN and then opens the dashboard.
-- A wrong email/password or wrong PIN is refused. Any verification code of the right length is accepted, and nothing is sent anywhere.
-
-To start over, clear the site data in your browser (or remove the `feenicks1-demo-*` keys from localStorage).
-
-⚠️ Set `NEXT_PUBLIC_DEMO_MODE=false` and delete `src/demo` once the real API is connected. Every `…Service.ts` file marks the real call to add with `TODO(api)`.
-
-## Git workflow
-
-- `main` is always deployable. Build new work on a branch, e.g. `feature/dashboard` or `fix/login-error`.
-- Write clear commit messages: a short summary line, then what changed and why.
-- Open a pull request into `main`. `npm run lint` and `npm run build` must pass.
-
-## Roadmap
-
-- [x] Project setup, brand theme, SEO foundations
-- [x] Splash screen
-- [x] Onboarding
-- [x] Sign up and log in
-- [x] Forgot password flow
-- [ ] Backend and authentication (API, secure sessions)
-- [x] Identity verification (KYC): ID document, selfie, profile
-- [x] Security PIN and two-factor method choice
-- [x] Resume registration on log-in; PIN unlock for returning users
-- [ ] Two-factor setup screens (SMS code, fingerprint, authenticator app)
-- [ ] Investment plan selection
-- [ ] Deposits and withdrawals
-- [ ] Portfolio dashboard (placeholder in place) (placeholder in place)
-- [ ] Transaction history
-- [ ] Settings, including the dark mode toggle
-- [ ] Admin panel for managing users and investments
-
 ---
 
 <div align="center">
 
-© Feenicks1 Solutions Ltd. All rights reserved. This is proprietary software; do not copy or distribute without permission.
+Built by [@caleboss20](https://github.com/caleboss20)
 
-</div>## Demo mode
-
-The backend isn't built yet, so the app runs in **demo mode** (`NEXT_PUBLIC_DEMO_MODE`, on unless set to `false`) and can be used end to end:
-
-- Accounts are saved **in your own browser** (`src/demo/demoAccounts.ts`). Passwords and PINs are stored only as salted hashes.
-- Your progress through registration is remembered. Log out, log back in, and you continue where you left off; once registered, log-in asks for your PIN and then opens the dashboard.
-- A wrong email/password or wrong PIN is refused. Any verification code of the right length is accepted, and nothing is sent anywhere.
-
-To start over, clear the site data in your browser (or remove the `feenicks1-demo-*` keys from localStorage).
-
-⚠️ Set `NEXT_PUBLIC_DEMO_MODE=false` and delete `src/demo` once the real API is connected. Every `…Service.ts` file marks the real call to add with `TODO(api)`.
-
-## Git workflow
-
-- `main` is always deployable. Build new work on a branch, e.g. `feature/dashboard` or `fix/login-error`.
-- Write clear commit messages: a short summary line, then what changed and why.
-- Open a pull request into `main`. `npm run lint` and `npm run build` must pass.
-
-## Roadmap
-
-- [x] Project setup, brand theme, SEO foundations
-- [x] Splash screen
-- [x] Onboarding
-- [x] Sign up and log in
-- [x] Forgot password flow
-- [ ] Backend and authentication (API, secure sessions)
-- [ ] Identity verification (KYC): ID card, selfie, proof of address
-- [ ] Profile setup and security PIN
-- [ ] Investment plan selection
-- [ ] Deposits and withdrawals
-- [ ] Portfolio dashboard
-- [ ] Transaction history
-- [ ] Settings, including the dark mode toggle
-- [ ] Admin panel for managing users and investments
-
----
-
-<div align="center">
-
-© Feenicks1 Solutions Ltd. All rights reserved. This is proprietary software; do not copy or distribute without permission.
+© Feenicks1 Solutions Ltd. All rights reserved. Proprietary software; do not copy or distribute without permission.
 
 </div>
