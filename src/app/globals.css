@@ -468,3 +468,121 @@ body {
     letter-spacing: -0.01em;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Splash: the phoenix rising (components/brand/PhoenixMark, animated).
+   About 2 seconds, then it rests:
+     0.00s  the gold body rises from its point, like a flame      (phoenix-body)
+     0.55s  the head sparks: pops in with a flash                  (phoenix-head)
+     0.80s  the wings unfold from the body, feather by feather,
+            top → middle → low, 0.12s apart                         (phoenix-feather)
+     1.45s  a gold glow pulses and the bird lifts a little         (phoenix-glow, phoenix-lift)
+   Users with "reduce motion" see the finished mark straight away.
+   --------------------------------------------------------------------------- */
+.phoenix-feather,
+.phoenix-body,
+.phoenix-head {
+  /* Rotate and scale each part around its own box, not the whole SVG. */
+  transform-box: fill-box;
+}
+/* Feathers hinge at their base, beside the body (the right wing is mirrored,
+   so the same corner is correct for both). */
+.phoenix-feather {
+  transform-origin: 100% 100%;
+}
+.phoenix-body {
+  transform-origin: 50% 100%;
+}
+.phoenix-head {
+  transform-origin: 50% 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .phoenix-rise .phoenix-body {
+    animation: phoenix-body 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .phoenix-rise .phoenix-head {
+    animation: phoenix-head 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s both;
+  }
+  .phoenix-rise .phoenix-feather {
+    animation: phoenix-feather 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .phoenix-rise .phoenix-feather-1 {
+    animation-delay: 0.8s;
+  }
+  .phoenix-rise .phoenix-feather-2 {
+    animation-delay: 0.92s;
+  }
+  .phoenix-rise .phoenix-feather-3 {
+    animation-delay: 1.04s;
+  }
+  .phoenix-rise {
+    animation: phoenix-glow 1.4s ease-out 1.45s both;
+  }
+  .phoenix-rise .phoenix-lift {
+    animation: phoenix-lift 1.2s cubic-bezier(0.22, 1, 0.36, 1) 1.45s both;
+  }
+}
+
+/* The body rises from its point: revealed bottom-up while it stretches. */
+@keyframes phoenix-body {
+  from {
+    clip-path: inset(100% 0 0 0);
+    transform: scaleY(0.6);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: scaleY(1);
+  }
+}
+
+/* The head sparks: from nothing to a little too big, then settles. */
+@keyframes phoenix-head {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* A feather unfolds from against the body: rotated in, small, then open. */
+@keyframes phoenix-feather {
+  from {
+    opacity: 0;
+    transform: rotate(38deg) scale(0.35);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+
+/* A gold glow around the finished bird that swells and fades to a soft halo. */
+@keyframes phoenix-glow {
+  from {
+    filter: drop-shadow(0 0 0 rgb(201 162 39 / 0));
+  }
+  35% {
+    filter: drop-shadow(0 0 22px rgb(201 162 39 / 0.55));
+  }
+  to {
+    filter: drop-shadow(0 0 8px rgb(201 162 39 / 0.18));
+  }
+}
+
+/* The ascent: the bird rises a few units and stays there. */
+@keyframes phoenix-lift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
+  }
+}

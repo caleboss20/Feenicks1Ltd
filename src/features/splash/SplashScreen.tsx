@@ -1,4 +1,5 @@
-import { LogoMark, LogoWordmark } from "@/components/brand/Logo";
+import { LogoWordmark } from "@/components/brand/Logo";
+import { PhoenixMark } from "@/components/brand/PhoenixMark";
 import { siteConfig } from "@/config/site";
 import { SplashLoader } from "./SplashLoader";
 import { SplashRedirect } from "./SplashRedirect";
@@ -21,24 +22,13 @@ import { SplashRedirect } from "./SplashRedirect";
  *   └──────────────────┘
  *
  * Animation timeline (all CSS, defined in globals.css):
- *   0.00s  symbol wipes in diagonally, following the F1 swoosh (logo-reveal)
- *   0.70s  wordmark rises in from a soft blur                   (soft-rise)
- *   1.00s  light sheen sweeps across the symbol once            (logo-sheen)
- *   1.20s  loader fades in                                      (fade-up)
+ *   0.00s  the phoenix rises: body like a flame, the head sparks, the wings
+ *          unfold feather by feather, then a gold glow and a small lift
+ *          (PhoenixMark, "Splash: the phoenix rising")
+ *   1.60s  wordmark rises in from a soft blur                   (soft-rise)
+ *   2.00s  loader fades in                                      (fade-up)
  * Every animation is disabled for users with "reduce motion" turned on.
  */
-
-/** Same file as <LogoMark>, used as a mask so the sheen only lights the logo's shape. */
-const SHEEN_MASK = {
-  maskImage: "url(/brand/logo-mark.png)",
-  WebkitMaskImage: "url(/brand/logo-mark.png)",
-  maskSize: "contain",
-  WebkitMaskSize: "contain",
-  maskRepeat: "no-repeat",
-  WebkitMaskRepeat: "no-repeat",
-  maskPosition: "center",
-  WebkitMaskPosition: "center",
-} as const;
 
 export function SplashScreen() {
   return (
@@ -46,29 +36,19 @@ export function SplashScreen() {
     <main className="flex min-h-dvh flex-col items-center overflow-hidden bg-brand-800 px-6 text-white">
       {/* ── Brand: symbol + wordmark ──────────────────────────────────────── */}
       <div className="flex flex-1 flex-col items-center justify-center gap-4 py-12 sm:gap-5">
-        {/* Symbol + sheen overlay share one wrapper, so the reveal applies to both. */}
-        <div className="relative animate-logo-reveal motion-reduce:animate-none">
-          {/* Sized deliberately modest (64 to 80px): calm and premium, not overpowering. */}
-          <LogoMark tone="gold" decorative className="h-16 sm:h-[4.5rem] lg:h-20" />
-
-          {/* Sheen: a mint light band, clipped to the logo's shape by the
-              mask, slides across once after the reveal. */}
-          <span
-            aria-hidden
-            className="absolute inset-0 animate-logo-sheen bg-[linear-gradient(115deg,transparent_35%,var(--color-gold-100)_50%,transparent_65%)] bg-size-[250%_100%] [animation-delay:1s] motion-reduce:hidden"
-            style={SHEEN_MASK}
-          />
-        </div>
+        {/* The phoenix (new mark, October 2026), larger than the old F1 symbol
+            so the animation reads. Decorative: the <h1> below names the app. */}
+        <PhoenixMark animated label={null} className="size-32 sm:size-36 lg:size-40" />
 
         {/* The <h1> is the page's main heading for SEO; its text comes from
             the image alt ("Feenicks1"). */}
-        <h1 className="animate-soft-rise [animation-delay:700ms] motion-reduce:animate-none">
+        <h1 className="animate-soft-rise [animation-delay:1.6s] motion-reduce:animate-none">
           <LogoWordmark tone="gold" className="h-6 sm:h-7 lg:h-8" />
         </h1>
       </div>
 
       {/* ── Loader: sits above the iPhone home indicator via safe-area inset ── */}
-      <div className="animate-fade-up pb-[max(3.5rem,env(safe-area-inset-bottom))] [animation-delay:1.2s] motion-reduce:animate-none">
+      <div className="animate-fade-up pb-[max(3.5rem,env(safe-area-inset-bottom))] [animation-delay:2s] motion-reduce:animate-none">
         <SplashLoader />
       </div>
 

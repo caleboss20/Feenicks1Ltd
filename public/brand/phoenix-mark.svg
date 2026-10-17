@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Feenicks1">
+  <!--
+    Feenicks1 "Phoenix Ascent" mark, drawn for the app (October 2026).
+    Built from separate parts so the splash screen can animate each one:
+      #wing-left / #wing-right  three feathers each (#f1 top, #f2 middle, #f3 low)
+      #body                     the gold flame-shaped body
+      #head                     the small gold diamond on top
+    Colours: beige wings (#EFE6CF), gold body (#C9A227), for the forest green
+    (#0E3B2C) background used across the app. The right wing is the left
+    wing mirrored, so the mark is perfectly symmetrical.
+  -->
+  <defs>
+    <g id="wing">
+      <!-- Three broad, flame-like feathers that overlap at the base, so the
+           wing reads as one solid shape with three points. -->
+      <!-- Top feather: tall, curving up and out. -->
+      <path class="f1" d="M97 120 C70 98 60 60 63 16 C78 40 93 62 99 86 Z" />
+      <!-- Middle feather. -->
+      <path class="f2" d="M97 126 C62 114 36 82 22 40 C50 56 80 72 99 92 Z" />
+      <!-- Low feather: the widest reach. -->
+      <path class="f3" d="M97 132 C58 136 28 120 8 92 C38 98 72 100 99 100 Z" />
+    </g>
+  </defs>
+  <g id="wing-left" fill="#EFE6CF"><use href="#wing" /></g>
+  <g id="wing-right" fill="#EFE6CF" transform="translate(200 0) scale(-1 1)"><use href="#wing" /></g>
+  <path id="body" fill="#C9A227" d="M100 50 L111 82 L104.5 138 L100 182 L95.5 138 L89 82 Z" />
+  <path id="head" fill="#C9A227" d="M100 30 L105.5 39 L100 48 L94.5 39 Z" />
+</svg>
