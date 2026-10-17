@@ -28,7 +28,7 @@
  * Both actions mark onboarding as seen (useAppStore), as before.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LogoWordmark } from "@/components/brand/Logo";
@@ -58,11 +58,33 @@ const PHOTO_MS = 5000;
 export function OnboardingScreen() {
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const [photo, setPhoto] = useState(0);
+  // The stacked photos, to check whether the next one has fully downloaded.
+  const photosRef = useRef<HTMLDivElement>(null);
 
-  // Next photo every few seconds (not with reduced motion).
+  // Next photo every few seconds (not with reduced motion), but only once it
+  // has fully downloaded: a large photo on a slow connection would otherwise
+  // fade in half-drawn (black at the bottom). Still downloading: the current
+  // photo stays until the next tick. Failed to download: it is skipped.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setInterval(() => setPhoto((index) => (index + 1) % PHOTOS.length), PHOTO_MS);
+    // Asks the <img> itself: reliable even for photos that finished before
+    // the page became interactive.
+    const status = (index: number): "ready" | "loading" | "failed" => {
+      const image = photosRef.current?.children[index]?.querySelector("img");
+      if (!image || !image.complete) return "loading";
+      return image.naturalWidth > 0 ? "ready" : "failed";
+    };
+    const timer = window.setInterval(() => {
+      setPhoto((index) => {
+        for (let step = 1; step < PHOTOS.length; step++) {
+          const next = (index + step) % PHOTOS.length;
+          const state = status(next);
+          if (state === "ready") return next;
+          if (state === "loading") return index; // wait for it
+        }
+        return index; // nothing else can be shown
+      });
+    }, PHOTO_MS);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -72,7 +94,7 @@ export function OnboardingScreen() {
 
       {/* All photos stacked; only the current one is visible, fading in slowly
           while it drifts a little closer. */}
-      <div aria-hidden className="absolute inset-0 -z-20">
+      <div ref={photosRef} aria-hidden className="absolute inset-0 -z-20">
         {PHOTOS.map((item, index) => (
           <div
             key={item.src}
@@ -89,6 +111,10 @@ export function OnboardingScreen() {
                 alt=""
                 fill
                 priority={index === 0}
+                // Every slide downloads straight away (not when it's due), so
+                // each is ready long before its turn; the first comes first.
+                loading="eager"
+                fetchPriority={index === 0 ? "high" : "low"}
                 // On a tall phone a full-screen photo is drawn about as wide
                 // as the screen is tall, so ask for that width (not 100vw),
                 // at high quality: otherwise it is stretched and looks blurry.
