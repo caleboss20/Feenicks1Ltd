@@ -29,8 +29,12 @@ import { ROUTES } from "@/config/routes";
  * the bottom of the screen. No shadows (brand rule).
  */
 
+/** Public pages only (no sign-in needed), so every link works for visitors. */
 const NAV_LINKS = [
   { label: "Portfolios & fees", href: `${ROUTES.legal}/fees` },
+  { label: "Risks", href: `${ROUTES.legal}/risk` },
+  { label: "Privacy", href: `${ROUTES.legal}/privacy` },
+  { label: "Complaints", href: `${ROUTES.legal}/complaints` },
   { label: "Legal", href: ROUTES.legal },
 ];
 
