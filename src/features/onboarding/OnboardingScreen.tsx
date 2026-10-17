@@ -43,7 +43,7 @@ import { useAppStore } from "@/stores/useAppStore";
  * `zoom` (optional): enlarges the photo from its bottom edge, lifting a face
  * that sits mid-photo up and clear of the headline.
  */
-const PHOTOS = [
+export const PHOTOS = [
   { src: "/onboarding/individual.jpg", alt: "A young woman in orange smiling at her phone", focus: "50% 25%", headline: ["Start.", "Small.", "Today."] }, // 19863396
   // Supplied by the team (October 2026); confirm its licence before launch.
   { src: "/onboarding/phone-smile.jpg", alt: "A young woman smiling at her phone", focus: "50% 30%", headline: ["Invest.", "Daily.", "Thrive."] },
@@ -54,6 +54,14 @@ const PHOTOS = [
   { src: "/onboarding/real-estate.jpg", alt: "A young couple carrying boxes into their new home", focus: "50% 30%", dim: true, headline: ["Fund.", "Homes.", "Profit."] }, // 4971255
 ];
 const PHOTO_MS = 5000;
+
+/**
+ * The dark shade over the photos. Shared with the splash's slide-up sheet
+ * (SplashRedirect), which shows the first photo with this shade so the
+ * welcome screen is already "there" when the sheet arrives.
+ */
+export const WELCOME_SHADE =
+  "bg-[linear-gradient(to_bottom,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.3)_14%,rgba(0,0,0,0.35)_45%,rgba(0,0,0,0.55)_75%,rgba(0,0,0,0.65)_100%)]";
 
 export function OnboardingScreen() {
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
@@ -135,7 +143,7 @@ export function OnboardingScreen() {
           bottom (headline and buttons). */}
       <span
         aria-hidden
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.3)_14%,rgba(0,0,0,0.35)_45%,rgba(0,0,0,0.55)_75%,rgba(0,0,0,0.65)_100%)]"
+        className={`absolute inset-0 -z-10 ${WELCOME_SHADE}`}
       />
 
       <header className="flex justify-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
