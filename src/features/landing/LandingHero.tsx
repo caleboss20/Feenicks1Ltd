@@ -50,9 +50,9 @@ const SLIDES = [
     subtitle: "Small amounts, invested well, become something bigger. Start with GH₵ 140.",
   },
   {
-    video: "/landing/hero-smile.mp4", // Pexels 7884810
-    headline: ["Grow your money,", "one cedi at a time."],
-    subtitle: "At Feenicks1, we believe every cedi can become something more: a home, an education, a future.",
+    video: "/landing/hero-sprout.mp4", // Pexels 7213898
+    headline: ["Plant today.", "Harvest tomorrow."],
+    subtitle: "Every cedi you invest is a seed. Give it time, and watch what it becomes.",
   },
   {
     video: "/landing/hero-family.mp4", // Pexels 5135876
