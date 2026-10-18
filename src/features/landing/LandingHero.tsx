@@ -50,7 +50,7 @@ const SLIDES = [
     subtitle: "Small amounts, invested well, become something bigger. Start with GH₵ 140.",
   },
   {
-    video: "/landing/hero-work.mp4", // Pexels 9365386
+    video: "/landing/hero-smile.mp4", // Pexels 7884810
     headline: ["Grow your money,", "one cedi at a time."],
     subtitle: "At Feenicks1, we believe every cedi can become something more: a home, an education, a future.",
   },
@@ -116,8 +116,15 @@ export function LandingHero() {
         return;
       }
       video.currentTime = 0;
-      video.play().catch(() => {
+      const moveOnLater = () => {
         fallback = window.setTimeout(() => setSlide((current) => (current + 1) % SLIDES.length), FALLBACK_MS);
+      };
+      // A start can be interrupted (e.g. by a second call while the slide
+      // changes); then try once more before giving up.
+      video.play().catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          window.setTimeout(() => void video.play().catch(moveOnLater), 250);
+        } else moveOnLater();
       });
     });
     return () => window.clearTimeout(fallback);
