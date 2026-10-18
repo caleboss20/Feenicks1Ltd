@@ -50,14 +50,14 @@ const SLIDES = [
     subtitle: "Small amounts, invested well, become something bigger. Start with GH₵ 140.",
   },
   {
-    video: "/landing/hero-sprout.mp4", // Pexels 7213898
-    headline: ["Plant today.", "Harvest tomorrow."],
-    subtitle: "Every cedi you invest is a seed. Give it time, and watch what it becomes.",
-  },
-  {
     video: "/landing/hero-family.mp4", // Pexels 5135876
     headline: ["Secure their future,", "starting today."],
     subtitle: "Put a little aside each month and build something your family can count on.",
+  },
+  {
+    video: "/landing/hero-sprout.mp4", // Pexels 7213898
+    headline: ["Plant today.", "Harvest tomorrow."],
+    subtitle: "Every cedi you invest is a seed. Give it time, and watch what it becomes.",
   },
 ];
 
