@@ -55,9 +55,9 @@ const SLIDES = [
     subtitle: "Put a little aside each month and build something your family can count on.",
   },
   {
-    video: "/landing/hero-sprout.mp4", // Pexels 7213898
-    headline: ["Plant today.", "Harvest tomorrow."],
-    subtitle: "Every cedi you invest is a seed. Give it time, and watch what it becomes.",
+    video: "/landing/hero-gold.mp4", // Pexels 9965968
+    headline: ["Build wealth", "that lasts."],
+    subtitle: "Patient, steady investing turns today's cedis into tomorrow's security.",
   },
 ];
 
