@@ -20,7 +20,8 @@
  *
  * Each slide's video plays to its end, then the next slide fades in (and
  * after the last, the first). The arrows and dots move at any time. Only the
- * visible slide's video plays. If a video can't play, the slide still moves
+ * visible slide's video plays. The keyboard's ← and → keys change slides from
+ * anywhere on the page (no need to click it first). If a video can't play, the slide still moves
  * on after FALLBACK_MS. Reduce motion: no autoplay, no fades; the arrows still
  * work. Videos: Pexels (free licence), 1080p, in public/landing/.
  */
@@ -83,6 +84,19 @@ export function LandingHero() {
   const videos = useRef<(HTMLVideoElement | null)[]>([]);
 
   const go = (index: number) => setSlide((index + SLIDES.length) % SLIDES.length);
+
+  // ← and → change slides from anywhere on the page, unless someone is typing.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable='true']")) return;
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.key === "ArrowLeft") setSlide((current) => (current - 1 + SLIDES.length) % SLIDES.length);
+      if (event.key === "ArrowRight") setSlide((current) => (current + 1) % SLIDES.length);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // Only the visible slide's video plays, from the start (saves data and
   // battery). When it ends, onEnded moves on. If it can't play at all, the
