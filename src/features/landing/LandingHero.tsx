@@ -149,16 +149,16 @@ export function LandingHero() {
           the white text always reads. */}
       <div aria-hidden className="absolute inset-0 -z-10 bg-black/50" />
 
-      {/* Announcement banner, as on Bamboo and Acorns: blue, so it stands
-          apart from the green and gold. ✕ hides it for this visit. */}
+      {/* Announcement banner, as on Bamboo and Acorns: deep forest green, so it
+          frames the page; the gold pill stands out. ✕ hides it for this visit. */}
       {showBanner && (
-        <div className="relative flex h-12 shrink-0 items-center justify-center bg-[#2346d8] text-white">
+        <div className="relative flex h-12 shrink-0 items-center justify-center bg-brand-900 text-white">
           <Link
             href={ROUTES.signUp}
             className="flex items-center gap-3 text-[0.9375rem] font-semibold transition-opacity hover:opacity-90"
           >
             Start investing from GH₵ 140 with Mobile Money.
-            <span className="inline-flex items-center gap-1 rounded-full bg-white py-1 pr-2 pl-3 text-xs text-[#2346d8]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-gold-500 py-1 pr-2 pl-3 text-xs text-brand-900">
               Get started
               <ArrowRight className="size-3.5" />
             </span>
